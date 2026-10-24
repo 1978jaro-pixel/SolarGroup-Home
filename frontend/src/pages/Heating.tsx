@@ -496,7 +496,7 @@ function SettingsPanel({ h, s, reload }: { h: HeatingCtl; s: HeatingState; reloa
       <button type="button" className="btn btn--ghost" onClick={reload}>
         Načítať uložené harmonogramy
       </button>
-      <IntegrationNote name="Buderus Logamatic" text="Presný model regulátora a spôsob komunikácie sa potvrdia neskôr. V režime LIVE sa programy budú čítať a zapisovať priamo do regulátora; do pripojenia sa zobrazí stav Nedostupné." />
+      <IntegrationNote name="Buderus Logamatic RC300" text="Regulátor RC300 je pripojený ku kotlu Logamax plus GB172-24 T50 cez zbernicu EMS/EMS+. Zostáva hlavným regulátorom a programy sú uložené v ňom. Brána BBQKees EMS Gateway E32 V2 sa ešte overuje; do pripojenia sa v režime LIVE zobrazí stav Nedostupné." />
     </div>
   );
 }
@@ -574,7 +574,7 @@ export function HeatingPage() {
   const r = h.data?.[0];
   return (
     <>
-      <PageHeader title="Kúrenie" subtitle="Programovateľný termostat · príprava na Buderus" badge={<StatusBadge reading={r ?? null} />} />
+      <PageHeader title="Kúrenie" subtitle="Programovateľný termostat · Buderus RC300 (EMS/EMS+)" badge={<StatusBadge reading={r ?? null} />} />
       {h.error && !h.data ? <EmptyState icon="offline" title="OFFLINE" text={h.error.message} tone="danger" /> : <Card className="card--detail"><HeatingDetail h={h} /></Card>}
     </>
   );
