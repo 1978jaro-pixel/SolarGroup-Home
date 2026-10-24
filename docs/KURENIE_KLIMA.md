@@ -19,6 +19,22 @@ v hookoch `useHeating` / `useClimate` a v module `utils/schedule.ts`.
 
 ## Kúrenie – programovateľný termostat (inšpirované Buderus Logamatic)
 
+### Inštalácia
+
+| | |
+|---|---|
+| Kotol | Buderus Logamax plus GB172-24 T50 |
+| Regulátor | Buderus Logamatic **RC300** (zostáva funkčný ako hlavný regulátor) |
+| Pripojenie regulátora | dvojžilové vedenie, zbernica **EMS/EMS+** |
+| Brána KM200 | nie je k dispozícii |
+| Plánovaná brána | BBQKees EMS Gateway E32 V2 KIT (Ethernet/Wi-Fi) – **kompatibilita sa ešte overí** |
+
+Dashboard je zatiaľ iba v režime **DEMO** (simulácia, žiadne LIVE údaje). Po overení brány:
+najprv iba čítanie z RC300, potom zápis s overením spätným čítaním. Kým je RC300 pripojený,
+týždenné programy sú uložené v ňom – dashboard ich bude čítať a zapisovať, nespúšťa vlastný
+paralelný program. Odstránenie alebo premiestnenie RC300 sa bude riešiť až po overení
+kompatibility a otestovaní regulácie. Funkcie, ktoré RC300 cez bránu nepodporuje, sa v LIVE skryjú.
+
 ### Prevádzkové režimy
 
 | Režim | Správanie |
@@ -99,7 +115,7 @@ Na Windows sa databáza časových pásiem dodáva balíkom `tzdata`.
 
 - **DEMO:** všetko funkčné v simulácii, nastavenia (režimy, teploty, programy, dovolenka, stav
   klimatizácie, časovače) sa ukladajú do SQLite (`device_state`) a prežijú reštart.
-- **LIVE:** adaptéry `adapters/buderus.py` a `adapters/sinclair.py` sú pripravené, ale zatiaľ sa
-  nepripájajú – stav je **Nedostupné**, príkazy vrátia HTTP 503 a nič sa nezobrazí ako vykonané.
+- **LIVE:** adaptéry `adapters/buderus.py` (RC300 cez EMS/EMS+, brána sa overuje) a
+  `adapters/sinclair.py` sú pripravené, ale zatiaľ sa nepripájajú – stav je **Nedostupné**, príkazy vrátia HTTP 503 a nič sa nezobrazí ako vykonané.
   Pri budúcej integrácii adaptér vráti iba stav potvrdený zariadením (spätným čítaním) a pri výpadku
   OFFLINE s časom poslednej úspešnej aktualizácie.

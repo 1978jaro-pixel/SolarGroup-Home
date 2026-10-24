@@ -1,7 +1,18 @@
 """Integračný adaptér Buderus (LIVE) – zatiaľ bez pripojenia na skutočné zariadenie.
 
-Presný model regulátora a spôsob komunikácie sa ešte potvrdia
-(napr. brána KM200 / MX300 s lokálnym šifrovaným HTTP API alebo EMS zbernica).
+Inštalácia:
+
+* kotol Buderus Logamax plus GB172-24 T50,
+* regulátor Buderus Logamatic RC300, pripojený dvojžilovým vedením cez zbernicu EMS/EMS+,
+* brána KM200 nie je k dispozícii,
+* plánovaná brána BBQKees EMS Gateway E32 V2 KIT (Ethernet/Wi-Fi) – kompatibilita s touto
+  inštaláciou sa ešte overí.
+
+RC300 zostáva hlavným regulátorom a musí zostať funkčný. Kým je pripojený, týždenné programy
+sú uložené v RC300 a adaptér ich bude iba čítať a zapisovať – nespúšťa vlastný paralelný program.
+Postup po overení brány: najprv iba čítanie, potom zápis s overením spätným čítaním.
+Podporované funkcie (režimy, počet prepínacích časov, programy) sa overia na skutočnom RC300.
+
 Plánovaná implementácia:
 
 * ``state``        – načíta stav okruhu (aktuálna a požadovaná teplota, režim, aktívny program),
