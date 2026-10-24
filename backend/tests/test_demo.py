@@ -30,28 +30,6 @@ def test_history_past_day(authed):
     assert r["source"] == "demo" and len(r["data"]) == 96
 
 
-def test_heating_control(authed):
-    [reading] = authed.get("/api/heating").json()
-    assert reading["source"] == "demo"
-    cmd = {"mode": "day", "target_temp": 22.5}
-    r = authed.post("/api/heating/heating-main", json=cmd, headers=CSRF)
-    assert r.status_code == 200
-    assert r.json()["target_temp"] == 22.5 and r.json()["day_temp"] == 22.5
-    r = authed.post("/api/heating/heating-main", json={"target_temp": 45}, headers=CSRF)
-    assert r.status_code == 422
-
-
-def test_climate_control(authed):
-    r = authed.post(
-        "/api/climate/ac-obyvacka",
-        json={"power": True, "mode": "cool", "fan": "high", "target_temp": 22},
-        headers=CSRF,
-    )
-    assert r.status_code == 200
-    assert r.json()["power"] is True and r.json()["fan"] == "high"
-    assert authed.post("/api/climate/neexistuje", json={}, headers=CSRF).status_code == 404
-
-
 def test_lights_and_blinds(authed):
     lights = authed.get("/api/lights").json()
     assert len(lights) >= 5

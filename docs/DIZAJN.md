@@ -41,6 +41,24 @@ dom s fotovoltikou, rolety, pôdorys (svetlá), kamera Tapo, videovrátnik a ilu
 | Kúrenie: iba Deň/Noc | Deň/Noc na karte; Auto a Vyp. na detailnej stránke; pri Auto sa zvýrazní aktívny program | zachovanie funkcií |
 | Pri iných stavoch počasia | farebné ikony v štýle predpovede (fotorealistická ilustrácia je k dispozícii iba pre polojasno) | návrh obsahuje iba jeden motív |
 
+## V1.1 – Klíma a Kúrenie
+
+Podľa predlohy [`schvaleny-navrh-v1-1-klima-kurenie.webp`](design/schvaleny-navrh-v1-1-klima-kurenie.webp):
+jednotný kruhový regulátor (dizajn č. 8), rad dlaždíc režimov, detailné okná s týždenným programom
+kúrenia a nastaveniami klimatizácie. Popis funkcií: [KURENIE_KLIMA.md](KURENIE_KLIMA.md).
+
+Karty Klíma a Kúrenie sú vyššie, preto sa pravý blok hlavnej obrazovky usporiadal do troch stĺpcov
+presne ako na predlohe V1.1 (Klíma–Svetlá–Rádio, Kúrenie–Kamery–Kalendár, Rolety–Vrátnik–Spotreba).
+Obsah ostatných kariet sa nemenil.
+
+| Predloha V1.1 | Implementácia | Dôvod |
+|---|---|---|
+| Karta a okno Kúrenie ukazujú režimy klimatizácie (Chladenie, Ventilátor, Dry) | režimy kúrenia: Auto, Manuál, Dočasná, ECO, Dovolenka | kotol Buderus nechladí – nezobrazujeme nepodporované funkcie; režimy podľa zadania V1.1 |
+| Deň / Noc na karte Kúrenie | Deň / Noc = dočasne komfortná / útlmová teplota do ďalšieho prepínacieho času | zodpovedá správaniu regulátora Buderus |
+| Riadok úseku: čas, teplota, prepínač | navyše výber času (24 h) a tlačidlo odstránenia | úsek musí byť možné upraviť |
+| Kopírovať deň / Po–Pi / So–Ne | navyše „Celý týždeň“ | požiadavka „nastavenie celého týždňa“ |
+| Prepínač zapnutia klímy | v hlavičke karty aj v okne | rovnaké ako na predlohe karty |
+
 ## Kde sa vzhľad upravuje
 
 - `frontend/src/styles/tokens.css` – farby, zaoblenia, písmo

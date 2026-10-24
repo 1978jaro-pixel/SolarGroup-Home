@@ -20,12 +20,14 @@ from ..models import (
     EnergySample,
     EnergySnapshot,
     HeatingCommand,
+    HeatingSchedule,
     HeatingState,
     LightCommand,
     LightState,
     Reading,
     Source,
     Weather,
+    WeeklyProgram,
 )
 
 
@@ -70,13 +72,24 @@ class EnergyAdapter(ABC):
 
 
 class HeatingAdapter(ABC):
+    """Vykurovací okruh. Jeden adaptér obsluhuje ľubovoľný počet okruhov (``device``)."""
+
     name = "Kúrenie"
 
     @abstractmethod
     async def state(self, device: dict) -> Reading[HeatingState]: ...
 
     @abstractmethod
-    async def command(self, device: dict, cmd: HeatingCommand) -> HeatingState: ...
+    async def command(self, device: dict, cmd: HeatingCommand) -> HeatingState:
+        """Vráti stav POTVRDENÝ zariadením; pri neúspechu vyhodí AdapterUnavailable."""
+
+    @abstractmethod
+    async def schedule(self, device: dict) -> Reading[HeatingSchedule]: ...
+
+    @abstractmethod
+    async def set_schedule(
+        self, device: dict, program: int, weekly: WeeklyProgram
+    ) -> HeatingSchedule: ...
 
 
 class ClimateAdapter(ABC):
@@ -86,7 +99,8 @@ class ClimateAdapter(ABC):
     async def state(self, device: dict) -> Reading[ClimateState]: ...
 
     @abstractmethod
-    async def command(self, device: dict, cmd: ClimateCommand) -> ClimateState: ...
+    async def command(self, device: dict, cmd: ClimateCommand) -> ClimateState:
+        """Vráti stav POTVRDENÝ zariadením; pri neúspechu vyhodí AdapterUnavailable."""
 
 
 class LightAdapter(ABC):

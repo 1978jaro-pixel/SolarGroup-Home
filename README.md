@@ -39,6 +39,7 @@ počítača – `localhost`). Predvolený režim je **DEMO**.
 - [docs/RASPBERRY_PI.md](docs/RASPBERRY_PI.md) – budúce bezpečné nasadenie na Raspberry Pi 4/5
 - [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md) – architektúra, dátový model, API, bezpečnosť
 - [docs/INTEGRACIE.md](docs/INTEGRACIE.md) – adaptéry zariadení a ako pridať novú integráciu
+- [docs/KURENIE_KLIMA.md](docs/KURENIE_KLIMA.md) – kúrenie Buderus (týždenné programy) a klimatizácia Sinclair
 - [docs/DIZAJN.md](docs/DIZAJN.md) – grafický návrh: rozloženie podľa schváleného návrhu a zámerné odchýlky
 
 ## Štruktúra

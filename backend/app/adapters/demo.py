@@ -8,7 +8,10 @@ import math
 import random
 from dataclasses import dataclass, field
 from datetime import date, datetime, time, timedelta
+from zoneinfo import ZoneInfo
 
+from .. import climate_logic, heating_logic
+from ..db import Database
 from ..models import (
     BlindState,
     CameraInfo,
@@ -17,12 +20,16 @@ from ..models import (
     EnergySample,
     EnergySnapshot,
     HeatingCommand,
+    HeatingSchedule,
     HeatingState,
+    Holiday,
     LightCommand,
     LightState,
     Weather,
     WeatherDay,
+    WeeklyProgram,
 )
+from ..timeutil import now_in
 from .base import (
     AdapterSet,
     BlindAdapter,
@@ -176,113 +183,143 @@ class DemoEnergy(EnergyAdapter):
 
 
 class DemoHeating(HeatingAdapter):
-    def __init__(self) -> None:
-        self._state: dict[str, dict] = {}
+    """Simulácia vykurovacieho okruhu s týždenným programom.
+
+    Nastavenia (režim, teploty, programy, dovolenka) sa ukladajú do SQLite, takže prežijú reštart.
+    """
+
+    def __init__(self, store: Database, tz: ZoneInfo) -> None:
+        self.store = store
+        self.tz = tz
+        self._room: dict[str, float] = {}
         self._last: dict[str, float] = {}
 
-    def _get(self, device: dict) -> dict:
-        return self._state.setdefault(
-            device["id"],
-            {"mode": "auto", "day_temp": 21.5, "night_temp": 19.0, "current": 20.4},
-        )
+    def _settings(self, device: dict) -> dict:
+        s = self.store.load_state(device["id"])
+        if s is None:
+            s = heating_logic.default_settings()
+            self.store.save_state(device["id"], s)
+        return s
 
-    @staticmethod
-    def _target(st: dict) -> float:
-        if st["mode"] == "off":
-            return 5.0
-        if st["mode"] == "night":
-            return st["night_temp"]
-        if st["mode"] == "day":
-            return st["day_temp"]
-        h = local_now().hour
-        return st["day_temp"] if 6 <= h < 22 else st["night_temp"]
-
-    def _tick(self, device: dict) -> HeatingState:
-        st = self._get(device)
-        now = local_now().timestamp()
-        dt = now - self._last.get(device["id"], now)
-        self._last[device["id"]] = now
-        target = self._target(st)
-        goal = max(target, 17.0)
-        st["current"] += (goal - st["current"]) * (1 - math.exp(-dt / 900))
+    def _build(self, device: dict, s: dict, now: datetime) -> HeatingState:
+        ev = heating_logic.evaluate(s, now)
+        target = ev["target_temp"]
+        ts = now.timestamp()
+        dt = ts - self._last.get(device["id"], ts)
+        self._last[device["id"]] = ts
+        cur = self._room.get(device["id"], target - 1.0)
+        cur += (target - cur) * (1 - math.exp(-dt / 1200))
+        self._room[device["id"]] = cur
+        heating = cur < target - 0.2
         return HeatingState(
             device_id=device["id"],
             name=device["name"],
-            current_temp=round(st["current"], 1),
+            circuit=device["config"].get("circuit", 1),
+            current_temp=round(cur, 1),
             target_temp=target,
-            mode=st["mode"],
-            day_temp=st["day_temp"],
-            night_temp=st["night_temp"],
-            heating_active=st["mode"] != "off" and st["current"] < target - 0.2,
-            water_temp=52.0 if st["mode"] != "off" else 30.0,
+            mode=s["mode"],
+            active_level=ev["active_level"],
+            comfort_temp=s["comfort_temp"],
+            eco_temp=s["eco_temp"],
+            manual_temp=s["manual_temp"],
+            temporary_until=ev["temporary_until"],
+            holiday=Holiday.model_validate(s["holiday"]) if s.get("holiday") else None,
+            holiday_active=ev["holiday_active"],
+            active_program=s["active_program"],
+            next_switch=ev["next_switch"],
+            heating_active=heating,
+            water_temp=45.0 if heating else 31.0,
         )
 
     async def state(self, device):
-        return ok("demo", self._tick(device))
+        now = now_in(self.tz)
+        s = self._settings(device)
+        if heating_logic.normalize(s, now):
+            self.store.save_state(device["id"], s)
+        return ok("demo", self._build(device, s, now))
 
     async def command(self, device, cmd: HeatingCommand):
-        st = self._get(device)
-        if cmd.mode is not None:
-            st["mode"] = cmd.mode
-        if cmd.day_temp is not None:
-            st["day_temp"] = cmd.day_temp
-        if cmd.night_temp is not None:
-            st["night_temp"] = cmd.night_temp
-        if cmd.target_temp is not None:
-            # Cieľová teplota sa zapíše do práve aktívneho (denného/nočného) programu.
-            mode = st["mode"]
-            if mode == "off":
-                st["mode"] = mode = "day"
-            if mode == "night" or (mode == "auto" and self._target(st) == st["night_temp"]):
-                st["night_temp"] = cmd.target_temp
-            else:
-                st["day_temp"] = cmd.target_temp
-        return self._tick(device)
+        now = now_in(self.tz)
+        s = self._settings(device)
+        heating_logic.normalize(s, now)
+        s = heating_logic.apply_command(s, cmd, now)
+        self.store.save_state(device["id"], s)
+        return self._build(device, s, now)
+
+    def _schedule(self, device: dict, s: dict) -> HeatingSchedule:
+        return HeatingSchedule(
+            device_id=device["id"],
+            active_program=s["active_program"],
+            programs={k: WeeklyProgram.model_validate(v) for k, v in s["programs"].items()},
+            timezone=str(self.tz),
+        )
+
+    async def schedule(self, device):
+        return ok("demo", self._schedule(device, self._settings(device)))
+
+    async def set_schedule(self, device, program: int, weekly: WeeklyProgram):
+        s = heating_logic.set_program(self._settings(device), program, weekly)
+        self.store.save_state(device["id"], s)
+        return self._schedule(device, s)
 
 
 class DemoClimate(ClimateAdapter):
-    def __init__(self) -> None:
-        self._state: dict[str, dict] = {}
+    """Simulácia klimatizácie Sinclair. Stav sa ukladá do SQLite."""
+
+    def __init__(self, store: Database, tz: ZoneInfo) -> None:
+        self.store = store
+        self.tz = tz
+        self._room: dict[str, float] = {}
         self._last: dict[str, float] = {}
 
-    def _get(self, device: dict) -> dict:
-        return self._state.setdefault(
-            device["id"],
-            {"power": False, "mode": "cool", "fan": "auto", "target": 24.0, "current": 25.6},
-        )
+    def _state(self, device: dict, caps) -> dict:
+        s = self.store.load_state(device["id"])
+        if s is None:
+            s = climate_logic.default_state(caps)
+            self.store.save_state(device["id"], s)
+        return s
 
-    def _tick(self, device: dict) -> ClimateState:
-        st = self._get(device)
-        now = local_now().timestamp()
-        dt = now - self._last.get(device["id"], now)
-        self._last[device["id"]] = now
-        goal = st["target"] if st["power"] and st["mode"] in ("cool", "heat", "auto") else 25.6
-        st["current"] += (goal - st["current"]) * (1 - math.exp(-dt / 600))
+    def _build(self, device: dict, s: dict, caps, now: datetime) -> ClimateState:
+        ts = now.timestamp()
+        dt = ts - self._last.get(device["id"], ts)
+        self._last[device["id"]] = ts
+        active = s["power"] and s["mode"] in ("cool", "heat", "auto")
+        goal = s["target"] if active else 25.6
+        cur = self._room.get(device["id"], 25.6)
+        cur += (goal - cur) * (1 - math.exp(-dt / 900))
+        self._room[device["id"]] = cur
         return ClimateState(
             device_id=device["id"],
             name=device["name"],
             room=device.get("room_name"),
-            power=st["power"],
-            mode=st["mode"],
-            fan=st["fan"],
-            target_temp=st["target"],
-            current_temp=round(st["current"], 1),
+            power=s["power"],
+            mode=s["mode"],
+            fan=s["fan"],
+            swing=s.get("swing") if caps.swing_positions else None,
+            quiet=bool(s.get("quiet")) and caps.quiet,
+            eco=bool(s.get("eco")) and caps.eco,
+            target_temp=s["target"],
+            current_temp=round(cur, 1),
+            timer_on_at=s.get("timer_on_at"),
+            timer_off_at=s.get("timer_off_at"),
+            capabilities=caps,
         )
 
     async def state(self, device):
-        return ok("demo", self._tick(device))
+        now = now_in(self.tz)
+        caps = climate_logic.capabilities_of(device)
+        s = self._state(device, caps)
+        if climate_logic.run_timers(s, now):
+            self.store.save_state(device["id"], s)
+        return ok("demo", self._build(device, s, caps, now))
 
     async def command(self, device, cmd: ClimateCommand):
-        st = self._get(device)
-        if cmd.power is not None:
-            st["power"] = cmd.power
-        if cmd.mode is not None:
-            st["mode"] = cmd.mode
-        if cmd.fan is not None:
-            st["fan"] = cmd.fan
-        if cmd.target_temp is not None:
-            st["target"] = cmd.target_temp
-        return self._tick(device)
+        now = now_in(self.tz)
+        caps = climate_logic.capabilities_of(device)
+        climate_logic.validate_command(cmd, caps)
+        s = climate_logic.apply_command(self._state(device, caps), cmd, now)
+        self.store.save_state(device["id"], s)
+        return self._build(device, s, caps, now)
 
 
 class DemoLights(LightAdapter):
@@ -385,12 +422,12 @@ class DemoWeather(WeatherAdapter):
         )
 
 
-def build_demo() -> AdapterSet:
+def build_demo(store: Database, tz: ZoneInfo) -> AdapterSet:
     return AdapterSet(
         source="demo",
         energy=DemoEnergy(),
-        heating=DemoHeating(),
-        climate=DemoClimate(),
+        heating=DemoHeating(store, tz),
+        climate=DemoClimate(store, tz),
         lights=DemoLights(),
         blinds=DemoBlinds(),
         cameras=DemoCameras(),

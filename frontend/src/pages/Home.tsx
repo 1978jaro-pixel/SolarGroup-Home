@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useId, useState } from "react";
 import { Link } from "react-router-dom";
 import blindsImg from "../assets/design/blinds.webp";
 import cameraImg from "../assets/design/camera.webp";
@@ -7,7 +7,6 @@ import floorImg from "../assets/design/floor.webp";
 import type { CameraInfo, EnergySample, Reading } from "../api/types";
 import { Icon } from "../components/Icon";
 import { SolarScene } from "../components/SolarScene";
-import { ThermostatDial } from "../components/ThermostatDial";
 import { WeatherArt, WeatherHero } from "../components/WeatherArt";
 import { Card, EmptyState, ReadingView, StatusBadge, Toggle } from "../components/ui";
 import { useApp } from "../hooks/AppContext";
@@ -15,8 +14,8 @@ import { useResource } from "../hooks/useResource";
 import { dateParts, formatKwh, plural, weatherInfo, weekdayName } from "../utils/format";
 import { meninyFor } from "../utils/meniny";
 import { useBlindGroup, useBlinds } from "./Blinds";
-import { useClimate } from "./Climate";
-import { useHeating } from "./Heating";
+import { ClimateCard, ClimateModal, useClimate } from "./Climate";
+import { HeatingCard, HeatingModal, useHeating } from "./Heating";
 import { useLights } from "./Lights";
 import { useWeather } from "./Weather";
 
@@ -67,87 +66,6 @@ function SolarCard() {
           <Icon name="offline" size={16} /> {energy.message ?? "Údaje nie sú k dispozícii"}
         </p>
       )}
-    </Card>
-  );
-}
-
-function ClimateCard() {
-  const c = useClimate();
-  const r = c.data?.[0];
-  const s = r?.data;
-  return (
-    <Card
-      title="Klíma"
-      icon="thermo"
-      to="/klimatizacia"
-      badge={badge(r ?? null)}
-      actions={s && <Toggle label="Zapnúť alebo vypnúť klimatizáciu" checked={s.power} onChange={(power) => void c.send(s.device_id, { power })} />}
-    >
-      <ReadingView reading={r} error={c.error} loading={c.loading}>
-        {(s) => (
-          <div className="mini-dial">
-            <ThermostatDial
-              value={s.target_temp}
-              min={16}
-              max={31}
-              size={200}
-              variant="cool"
-              label="Nastavená teplota klimatizácie"
-              disabled={!s.power}
-              caption={s.power ? "Požadovaná" : "Vypnutá"}
-              onCommit={(v) => void c.send(s.device_id, { target_temp: v })}
-            />
-          </div>
-        )}
-      </ReadingView>
-    </Card>
-  );
-}
-
-function HeatingCard() {
-  const h = useHeating();
-  const r = h.data?.[0];
-  return (
-    <Card title="Kúrenie" icon="heat" to="/kurenie" badge={badge(r ?? null)}>
-      <ReadingView reading={r} error={h.error} loading={h.loading}>
-        {(s) => {
-          // V režime Auto zvýrazníme práve aktívny program (deň/noc).
-          const period = s.mode === "auto" ? (s.target_temp === s.night_temp && s.night_temp !== s.day_temp ? "night" : "day") : s.mode;
-          return (
-            <div className="mini-dial">
-              <ThermostatDial
-                value={s.target_temp}
-                current={s.current_temp}
-                size={165}
-                variant="heat"
-                label="Nastavená teplota kúrenia"
-                disabled={s.mode === "off"}
-                caption={s.mode === "off" ? "Vypnuté" : s.mode === "auto" ? "Požadovaná · Auto" : "Požadovaná"}
-                onCommit={(v) => void h.send(s.device_id, { target_temp: v })}
-              />
-              <div className="daynight" role="radiogroup" aria-label="Program kúrenia">
-                {(
-                  [
-                    ["day", "Deň", "sun"],
-                    ["night", "Noc", "moon"],
-                  ] as const
-                ).map(([value, label, icon]) => (
-                  <button
-                    key={value}
-                    type="button"
-                    role="radio"
-                    aria-checked={period === value}
-                    className={period === value ? "is-active" : ""}
-                    onClick={() => void h.send(s.device_id, { mode: value })}
-                  >
-                    <Icon name={icon} size={20} filled={icon === "moon"} /> {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          );
-        }}
-      </ReadingView>
     </Card>
   );
 }
@@ -360,6 +278,10 @@ function ConsumptionCard() {
 }
 
 export function HomePage() {
+  // Jedna inštancia stavu pre kartu aj detailné okno – zmeny sa prejavia v oboch.
+  const climate = useClimate();
+  const heating = useHeating();
+  const [open, setOpen] = useState<"climate" | "heating" | null>(null);
   return (
     <div className="home">
       <div className="home__left">
@@ -367,22 +289,24 @@ export function HomePage() {
         <SolarCard />
       </div>
       <div className="home__right">
-        <div className="home__row home__row--a">
-          <ClimateCard />
-          <HeatingCard />
-          <BlindsCard />
-        </div>
-        <div className="home__row home__row--b">
+        <div className="home__col home__col--a">
+          <ClimateCard c={climate} onOpen={() => setOpen("climate")} />
           <LightsCard />
-          <CamerasCard />
-          <IntercomCard />
-        </div>
-        <div className="home__row home__row--c">
           <MusicCard />
+        </div>
+        <div className="home__col home__col--b">
+          <HeatingCard h={heating} onOpen={() => setOpen("heating")} />
+          <CamerasCard />
           <CalendarCard />
+        </div>
+        <div className="home__col home__col--c">
+          <BlindsCard />
+          <IntercomCard />
           <ConsumptionCard />
         </div>
       </div>
+      {open === "climate" && <ClimateModal c={climate} onClose={() => setOpen(null)} />}
+      {open === "heating" && <HeatingModal h={heating} onClose={() => setOpen(null)} />}
       {/* Upozornenie, keď server prestane odpovedať */}
       <EmptyStateFallback />
     </div>

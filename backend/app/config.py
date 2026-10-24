@@ -36,6 +36,9 @@ class Settings(BaseSettings):
 
     stale_after_seconds: int = 120
 
+    # Časové pásmo domácnosti – týždenné programy a časovače (vrátane letného/zimného času)
+    timezone: str = "Europe/Bratislava"
+
     solargroup_url: str | None = None
     solargroup_token: SecretStr | None = None
 

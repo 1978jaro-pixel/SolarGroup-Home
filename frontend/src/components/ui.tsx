@@ -8,6 +8,7 @@ export function Card({
   title,
   icon,
   to,
+  onOpen,
   expand = false,
   badge,
   actions,
@@ -19,6 +20,8 @@ export function Card({
   icon?: IconName;
   /** Odkaz na detail modulu – v hlavičke sa zobrazí ponuka ⋮ (alebo ikona zväčšenia). */
   to?: string;
+  /** Otvorí detailné okno – ponuka ⋮ a klik na voľnú plochu karty. */
+  onOpen?: () => void;
   expand?: boolean;
   badge?: ReactNode;
   actions?: ReactNode;
@@ -27,7 +30,16 @@ export function Card({
   accent?: "blue" | "teal" | "warm";
 }) {
   return (
-    <section className={`card ${accent ? `card--${accent}` : ""} ${className}`}>
+    <section
+      className={`card ${accent ? `card--${accent}` : ""} ${onOpen ? "card--openable" : ""} ${className}`}
+      onClick={
+        onOpen &&
+        ((e) => {
+          // ovládacie prvky v karte fungujú samostatne
+          if (!(e.target as HTMLElement).closest("button, a, input, select, label, [role=slider], [role=switch]")) onOpen();
+        })
+      }
+    >
       {title && (
         <header className="card__head">
           {icon && (
@@ -38,6 +50,11 @@ export function Card({
           <h2 className="card__title">{title}</h2>
           <span className="card__badge">{badge}</span>
           {actions}
+          {onOpen && (
+            <button type="button" className="card__more" aria-label={`Otvoriť detail – ${title}`} onClick={onOpen}>
+              <Icon name="kebab" size={20} />
+            </button>
+          )}
           {to && (
             <Link to={to} className="card__more" aria-label={`Otvoriť ${title}`}>
               <Icon name={expand ? "expand" : "kebab"} size={expand ? 22 : 20} />

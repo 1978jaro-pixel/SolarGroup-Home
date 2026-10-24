@@ -33,21 +33,79 @@ export interface EnergySample {
   battery_soc: number;
 }
 
-export type HeatingMode = "auto" | "day" | "night" | "off";
+export type HeatingMode = "auto" | "manual" | "temporary" | "eco" | "holiday";
+export type HeatingLevel = "comfort" | "eco";
+export const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
+export type DayKey = (typeof DAYS)[number];
+export const MAX_SWITCH_POINTS = 6;
+
+export interface SwitchPoint {
+  time: string;
+  level: HeatingLevel;
+  enabled: boolean;
+}
+export type WeeklyProgram = Record<DayKey, SwitchPoint[]>;
+
+export interface HeatingSchedule {
+  device_id: string;
+  active_program: 1 | 2;
+  programs: Record<"1" | "2", WeeklyProgram>;
+  timezone: string;
+}
+
+export interface Holiday {
+  start: string;
+  end: string;
+  temp: number;
+}
+
 export interface HeatingState {
   device_id: string;
   name: string;
+  circuit: number;
   current_temp: number | null;
   target_temp: number;
   mode: HeatingMode;
-  day_temp: number;
-  night_temp: number;
+  active_level: HeatingLevel | null;
+  comfort_temp: number;
+  eco_temp: number;
+  manual_temp: number;
+  temporary_until: string | null;
+  holiday: Holiday | null;
+  holiday_active: boolean;
+  active_program: 1 | 2;
+  next_switch: { at: string; level: HeatingLevel; temp: number } | null;
   heating_active: boolean;
   water_temp: number | null;
+  min_temp: number;
+  max_temp: number;
 }
 
-export type ClimateMode = "auto" | "cool" | "heat" | "dry" | "fan";
-export type FanSpeed = "auto" | "low" | "medium" | "high";
+export interface HeatingCommand {
+  mode?: HeatingMode;
+  target_temp?: number;
+  comfort_temp?: number;
+  eco_temp?: number;
+  active_program?: 1 | 2;
+  holiday?: Holiday;
+}
+
+export type ClimateMode = "auto" | "cool" | "heat" | "fan" | "dry";
+export type FanSpeed = "auto" | "1" | "2" | "3" | "4" | "5";
+export type SwingPosition = FanSpeed;
+
+export interface ClimateCapabilities {
+  modes: ClimateMode[];
+  fan_speeds: number;
+  swing_positions: number;
+  quiet: boolean;
+  eco: boolean;
+  timer: boolean;
+  min_temp: number;
+  max_temp: number;
+  temp_step: number;
+}
+
 export interface ClimateState {
   device_id: string;
   name: string;
@@ -55,8 +113,27 @@ export interface ClimateState {
   power: boolean;
   mode: ClimateMode;
   fan: FanSpeed;
+  swing: SwingPosition | null;
+  quiet: boolean;
+  eco: boolean;
   target_temp: number;
   current_temp: number | null;
+  timer_on_at: string | null;
+  timer_off_at: string | null;
+  capabilities: ClimateCapabilities;
+}
+
+export interface ClimateCommand {
+  power?: boolean;
+  mode?: ClimateMode;
+  fan?: FanSpeed;
+  swing?: SwingPosition;
+  quiet?: boolean;
+  eco?: boolean;
+  target_temp?: number;
+  /** "HH:MM" = najbližší taký čas, "" = zrušiť */
+  timer_on?: string;
+  timer_off?: string;
 }
 
 export interface LightState {

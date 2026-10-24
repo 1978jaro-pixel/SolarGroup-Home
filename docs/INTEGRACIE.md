@@ -6,8 +6,8 @@ z `adapters/base.py`. Aplikácia o hardvéri nevie nič iné.
 | Modul | Rozhranie | DEMO | LIVE (stav) |
 |---|---|---|---|
 | Fotovoltika | `EnergyAdapter` | simulácia dňa (FV 9,8 kWp, batéria 10 kWh, EV 7,4 kW) | `SolarGroupEnergy` – pripravený HTTP klient, **čaká na overenie API** |
-| Kúrenie | `HeatingAdapter` | simulácia termostatu | `BuderusHeating` – kostra, *Nedostupné* |
-| Klimatizácia | `ClimateAdapter` | simulácia | `SinclairClimate` – kostra, *Nedostupné* |
+| Kúrenie | `HeatingAdapter` | programovateľný termostat (2 týždenné programy, režimy, dovolenka), ukladá sa do SQLite | `BuderusHeating` (`adapters/buderus.py`) – pripravený, *Nedostupné* |
+| Klimatizácia | `ClimateAdapter` | simulácia všetkých funkcií podľa `capabilities`, ukladá sa do SQLite | `SinclairClimate` (`adapters/sinclair.py`) – pripravený, *Nedostupné* |
 | Svetlá | `LightAdapter` | simulácia | kostra, *Nedostupné* |
 | Žalúzie | `BlindAdapter` | simulácia | kostra, *Nedostupné* |
 | Kamery | `CameraAdapter` | iba info o kamere, **bez falošného obrazu** | `TapoCameras` – kostra |
@@ -27,6 +27,8 @@ Znamienka: `battery_kw > 0` = nabíjanie, `grid_kw > 0` = odber zo siete.
 **Tieto cesty sú návrh.** Skutočné API dashboardu sme zatiaľ nevideli – po jeho dodaní sa upraví iba
 `SNAPSHOT_PATH`, `HISTORY_PATH` a funkcia `map_snapshot` v `adapters/live.py`. Pri chybe spojenia
 adaptér vráti OFFLINE s časom poslednej úspešnej aktualizácie.
+
+Podrobnosti ku kúreniu a klimatizácii: [KURENIE_KLIMA.md](KURENIE_KLIMA.md).
 
 ## Ako pridať novú integráciu
 

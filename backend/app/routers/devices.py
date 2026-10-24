@@ -14,8 +14,6 @@ from ..events import EventBus
 from ..models import (
     BlindCommand,
     BlindGroupCommand,
-    ClimateCommand,
-    HeatingCommand,
     LightCommand,
     Reading,
     UserOut,
@@ -53,65 +51,6 @@ async def energy_history(
     request: Request, day: date | None = None, a: AdapterSet = Depends(get_adapters)
 ) -> Reading:
     return finalize(request, await a.energy.history(day or local_now().date()))
-
-
-# --- Kúrenie --------------------------------------------------------------------
-
-
-@router.get("/heating")
-async def heating_list(
-    request: Request, db: Database = Depends(get_db), a: AdapterSet = Depends(get_adapters)
-) -> list[Reading]:
-    return await _all(request, [a.heating.state(d) for d in db.devices("heating")])
-
-
-@router.post("/heating/{device_id}")
-async def heating_command(
-    device_id: str,
-    cmd: HeatingCommand,
-    request: Request,
-    db: Database = Depends(get_db),
-    a: AdapterSet = Depends(get_adapters),
-    bus: EventBus = Depends(get_bus),
-    user: UserOut = Depends(require_user),
-):
-    device = device_or_404(db, device_id, "heating")
-    try:
-        state = await a.heating.command(device, cmd)
-    except AdapterUnavailable as exc:
-        raise _unavailable(exc) from exc
-    db.audit(user.username, "heating", device_id, cmd.model_dump(exclude_none=True))
-    bus.publish("heating", state.model_dump(mode="json"))
-    return state
-
-
-# --- Klimatizácia -----------------------------------------------------------------
-
-
-@router.get("/climate")
-async def climate_list(
-    request: Request, db: Database = Depends(get_db), a: AdapterSet = Depends(get_adapters)
-) -> list[Reading]:
-    return await _all(request, [a.climate.state(d) for d in db.devices("climate")])
-
-
-@router.post("/climate/{device_id}")
-async def climate_command(
-    device_id: str,
-    cmd: ClimateCommand,
-    db: Database = Depends(get_db),
-    a: AdapterSet = Depends(get_adapters),
-    bus: EventBus = Depends(get_bus),
-    user: UserOut = Depends(require_user),
-):
-    device = device_or_404(db, device_id, "climate")
-    try:
-        state = await a.climate.command(device, cmd)
-    except AdapterUnavailable as exc:
-        raise _unavailable(exc) from exc
-    db.audit(user.username, "climate", device_id, cmd.model_dump(exclude_none=True))
-    bus.publish("climate", state.model_dump(mode="json"))
-    return state
 
 
 # --- Svetlá -----------------------------------------------------------------------

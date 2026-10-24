@@ -6,7 +6,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL);
@@ -51,6 +51,13 @@ CREATE TABLE IF NOT EXISTS settings (
     value TEXT NOT NULL
 );
 
+-- Uložený stav / nastavenia zariadenia (napr. týždenné programy kúrenia, DEMO stav klimatizácie)
+CREATE TABLE IF NOT EXISTS device_state (
+    device_id TEXT PRIMARY KEY REFERENCES devices(id) ON DELETE CASCADE,
+    state TEXT NOT NULL,
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE TABLE IF NOT EXISTS audit_log (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     ts TEXT NOT NULL DEFAULT (datetime('now')),
@@ -72,9 +79,29 @@ DEFAULT_ROOMS = [
     ("chodba", "Chodba", 6),
 ]
 
+# Okruh kúrenia – pripravené na viac vykurovacích okruhov (heating-2, heating-3 …)
+HEATING_CONFIG = {"circuit": 1, "circuit_name": "Vykurovací okruh 1"}
+
+# Schopnosti klimatizácie sú konfigurovateľné – po overení skutočnej jednotky Sinclair
+# sa nepodporované funkcie vypnú (napr. "swing_positions": 0, "quiet": false).
+AC_CONFIG = {
+    "model": "Sinclair",
+    "capabilities": {
+        "modes": ["auto", "cool", "heat", "fan", "dry"],
+        "fan_speeds": 5,
+        "swing_positions": 5,
+        "quiet": True,
+        "eco": True,
+        "timer": True,
+        "min_temp": 16,
+        "max_temp": 30,
+        "temp_step": 0.5,
+    },
+}
+
 DEFAULT_DEVICES: list[tuple[str, str | None, str, str, str, dict]] = [
-    ("heating-main", None, "heating", "Kúrenie", "buderus", {}),
-    ("ac-obyvacka", "obyvacka", "climate", "Klimatizácia obývačka", "sinclair", {}),
+    ("heating-main", None, "heating", "Kúrenie", "buderus", HEATING_CONFIG),
+    ("ac-obyvacka", "obyvacka", "climate", "Klimatizácia obývačka", "sinclair", AC_CONFIG),
     ("light-obyvacka", "obyvacka", "light", "Strop", "generic", {"dimmable": True}),
     ("light-obyvacka-led", "obyvacka", "light", "LED pás", "generic", {"dimmable": True}),
     ("light-kuchyna", "kuchyna", "light", "Strop", "generic", {"dimmable": False}),
@@ -120,6 +147,8 @@ class Database:
             if row is None:
                 conn.execute("INSERT INTO schema_version (version) VALUES (?)", (SCHEMA_VERSION,))
                 self._seed(conn)
+            elif row["version"] < 2:
+                self._migrate_v2(conn)
 
     @staticmethod
     def _seed(conn: sqlite3.Connection) -> None:
@@ -132,6 +161,35 @@ class Database:
                 for i, d in enumerate(DEFAULT_DEVICES)
             ],
         )
+
+    @staticmethod
+    def _migrate_v2(conn: sqlite3.Connection) -> None:
+        """v1 → v2: konfigurácia okruhu kúrenia a schopností klimatizácie (iba ak je prázdna)."""
+        for device_id, config in (("heating-main", HEATING_CONFIG), ("ac-obyvacka", AC_CONFIG)):
+            conn.execute(
+                "UPDATE devices SET config = ? WHERE id = ? AND config = '{}'",
+                (json.dumps(config), device_id),
+            )
+        conn.execute("UPDATE schema_version SET version = 2")
+
+    # --- Uložený stav zariadení ------------------------------------------
+
+    def load_state(self, device_id: str) -> dict | None:
+        with self.connect() as conn:
+            row = conn.execute(
+                "SELECT state FROM device_state WHERE device_id = ?", (device_id,)
+            ).fetchone()
+        return json.loads(row["state"]) if row else None
+
+    def save_state(self, device_id: str, state: dict) -> None:
+        with self.connect() as conn:
+            conn.execute(
+                "INSERT INTO device_state (device_id, state, updated_at) "
+                "VALUES (?, ?, datetime('now')) "
+                "ON CONFLICT(device_id) DO UPDATE SET state = excluded.state, "
+                "updated_at = excluded.updated_at",
+                (device_id, json.dumps(state, ensure_ascii=False)),
+            )
 
     # --- Pomocné dotazy -------------------------------------------------
 

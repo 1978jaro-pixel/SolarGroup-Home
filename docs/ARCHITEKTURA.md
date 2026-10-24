@@ -44,8 +44,9 @@ Ovládacie príkazy v LIVE režime bez adaptéra vrátia HTTP 503 a rozhranie zo
 | GET | `/api/auth/status` | stav prihlásenia / potreba vytvoriť účet |
 | POST | `/api/auth/setup`, `/login`, `/logout` | účet a relácia |
 | GET | `/api/energy/snapshot`, `/api/energy/history?day=` | fotovoltika |
-| GET/POST | `/api/heating`, `/api/heating/{id}` | kúrenie (`target_temp`, `mode`, `day_temp`, `night_temp`) |
-| GET/POST | `/api/climate`, `/api/climate/{id}` | klimatizácia (`power`, `mode`, `fan`, `target_temp`) |
+| GET/POST | `/api/heating`, `/api/heating/{id}` | kúrenie – režimy, teploty, program, dovolenka ([detail](KURENIE_KLIMA.md)) |
+| GET/PUT | `/api/heating/{id}/schedule`, `/api/heating/{id}/schedule/{1\|2}` | týždenné programy |
+| GET/POST | `/api/climate`, `/api/climate/{id}` | klimatizácia – režim, ventilátor, lamely, tichý/ECO, časovač |
 | GET/POST | `/api/lights`, `/api/lights/{id}` | svetlá (`on`, `brightness`) |
 | GET/POST | `/api/blinds`, `/api/blinds/{id}`, `/api/blinds/group` | žalúzie (`position` 0–100) |
 | GET | `/api/cameras`, `/api/intercom`, `/api/weather`, `/api/system`, `/api/rooms` | ostatné |
@@ -61,7 +62,10 @@ V DEMO režime je interaktívna dokumentácia na `/api/docs`.
 - `devices` – zariadenie: typ (`heating|climate|light|blind|camera|intercom`), miestnosť, adaptér,
   `config` (iba neutajené parametre, napr. model)
 - `settings` – kľúč/hodnota pre budúce nastavenia z UI
+- `device_state` – uložený stav/nastavenia zariadenia (programy kúrenia, DEMO stav klimatizácie)
 - `audit_log` – kto, kedy a čo ovládal (aj neúspešné prihlásenia)
+
+Schéma má verziu (`schema_version`); pri štarte sa staršia databáza automaticky zmigruje.
 
 ## Bezpečnosť
 

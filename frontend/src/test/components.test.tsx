@@ -1,11 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { ThermostatDial } from "../components/ThermostatDial";
+import { Thermostat } from "../components/Thermostat";
 import { StatusBadge } from "../components/ui";
 
-describe("ThermostatDial", () => {
+describe("Thermostat", () => {
   it("mení teplotu klávesnicou a tlačidlami a hlási ju cez onCommit", () => {
     const onCommit = vi.fn();
-    render(<ThermostatDial value={21} current={20.4} label="Teplota" onCommit={onCommit} />);
+    render(<Thermostat value={21} current={20.4} min={5} max={28} accent="heat" label="Teplota" onCommit={onCommit} />);
     const slider = screen.getByRole("slider", { name: "Teplota" });
     expect(slider).toHaveAttribute("aria-valuenow", "21");
     fireEvent.keyDown(slider, { key: "ArrowUp" });
@@ -16,7 +16,7 @@ describe("ThermostatDial", () => {
 
   it("nedovolí prekročiť rozsah", () => {
     const onCommit = vi.fn();
-    render(<ThermostatDial value={30} min={5} max={30} label="Teplota" onCommit={onCommit} />);
+    render(<Thermostat value={30} min={5} max={30} accent="cool" label="Teplota" onCommit={onCommit} />);
     fireEvent.keyDown(screen.getByRole("slider"), { key: "ArrowUp" });
     expect(onCommit).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "Zvýšiť teplotu" })).toBeDisabled();
@@ -24,7 +24,7 @@ describe("ThermostatDial", () => {
 
   it("v zakázanom stave nereaguje", () => {
     const onCommit = vi.fn();
-    render(<ThermostatDial value={21} label="Teplota" disabled onCommit={onCommit} />);
+    render(<Thermostat value={21} min={5} max={28} accent="off" label="Teplota" disabled onCommit={onCommit} />);
     fireEvent.keyDown(screen.getByRole("slider"), { key: "ArrowUp" });
     expect(onCommit).not.toHaveBeenCalled();
   });

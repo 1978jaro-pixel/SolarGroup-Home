@@ -1,19 +1,42 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { App } from "../App";
 import { AppProvider } from "../hooks/AppContext";
+
+const HEAT = {
+  device_id: "heating-main",
+  name: "Kúrenie",
+  circuit: 1,
+  current_temp: 20,
+  target_temp: 21,
+  mode: "auto",
+  active_level: "comfort",
+  comfort_temp: 21,
+  eco_temp: 19,
+  manual_temp: 21,
+  temporary_until: null,
+  holiday: null,
+  holiday_active: false,
+  active_program: 1,
+  next_switch: null,
+  heating_active: true,
+  water_temp: 50,
+  min_temp: 5,
+  max_temp: 28,
+};
 
 const json = (body: unknown, status = 200) =>
   Promise.resolve(new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } }));
 
 function mockApi(routes: Record<string, unknown>) {
-  vi.stubGlobal(
-    "fetch",
-    vi.fn((input: RequestInfo | URL) => {
-      const path = String(input).split("?")[0];
-      return path in routes ? json(routes[path]) : json({ detail: "x" }, 404);
-    }),
-  );
+  const fn = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+    const path = String(input).split("?")[0];
+    const key = init?.method && init.method !== "GET" ? `${init.method} ${path}` : path;
+    if (key in routes) return json(routes[key]);
+    return path in routes ? json(routes[path]) : json({ detail: "x" }, 404);
+  });
+  vi.stubGlobal("fetch", fn);
+  return fn;
 }
 
 class FakeWS {
@@ -52,7 +75,7 @@ describe("App", () => {
         today_pv_kwh: 10, today_house_kwh: 5, today_grid_import_kwh: 1, today_grid_export_kwh: 3, self_sufficiency: 80,
       }),
       "/api/energy/history": ok([]),
-      "/api/heating": [ok({ device_id: "h", name: "Kúrenie", current_temp: 20, target_temp: 21, mode: "auto", day_temp: 21, night_temp: 19, heating_active: true, water_temp: 50 })],
+      "/api/heating": [ok(HEAT)],
       "/api/climate": [],
       "/api/lights": [],
       "/api/blinds": [],
@@ -70,7 +93,7 @@ describe("App", () => {
     // DEMO je jasne označené v hlavičke aj v spodnej lište
     expect(screen.getByText("simulované údaje", { exact: false })).toBeInTheDocument();
     expect(screen.getAllByText("DEMO").length).toBeGreaterThan(0);
-    expect(await screen.findByRole("slider", { name: "Nastavená teplota kúrenia" })).toHaveAttribute("aria-valuenow", "21");
+    expect(await screen.findByRole("slider", { name: "Požadovaná teplota kúrenia" })).toHaveAttribute("aria-valuenow", "21");
     // Hodnoty fotovoltiky z API (nie z obrázka návrhu)
     expect(await screen.findByText("Výroba")).toBeInTheDocument();
     expect(screen.getByText("50%")).toBeInTheDocument();
@@ -104,10 +127,56 @@ describe("App", () => {
     expect(screen.queryByText("DEMO")).not.toBeInTheDocument();
     expect(screen.getByText("LIVE")).toBeInTheDocument();
     expect((await screen.findAllByText(/OFFLINE/)).length).toBeGreaterThan(0);
-    expect(screen.queryByRole("slider", { name: "Nastavená teplota kúrenia" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("slider", { name: "Požadovaná teplota kúrenia" })).not.toBeInTheDocument();
     // Fotovoltika bez údajov: iba pomlčky, žiadne čísla z obrázka návrhu
     expect(screen.queryByText(/15[,.]8/)).not.toBeInTheDocument();
     expect(screen.getAllByText("–").length).toBeGreaterThanOrEqual(5);
     expect(screen.getByText("Bez merania")).toBeInTheDocument();
+  });
+
+  it("okno Kúrenie: úprava týždenného programu a uloženie", async () => {
+    const ok = (data: unknown) => ({ status: "ok", source: "demo", updated_at: new Date().toISOString(), message: null, data });
+    const day = [
+      { time: "06:00", level: "comfort", enabled: true },
+      { time: "22:00", level: "eco", enabled: true },
+    ];
+    const week = { mon: day, tue: day, wed: day, thu: day, fri: day, sat: day, sun: day };
+    const schedule = { device_id: "heating-main", active_program: 1, programs: { "1": week, "2": week }, timezone: "Europe/Bratislava" };
+    const fetchMock = mockApi({
+      "/api/health": { status: "ok", mode: "demo" },
+      "/api/auth/status": { setup_required: false, setup_allowed_here: true, user: { username: "jaro", role: "admin" } },
+      "/api/energy/snapshot": ok(null),
+      "/api/energy/history": ok([]),
+      "/api/heating": [ok(HEAT)],
+      "/api/heating/heating-main/schedule": ok(schedule),
+      "PUT /api/heating/heating-main/schedule/1": schedule,
+      "/api/climate": [],
+      "/api/lights": [],
+      "/api/blinds": [],
+      "/api/cameras": [],
+      "/api/weather": ok(null),
+    });
+    render(
+      <MemoryRouter>
+        <AppProvider>
+          <App />
+        </AppProvider>
+      </MemoryRouter>,
+    );
+    fireEvent.click(await screen.findByRole("button", { name: "Otvoriť detail – Kúrenie" }));
+    const dialog = await screen.findByRole("dialog", { name: "Kúrenie" });
+    expect(within(dialog).getByRole("tab", { name: "Týždenný program" })).toHaveAttribute("aria-selected", "true");
+    const save = await within(dialog).findByRole("button", { name: "Uložiť" });
+    expect(save).toBeDisabled();
+    // úsek 22:00 prepnúť na komfort a uložiť
+    fireEvent.click(within(dialog).getByRole("switch", { name: "Úsek 22:00: komfortná teplota" }));
+    expect(within(dialog).getByText("Neuložené zmeny")).toBeInTheDocument();
+    fireEvent.click(save);
+    await waitFor(() => expect(fetchMock.mock.calls.some(([, init]) => init?.method === "PUT")).toBe(true));
+    const [, init] = fetchMock.mock.calls.find(([, i]) => i?.method === "PUT")!;
+    const body = JSON.parse(String(init!.body));
+    const today = Object.keys(body).find((d) => body[d][1].level === "comfort");
+    expect(today).toBeDefined();
+    expect(body[today!][1]).toEqual({ time: "22:00", level: "comfort", enabled: true });
   });
 });

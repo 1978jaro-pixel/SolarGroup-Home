@@ -15,6 +15,8 @@ export function useDevices<T extends WithId>(path: string, intervalMs = 10000) {
   const { deviceTick } = useApp();
   const [busy, setBusy] = useState<string | null>(null);
   const [cmdError, setCmdError] = useState<string | null>(null);
+  // Zvýši sa pri neúspešnom príkaze – ovládacie prvky sa vrátia na potvrdený stav.
+  const [failures, setFailures] = useState(0);
   const { refresh, setData } = res;
 
   useEffect(() => {
@@ -44,13 +46,15 @@ export function useDevices<T extends WithId>(path: string, intervalMs = 10000) {
         return true;
       } catch (e) {
         setCmdError(e instanceof ApiError ? e.message : "Príkaz sa nepodarilo odoslať");
+        setFailures((f) => f + 1);
+        void refresh();
         return false;
       } finally {
         setBusy(null);
       }
     },
-    [path, apply],
+    [path, apply, refresh],
   );
 
-  return { ...res, send, busy, cmdError, clearError: () => setCmdError(null) };
+  return { ...res, send, busy, cmdError, failures, clearError: () => setCmdError(null) };
 }

@@ -14,10 +14,8 @@ import httpx
 from pydantic import SecretStr, ValidationError
 
 from ..models import (
-    ClimateCommand,
     EnergySample,
     EnergySnapshot,
-    HeatingCommand,
     LightCommand,
     Weather,
     WeatherDay,
@@ -27,9 +25,7 @@ from .base import (
     AdapterUnavailable,
     BlindAdapter,
     CameraAdapter,
-    ClimateAdapter,
     EnergyAdapter,
-    HeatingAdapter,
     LightAdapter,
     WeatherAdapter,
     now_utc,
@@ -37,6 +33,8 @@ from .base import (
     ok,
     unavailable,
 )
+from .buderus import BuderusHeating
+from .sinclair import SinclairClimate
 
 log = logging.getLogger(__name__)
 
@@ -103,30 +101,6 @@ class SolarGroupEnergy(EnergyAdapter):
 
 
 _NOT_YET = "Integrácia zatiaľ nie je implementovaná"
-
-
-class BuderusHeating(HeatingAdapter):
-    """Príprava na integráciu Buderus (napr. cez KM200 / MyDevice API)."""
-
-    name = "Buderus"
-
-    async def state(self, device):
-        return unavailable("live", _NOT_YET)
-
-    async def command(self, device, cmd: HeatingCommand):
-        raise AdapterUnavailable(_NOT_YET)
-
-
-class SinclairClimate(ClimateAdapter):
-    """Príprava na integráciu Sinclair (Gree protokol / Wi-Fi modul)."""
-
-    name = "Sinclair"
-
-    async def state(self, device):
-        return unavailable("live", _NOT_YET)
-
-    async def command(self, device, cmd: ClimateCommand):
-        raise AdapterUnavailable(_NOT_YET)
 
 
 class UnconfiguredLights(LightAdapter):
