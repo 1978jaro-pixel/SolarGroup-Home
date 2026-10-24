@@ -1,0 +1,52 @@
+/* Dizajnové tokeny – PROVIZÓRNE, kým nedostaneme schválený grafický návrh. */
+:root {
+  color-scheme: dark;
+
+  --bg: #111317;
+  --bg-glow: radial-gradient(1200px 600px at 85% -10%, rgba(59, 143, 232, 0.10), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(34, 197, 181, 0.07), transparent 60%);
+  --surface: #1a1d23;
+  --surface-2: #22262e;
+  --surface-3: #2b3039;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.12);
+
+  --text: #eceff4;
+  --text-2: #a7afbc;
+  --muted: #6f7886;
+
+  --accent: #3b8fe8;
+  --accent-soft: rgba(59, 143, 232, 0.16);
+  --teal: #22c5b5;
+  --teal-soft: rgba(34, 197, 181, 0.14);
+  --warm: #f29a3a;
+  --warm-soft: rgba(242, 154, 58, 0.15);
+
+  /* Stavové farby – vždy s ikonou/textom, nikdy samotná farba */
+  --ok: #3ecf8e;
+  --warn: #f0b429;
+  --danger: #ef6464;
+  --demo: #f0b429;
+
+  /* Farby energetických tokov (overené na tmavom povrchu, CVD-safe) */
+  --c-pv: #c0860f;
+  --c-house: #3b8fe8;
+  --c-battery: #0f9e8d;
+  --c-grid: #9278e8;
+  /* Svetlejšie varianty pre animované toky na ilustrácii */
+  --flow-pv: #f5b83d;
+  --flow-house: #6fb1ff;
+  --flow-battery: #2dd4bf;
+  --flow-grid: #b39dfa;
+
+  --radius-lg: 22px;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 10px 30px rgba(0, 0, 0, 0.35);
+
+  --font: "Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  --sidebar-w: 240px;
+  --touch: 48px;
+}
