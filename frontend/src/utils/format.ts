@@ -1,6 +1,11 @@
 const nf1 = new Intl.NumberFormat("sk-SK", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const nf0 = new Intl.NumberFormat("sk-SK", { maximumFractionDigits: 0 });
 
+/** Teplota bez zbytočnej desatinnej nuly: 22 / 21,5 */
+export function formatTempValue(t: number): string {
+  return Number.isInteger(t) ? String(t) : nf1.format(t);
+}
+
 /** Výkon v kW – pod 1 kW zobrazí W. */
 export function formatPower(kw: number): string {
   const abs = Math.abs(kw);
@@ -69,4 +74,23 @@ export function greeting(d = new Date()): string {
   if (h < 10) return "Dobré ráno";
   if (h < 18) return "Dobrý deň";
   return "Dobrý večer";
+}
+
+const capitalize = (s: string) => s.charAt(0).toLocaleUpperCase("sk-SK") + s.slice(1);
+
+/** Časti dátumu po slovensky: „Štvrtok“, 22, „októbra“. */
+export function dateParts(d = new Date()): { weekday: string; day: number; month: string } {
+  const parts = new Intl.DateTimeFormat("sk-SK", { weekday: "long", day: "numeric", month: "long" }).formatToParts(d);
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  return { weekday: capitalize(get("weekday")), day: d.getDate(), month: get("month") };
+}
+
+export function weekdayName(iso: string): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  return capitalize(new Date(y, m - 1, d).toLocaleDateString("sk-SK", { weekday: "long" }));
+}
+
+/** Slovenské skloňovanie: 1 kamera, 2–4 kamery, 5+ kamier. */
+export function plural(n: number, one: string, few: string, many: string): string {
+  return n === 1 ? one : n >= 2 && n <= 4 ? few : many;
 }

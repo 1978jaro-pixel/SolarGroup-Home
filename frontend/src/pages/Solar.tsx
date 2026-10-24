@@ -1,6 +1,6 @@
 import type { EnergySample, Reading } from "../api/types";
 import { EnergyChart } from "../components/EnergyChart";
-import { SolarHouse } from "../components/SolarHouse";
+import { SolarScene } from "../components/SolarScene";
 import { Card, IntegrationNote, PageHeader, ReadingView, Stat, StatusBadge } from "../components/ui";
 import { useApp } from "../hooks/AppContext";
 import { useResource } from "../hooks/useResource";
@@ -16,7 +16,7 @@ export function SolarPage() {
       <PageHeader title="Fotovoltika" subtitle="Výroba, spotreba, batéria a sieť" badge={<StatusBadge reading={energy} />} />
       <div className="grid grid--solar">
         <Card className="card--hero" accent="blue">
-          <SolarHouse data={d} />
+          <SolarScene data={d} />
           {!d && energy && <ReadingView reading={energy}>{() => null}</ReadingView>}
         </Card>
         <div className="stack">

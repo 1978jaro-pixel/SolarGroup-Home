@@ -43,19 +43,32 @@ const PATHS: Record<string, string> = {
   arrowDown: "M12 5v14M6 13l6 6 6-6",
   plug: "M9 2v5M15 2v5M7 7h10v4a5 5 0 0 1-10 0V7ZM12 16v6",
   check: "M5 12.5l4.5 4.5L19 7",
+  homeSolid: "M12 3.2 2.8 11.2h2.6V20.5h5.2v-5.6h2.8v5.6h5.2V11.2h2.6Z",
+  kebab: "M12 4.8a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4ZM12 10.8a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4ZM12 16.8a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Z",
+  expand: "M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7",
+  pin: "M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21ZM12 12.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z",
+  heat: "M7 4c-1.6 2 1.6 4 0 6s1.6 4 0 6-1 3 0 4M12 4c-1.6 2 1.6 4 0 6s1.6 4 0 6-1 3 0 4M17 4c-1.6 2 1.6 4 0 6s1.6 4 0 6-1 3 0 4",
+  phone: "M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2Z",
+  play: "M8 5.5v13l10.5-6.5Z",
+  prev: "M6 5v14M18 5.5 9 12l9 6.5Z",
+  next: "M18 5v14M6 5.5 15 12l-9 6.5Z",
+  chevronUp: "M6 15l6-6 6 6",
+  chevronDown: "M6 9l6 6 6-6",
+  clock: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 7v5l3 2",
+  bars: "M5 20v-5M10 20v-9M15 20V5M20 20v-7",
   plan: "M3 4h18v16H3zM3 12h8M11 4v12M15 12h6M15 12v8",
 };
 
 export type IconName = keyof typeof PATHS;
 
-export function Icon({ name, size = 22, className, title }: { name: IconName | string; size?: number; className?: string; title?: string }) {
+export function Icon({ name, size = 22, className, title, filled = false }: { name: IconName | string; size?: number; className?: string; title?: string; filled?: boolean }) {
   return (
     <svg
       className={className}
       width={size}
       height={size}
       viewBox="0 0 24 24"
-      fill="none"
+      fill={filled ? "currentColor" : "none"}
       stroke="currentColor"
       strokeWidth={1.75}
       strokeLinecap="round"

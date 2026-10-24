@@ -39,7 +39,7 @@ počítača – `localhost`). Predvolený režim je **DEMO**.
 - [docs/RASPBERRY_PI.md](docs/RASPBERRY_PI.md) – budúce bezpečné nasadenie na Raspberry Pi 4/5
 - [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md) – architektúra, dátový model, API, bezpečnosť
 - [docs/INTEGRACIE.md](docs/INTEGRACIE.md) – adaptéry zariadení a ako pridať novú integráciu
-- [docs/DIZAJN.md](docs/DIZAJN.md) – stav grafického návrhu (**provizórny**, čaká na schválený návrh)
+- [docs/DIZAJN.md](docs/DIZAJN.md) – grafický návrh: rozloženie podľa schváleného návrhu a zámerné odchýlky
 
 ## Štruktúra
 

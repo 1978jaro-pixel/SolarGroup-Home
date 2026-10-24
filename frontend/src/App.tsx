@@ -9,6 +9,7 @@ import { HeatingPage } from "./pages/Heating";
 import { HomePage } from "./pages/Home";
 import { LightsPage } from "./pages/Lights";
 import { LoginPage, ServerDown } from "./pages/Login";
+import { RoomsPage } from "./pages/Rooms";
 import { CalendarPage, MusicPage, SettingsPage } from "./pages/Misc";
 import { SolarPage } from "./pages/Solar";
 import { SystemPage } from "./pages/System";
@@ -23,6 +24,7 @@ export function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<HomePage />} />
+        <Route path="miestnosti" element={<RoomsPage />} />
         <Route path="fotovoltika" element={<SolarPage />} />
         <Route path="kurenie" element={<HeatingPage />} />
         <Route path="klimatizacia" element={<ClimatePage />} />

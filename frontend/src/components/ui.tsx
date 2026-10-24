@@ -8,15 +8,20 @@ export function Card({
   title,
   icon,
   to,
+  expand = false,
   badge,
+  actions,
   className = "",
   children,
   accent,
 }: {
   title?: string;
   icon?: IconName;
+  /** Odkaz na detail modulu – v hlavičke sa zobrazí ponuka ⋮ (alebo ikona zväčšenia). */
   to?: string;
+  expand?: boolean;
   badge?: ReactNode;
+  actions?: ReactNode;
   className?: string;
   children: ReactNode;
   accent?: "blue" | "teal" | "warm";
@@ -27,14 +32,15 @@ export function Card({
         <header className="card__head">
           {icon && (
             <span className="card__icon">
-              <Icon name={icon} size={20} />
+              <Icon name={icon} size={26} />
             </span>
           )}
           <h2 className="card__title">{title}</h2>
           <span className="card__badge">{badge}</span>
+          {actions}
           {to && (
             <Link to={to} className="card__more" aria-label={`Otvoriť ${title}`}>
-              <Icon name="chevron" size={18} />
+              <Icon name={expand ? "expand" : "kebab"} size={expand ? 22 : 20} />
             </Link>
           )}
         </header>
@@ -45,7 +51,16 @@ export function Card({
 }
 
 /** Označenie stavu údajov: DEMO, OFFLINE, zastarané, nedostupné. */
-export function StatusBadge({ reading, compact = false }: { reading: Pick<Reading<unknown>, "status" | "source" | "updated_at" | "message"> | null; compact?: boolean }) {
+export function StatusBadge({
+  reading,
+  compact = false,
+  hideDemo = false,
+}: {
+  reading: Pick<Reading<unknown>, "status" | "source" | "updated_at" | "message"> | null;
+  compact?: boolean;
+  /** Na hlavnej stránke je DEMO označené globálne – pri kartách sa ukazujú iba problémy. */
+  hideDemo?: boolean;
+}) {
   if (!reading) return null;
   const { status, source, updated_at } = reading;
   if (status === "offline")
@@ -67,7 +82,7 @@ export function StatusBadge({ reading, compact = false }: { reading: Pick<Readin
         <Icon name="alert" size={14} /> {compact ? "Zastarané" : `Aktualizované ${formatDateTime(updated_at)}`}
       </span>
     );
-  if (source === "demo")
+  if (source === "demo" && !hideDemo)
     return (
       <span className="badge badge--demo" title="Simulované údaje">
         DEMO

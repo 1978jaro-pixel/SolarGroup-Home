@@ -1,26 +1,30 @@
-/* Dizajnové tokeny – PROVIZÓRNE, kým nedostaneme schválený grafický návrh. */
+/* Dizajnové tokeny podľa schváleného návrhu SolarGroup Home. */
 :root {
   color-scheme: dark;
 
-  --bg: #111317;
-  --bg-glow: radial-gradient(1200px 600px at 85% -10%, rgba(59, 143, 232, 0.10), transparent 60%),
-    radial-gradient(900px 500px at -10% 110%, rgba(34, 197, 181, 0.07), transparent 60%);
-  --surface: #1a1d23;
-  --surface-2: #22262e;
-  --surface-3: #2b3039;
-  --border: rgba(255, 255, 255, 0.06);
-  --border-strong: rgba(255, 255, 255, 0.12);
+  --bg: #0a0f18;
+  --bg-glow: radial-gradient(1400px 700px at 15% -10%, rgba(40, 90, 170, 0.16), transparent 60%),
+    radial-gradient(1000px 600px at 100% 110%, rgba(30, 80, 160, 0.10), transparent 60%);
+  --surface: #161e2b;
+  --card-bg: linear-gradient(180deg, rgba(36, 47, 66, 0.92) 0%, rgba(21, 28, 41, 0.94) 100%);
+  --surface-2: #1d2737;
+  --surface-3: #283447;
+  --border: rgba(160, 185, 225, 0.10);
+  --border-strong: rgba(170, 195, 235, 0.20);
+  --card-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
-  --text: #eceff4;
-  --text-2: #a7afbc;
-  --muted: #6f7886;
+  --text: #f2f5fa;
+  --text-2: #aab5c5;
+  --muted: #6f7c8f;
 
-  --accent: #3b8fe8;
-  --accent-soft: rgba(59, 143, 232, 0.16);
-  --teal: #22c5b5;
-  --teal-soft: rgba(34, 197, 181, 0.14);
-  --warm: #f29a3a;
-  --warm-soft: rgba(242, 154, 58, 0.15);
+  --accent: #1f7bff;
+  --accent-2: #4a9bff;
+  --accent-soft: rgba(31, 123, 255, 0.16);
+  --teal: #2fc3e8;
+  --teal-soft: rgba(47, 195, 232, 0.14);
+  --warm: #f2a43a;
+  --warm-soft: rgba(242, 164, 58, 0.15);
+  --green: #3ddc84;
 
   /* Stavové farby – vždy s ikonou/textom, nikdy samotná farba */
   --ok: #3ecf8e;
@@ -28,25 +32,21 @@
   --danger: #ef6464;
   --demo: #f0b429;
 
-  /* Farby energetických tokov (overené na tmavom povrchu, CVD-safe) */
+  /* Farby energetických tokov v grafoch (overené na tmavom povrchu, CVD-safe) */
   --c-pv: #c0860f;
   --c-house: #3b8fe8;
   --c-battery: #0f9e8d;
   --c-grid: #9278e8;
-  /* Svetlejšie varianty pre animované toky na ilustrácii */
-  --flow-pv: #f5b83d;
-  --flow-house: #6fb1ff;
-  --flow-battery: #2dd4bf;
-  --flow-grid: #b39dfa;
 
-  --radius-lg: 22px;
-  --radius: 16px;
+  --radius-lg: 16px;
+  --radius: 12px;
   --radius-sm: 10px;
-  --shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 10px 30px rgba(0, 0, 0, 0.35);
+  --shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
 
   --font: "Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 
-  --sidebar-w: 240px;
+  --header-h: 76px;
+  --nav-h: 72px;
   --touch: 48px;
 }

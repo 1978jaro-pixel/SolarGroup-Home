@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
-import { clamp, roundToStep } from "../utils/format";
+import { clamp, formatTempValue, roundToStep } from "../utils/format";
 import { Icon } from "./Icon";
 
 const START = 135;
@@ -33,7 +33,10 @@ export interface ThermostatDialProps {
   showButtons?: boolean;
 }
 
-/** Kruhový regulátor teploty – ťahanie prstom/myšou, klávesnica aj tlačidlá +/−. */
+/**
+ * Kruhový regulátor teploty podľa schváleného návrhu: modrý oblúk po nastavenú hodnotu,
+ * jemné ryhy na zvyšku stupnice. Ovládanie ťahaním prstom/myšou, klávesnicou aj tlačidlami +/−.
+ */
 export function ThermostatDial({
   value,
   current,
@@ -44,7 +47,7 @@ export function ThermostatDial({
   size = 280,
   label,
   disabled,
-  caption,
+  caption = "Požadovaná",
   onCommit,
   showButtons = true,
 }: ThermostatDialProps) {
@@ -61,12 +64,11 @@ export function ThermostatDial({
   }, [value]);
 
   const c = 100;
-  const r = 82;
+  const r = 84;
   const frac = (clamp(draft, min, max) - min) / (max - min);
   const angle = START + SWEEP * frac;
-  const knob = polar(c, c, r, angle);
-  const curFrac = current == null ? null : (clamp(current, min, max) - min) / (max - min);
-  const curPos = curFrac == null ? null : polar(c, c, r, START + SWEEP * curFrac);
+  const capIn = polar(c, c, r - 9, angle);
+  const capOut = polar(c, c, r + 9, angle);
 
   const fromPointer = (e: PointerEvent) => {
     const svg = svgRef.current;
@@ -114,11 +116,12 @@ export function ThermostatDial({
     else if (e.key === "End") commit(max);
   };
 
-  const ticks = Array.from({ length: 55 }, (_, i) => START + (SWEEP * i) / 54);
-  const [whole, dec] = draft.toFixed(1).split(".");
+  // Ryhy iba na nevyplnenej časti stupnice (ako v návrhu).
+  const TICKS = 72;
+  const ticks = Array.from({ length: TICKS + 1 }, (_, i) => START + (SWEEP * i) / TICKS).filter((t) => t > angle + 3);
 
   return (
-    <div className={`dial dial--${variant} ${disabled ? "is-disabled" : ""}`} style={{ width: size }}>
+    <div className={`dial dial--${variant} ${disabled ? "is-disabled" : ""}`} style={{ width: size, ["--dial-size" as string]: `${size}px` }}>
       <svg
         ref={svgRef}
         viewBox="0 0 200 200"
@@ -140,36 +143,36 @@ export function ThermostatDial({
         onKeyDown={onKey}
       >
         <defs>
-          <linearGradient id={`g${gid}`} x1="0" y1="1" x2="1" y2="0">
+          <linearGradient id={`g${gid}`} x1="0" y1="1" x2="0.6" y2="0">
             <stop offset="0%" className="dial__stop1" />
             <stop offset="100%" className="dial__stop2" />
           </linearGradient>
-          <radialGradient id={`f${gid}`} cx="50%" cy="40%" r="60%">
-            <stop offset="0%" stopColor="#2a2f38" />
-            <stop offset="100%" stopColor="#1a1d23" />
-          </radialGradient>
+          <filter id={`glow${gid}`} x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" />
+          </filter>
         </defs>
         {ticks.map((t, i) => {
-          const a = polar(c, c, 96, t);
-          const b = polar(c, c, i % 9 === 0 ? 90 : 92.5, t);
-          return <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} className={t <= angle ? "dial__tick is-on" : "dial__tick"} />;
+          const a = polar(c, c, r - 6, t);
+          const b = polar(c, c, r + 6, t);
+          return <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="dial__tick" />;
         })}
-        <path d={arc(c, c, r, START, START + SWEEP)} className="dial__track" />
-        {frac > 0.001 && <path d={arc(c, c, r, START, angle)} className="dial__value" stroke={`url(#g${gid})`} />}
-        <circle cx={c} cy={c} r={66} fill={`url(#f${gid})`} className="dial__face" />
-        {curPos && <circle cx={curPos.x} cy={curPos.y} r={3.5} className="dial__current" />}
-        <circle cx={knob.x} cy={knob.y} r={10} className="dial__knob" />
+        {frac > 0.001 && (
+          <>
+            <path d={arc(c, c, r, START, angle)} className="dial__glow" stroke={`url(#g${gid})`} filter={`url(#glow${gid})`} />
+            <path d={arc(c, c, r, START, angle)} className="dial__value" stroke={`url(#g${gid})`} />
+          </>
+        )}
+        <line x1={capIn.x} y1={capIn.y} x2={capOut.x} y2={capOut.y} className="dial__cap" />
       </svg>
       <div className="dial__center" aria-hidden="true">
-        <span className="dial__caption">{caption ?? "Nastavené"}</span>
         <span className="dial__value-text">
-          {whole}
-          <small>,{dec}</small>
+          {formatTempValue(draft)}
           <sup>°C</sup>
         </span>
+        <span className="dial__caption">{caption}</span>
         {current != null && (
           <span className="dial__current-text">
-            <Icon name="thermo" size={14} /> {current.toFixed(1).replace(".", ",")} °C
+            <Icon name="thermo" size={13} /> {current.toFixed(1).replace(".", ",")} °C
           </span>
         )}
       </div>

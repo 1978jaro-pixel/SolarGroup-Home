@@ -1,5 +1,6 @@
+import { Link } from "react-router-dom";
 import { Icon } from "../components/Icon";
-import { Card, EmptyState, IntegrationNote, PageHeader } from "../components/ui";
+import { Card, EmptyState, PageHeader } from "../components/ui";
 import { useApp } from "../hooks/AppContext";
 
 export function MusicPage() {
@@ -71,10 +72,19 @@ export function SettingsPage() {
             Režim sa mení v lokálnom súbore <code>backend/.env</code> (<code>SGH_MODE=demo</code> alebo <code>live</code>) a reštartom servera. Heslá a kľúče k integráciám patria iba do tohto súboru – nikdy nie do zdrojového kódu.
           </p>
         </Card>
-        <IntegrationNote
-          name="Grafický návrh"
-          text="Aktuálny vzhľad je provizórny. Po dodaní schváleného grafického návrhu ho upravíme podľa neho."
-        />
+        <Card title="Systém" icon="server">
+          <div className="row gap-s wrap">
+            <Link to="/system" className="btn">
+              <Icon name="server" size={18} /> Stav systému
+            </Link>
+            <Link to="/energia" className="btn">
+              <Icon name="bars" size={18} /> Energetické grafy
+            </Link>
+            <Link to="/miestnosti" className="btn">
+              <Icon name="more" size={18} /> Všetky moduly
+            </Link>
+          </div>
+        </Card>
       </div>
     </>
   );

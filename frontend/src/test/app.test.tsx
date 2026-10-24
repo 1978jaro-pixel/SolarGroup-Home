@@ -67,8 +67,17 @@ describe("App", () => {
       </MemoryRouter>,
     );
     expect(await screen.findByRole("heading", { name: "Môj domov" })).toBeInTheDocument();
-    expect(screen.getByText("DEMO režim")).toBeInTheDocument();
+    // DEMO je jasne označené v hlavičke aj v spodnej lište
+    expect(screen.getByText("simulované údaje", { exact: false })).toBeInTheDocument();
+    expect(screen.getAllByText("DEMO").length).toBeGreaterThan(0);
     expect(await screen.findByRole("slider", { name: "Nastavená teplota kúrenia" })).toHaveAttribute("aria-valuenow", "21");
+    // Hodnoty fotovoltiky z API (nie z obrázka návrhu)
+    expect(await screen.findByText("Výroba")).toBeInTheDocument();
+    expect(screen.getByText("50%")).toBeInTheDocument();
+    // Navigácia podľa návrhu
+    for (const name of ["Domov", "Miestnosti", "Kamery", "Nastavenia"]) {
+      expect(screen.getByRole("link", { name })).toBeInTheDocument();
+    }
   });
 
   it("v LIVE režime pri nedostupných údajoch nezobrazí vymyslené hodnoty", async () => {
@@ -92,8 +101,13 @@ describe("App", () => {
       </MemoryRouter>,
     );
     expect(await screen.findByRole("heading", { name: "Môj domov" })).toBeInTheDocument();
-    expect(screen.queryByText("DEMO režim")).not.toBeInTheDocument();
+    expect(screen.queryByText("DEMO")).not.toBeInTheDocument();
+    expect(screen.getByText("LIVE")).toBeInTheDocument();
     expect((await screen.findAllByText(/OFFLINE/)).length).toBeGreaterThan(0);
     expect(screen.queryByRole("slider", { name: "Nastavená teplota kúrenia" })).not.toBeInTheDocument();
+    // Fotovoltika bez údajov: iba pomlčky, žiadne čísla z obrázka návrhu
+    expect(screen.queryByText(/15[,.]8/)).not.toBeInTheDocument();
+    expect(screen.getAllByText("–").length).toBeGreaterThanOrEqual(5);
+    expect(screen.getByText("Bez merania")).toBeInTheDocument();
   });
 });
