@@ -18,6 +18,8 @@ import { ClimateCard, ClimateModal, useClimate } from "./Climate";
 import { HeatingCard, HeatingModal, useHeating } from "./Heating";
 import { useLights } from "./Lights";
 import { useWeather } from "./Weather";
+import { HomeFit } from "./HomeFit";
+import { useLayoutMode } from "../hooks/useLayoutMode";
 
 const badge = (r: Parameters<typeof StatusBadge>[0]["reading"]) => <StatusBadge reading={r} compact hideDemo />;
 
@@ -282,6 +284,26 @@ export function HomePage() {
   const climate = useClimate();
   const heating = useHeating();
   const [open, setOpen] = useState<"climate" | "heating" | null>(null);
+  const layout = useLayoutMode();
+  const modals = (
+    <>
+      {open === "climate" && <ClimateModal c={climate} onClose={() => setOpen(null)} />}
+      {open === "heating" && <HeatingModal h={heating} onClose={() => setOpen(null)} />}
+    </>
+  );
+
+  if (layout === "fit") {
+    return (
+      <>
+        <HomeFit climate={climate} heating={heating} openClimate={() => setOpen("climate")} openHeating={() => setOpen("heating")} />
+        {modals}
+        <div className="fit-alert">
+          <EmptyStateFallback />
+        </div>
+      </>
+    );
+  }
+
   return (
     <div className="home">
       <div className="home__left">
@@ -305,8 +327,7 @@ export function HomePage() {
           <ConsumptionCard />
         </div>
       </div>
-      {open === "climate" && <ClimateModal c={climate} onClose={() => setOpen(null)} />}
-      {open === "heating" && <HeatingModal h={heating} onClose={() => setOpen(null)} />}
+      {modals}
       {/* Upozornenie, keď server prestane odpovedať */}
       <EmptyStateFallback />
     </div>

@@ -65,3 +65,10 @@ Obsah ostatných kariet sa nemenil.
 - `frontend/src/styles/global.css` – rozloženie a komponenty (sekcia „Môj domov“)
 - `frontend/src/pages/Home.tsx` – karty hlavnej obrazovky
 - `frontend/src/components/SolarScene.tsx`, `ThermostatDial.tsx`, `WeatherArt.tsx`, `Layout.tsx`
+
+## Kompaktné rozloženie pre 7" displej (0.2.0)
+
+Na nízkych displejoch na šírku (1024 × 600, 1280 × 800, 1366 × 768) sa hlavná obrazovka prepne
+na mriežku 4 × 2 so všetkými ôsmimi modulmi bez posúvania – pozri
+[RASPBERRY_PI_KIOSK.md](RASPBERRY_PI_KIOSK.md). Farby, karty a regulátory ostávajú podľa
+schváleného návrhu; zmenšuje sa iba ich veľkosť podľa výšky okna.

@@ -63,6 +63,7 @@ const PATHS: Record<string, string> = {
   copy: "M8.5 8.5h11v11h-11zM5.5 15.5h-1v-11h11v1",
   x: "M6 6l12 12M18 6 6 18",
   trash: "M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3",
+  backspace: "M21 5H9l-6.5 7L9 19h12ZM17 9l-6 6M11 9l6 6",
   plan: "M3 4h18v16H3zM3 12h8M11 4v12M15 12h6M15 12v8",
 };
 

@@ -27,3 +27,6 @@ backend/data/
 Thumbs.db
 .vscode/
 .idea/
+
+# Balíky pre Raspberry Pi (scripts/build-pi-package.sh)
+/build/

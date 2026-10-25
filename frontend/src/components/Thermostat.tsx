@@ -51,6 +51,8 @@ export interface ThermostatProps {
   /** Zmena kľúča vráti zobrazenú hodnotu na ``value`` (napr. po neúspešnom príkaze). */
   resetKey?: number;
   onCommit?: (v: number) => void;
+  /** Ťuknutie do stredu regulátora (mimo prstenca) – napr. otvorenie detailu. */
+  onCenterTap?: () => void;
 }
 
 export function Thermostat({
@@ -68,11 +70,13 @@ export function Thermostat({
   pending,
   resetKey = 0,
   onCommit,
+  onCenterTap,
 }: ThermostatProps) {
   const [draft, setDraft] = useState(value);
   const dragging = useRef(false);
   const lastSent = useRef(value);
   const svgRef = useRef<SVGSVGElement>(null);
+  const centerTap = useRef<{ x: number; y: number } | null>(null);
   const gid = useId().replace(/:/g, "");
 
   useEffect(() => {
@@ -103,11 +107,13 @@ export function Thermostat({
   };
 
   const onPointerDown = (e: PointerEvent<SVGSVGElement>) => {
-    if (disabled) return;
-    // ťahať sa dá iba po prstenci – stred necháva priestor na posúvanie stránky
+    // ťahať sa dá iba po prstenci – stred necháva priestor na posúvanie stránky a ťuknutie
     const box = svgRef.current!.getBoundingClientRect();
     const dist = Math.hypot(e.clientX - (box.left + box.width / 2), e.clientY - (box.top + box.height / 2)) / (box.width / 200);
-    if (dist < R - 26) return;
+    if (dist < R - 26 || disabled) {
+      centerTap.current = { x: e.clientX, y: e.clientY };
+      return;
+    }
     dragging.current = true;
     (e.target as Element).setPointerCapture?.(e.pointerId);
     setDraft(fromPointer(e));
@@ -143,11 +149,17 @@ export function Thermostat({
         onPointerDown={onPointerDown}
         onPointerMove={(e) => dragging.current && setDraft(fromPointer(e))}
         onPointerUp={(e) => {
+          const tap = centerTap.current;
+          centerTap.current = null;
+          if (tap && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) < 12) onCenterTap?.();
           if (!dragging.current) return;
           dragging.current = false;
           commit(fromPointer(e));
         }}
-        onPointerCancel={() => (dragging.current = false)}
+        onPointerCancel={() => {
+          dragging.current = false;
+          centerTap.current = null;
+        }}
         onKeyDown={onKey}
       >
         <defs>

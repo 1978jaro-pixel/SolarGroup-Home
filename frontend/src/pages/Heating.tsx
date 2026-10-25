@@ -113,7 +113,7 @@ function sendMode(h: HeatingCtl, s: HeatingState, mode: HeatingMode, openHoliday
 
 // --- Spoločný regulátor kúrenia --------------------------------------------------
 
-function HeatingThermostat({ h, s, size }: { h: HeatingCtl; s: HeatingState; size: number }) {
+export function HeatingThermostat({ h, s, size, onCenterTap }: { h: HeatingCtl; s: HeatingState; size: number; onCenterTap?: () => void }) {
   const accent = heatingAccent(s);
   return (
     <Thermostat
@@ -129,6 +129,7 @@ function HeatingThermostat({ h, s, size }: { h: HeatingCtl; s: HeatingState; siz
       pending={h.busy === s.device_id}
       resetKey={h.failures}
       onCommit={(v) => void h.send(s.device_id, { target_temp: v })}
+      onCenterTap={onCenterTap}
     />
   );
 }

@@ -37,6 +37,7 @@ počítača – `localhost`). Predvolený režim je **DEMO**.
 
 - [docs/WINDOWS.md](docs/WINDOWS.md) – inštalácia a spustenie na Windows, vývojový režim
 - [docs/RASPBERRY_PI.md](docs/RASPBERRY_PI.md) – budúce bezpečné nasadenie na Raspberry Pi 4/5
+- [docs/RASPBERRY_PI_KIOSK.md](docs/RASPBERRY_PI_KIOSK.md) – 7" kiosk 1024 × 600, dotyková klávesnica, diagnostika HDMI, aktualizácia a rollback
 - [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md) – architektúra, dátový model, API, bezpečnosť
 - [docs/INTEGRACIE.md](docs/INTEGRACIE.md) – adaptéry zariadení a ako pridať novú integráciu
 - [docs/KURENIE_KLIMA.md](docs/KURENIE_KLIMA.md) – kúrenie Buderus (týždenné programy) a klimatizácia Sinclair

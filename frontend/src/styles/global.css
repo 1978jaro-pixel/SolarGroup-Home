@@ -3052,3 +3052,300 @@ button.card__more {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ---------- Kompaktná obrazovka (7" 1024 × 600, 1280 × 800 …) ----------
+   Rovnaký dizajn, rozmery odvodené od výšky okna. Hlavná obrazovka sa zmestí bez posúvania. */
+
+@media (min-width: 900px) and (max-height: 879px) and (orientation: landscape) {
+  :root {
+    --header-h: clamp(48px, 8.5vh, 66px);
+    --nav-h: clamp(54px, 9.5vh, 70px);
+  }
+  .topbar {
+    gap: 12px;
+    padding: 4px 14px 0;
+  }
+  .topbar__home {
+    width: 48px;
+    height: 42px;
+    margin-left: -4px;
+  }
+  .topbar__title {
+    font-size: clamp(20px, 3.6vh, 30px);
+  }
+  .topbar__time {
+    font-size: clamp(22px, 4vh, 32px);
+  }
+  .topbar__date {
+    font-size: 13px;
+  }
+  .content {
+    padding: 4px 10px calc(var(--nav-h) + 8px);
+  }
+  .bottom-nav__item {
+    min-height: 46px;
+    padding: 0 clamp(18px, 3vw, 48px);
+    font-size: 15px;
+  }
+  .mode-pill {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  .home-fit {
+    height: calc(100dvh - var(--header-h) - var(--nav-h) - 12px);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .home-fit__stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0;
+  }
+  .home-fit__stack > .card {
+    flex: 1 1 0;
+  }
+  .fit-card {
+    gap: 6px;
+    min-height: 0;
+    padding: 8px 12px 10px;
+    overflow: hidden;
+    animation: none;
+  }
+  .fit-card .card__head {
+    min-height: 32px;
+    gap: 8px;
+  }
+  .fit-card .card__icon svg {
+    width: 22px;
+    height: 22px;
+  }
+  .fit-card .card__title {
+    font-size: 14px;
+  }
+  .fit-card.fit-weather .card__title {
+    font-size: 18px;
+  }
+  .fit-card .card__more {
+    width: 44px;
+    height: 44px;
+    margin: -8px -12px -8px -6px;
+  }
+
+  /* Počasie */
+  .fit-weather__now {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .fit-weather__temp {
+    font-size: clamp(40px, 9vh, 76px);
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .fit-weather__label {
+    font-size: 15px;
+    color: #dfe6f1;
+  }
+  .fit-forecast {
+    list-style: none;
+    margin: auto 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-radius: 10px;
+    background: rgba(8, 12, 20, 0.35);
+    border: 1px solid var(--border);
+  }
+  .fit-forecast li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 2px;
+    font-size: 13px;
+  }
+  .fit-forecast li + li {
+    border-left: 1px solid var(--border);
+  }
+  .fit-forecast small {
+    color: var(--text-2);
+    font-size: 12px;
+  }
+
+  /* Fotovoltika */
+  .fit-pv {
+    grid-column: span 2;
+  }
+  .fit-pv__scene {
+    position: relative;
+    flex: 1 1 0;
+    min-height: 0;
+  }
+  .fit-pv__scene .pv-scene {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    aspect-ratio: 1136 / 616;
+  }
+
+  /* Klíma a kúrenie */
+  .fit-thermo__dial {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .fit-thermo .thermo {
+    max-width: min(100% - 64px, calc(50dvh - 120px));
+  }
+  /* tlačidlá −/+ mimo stredu regulátora, aby neprekrývali texty */
+  .fit-thermo .thermo__btn--minus {
+    left: -18%;
+  }
+  .fit-thermo .thermo__btn--plus {
+    right: -18%;
+  }
+  .fit-thermo .thermo__mode,
+  .fit-thermo .thermo__current {
+    font-size: max(12px, 5.4cqi);
+  }
+
+  /* Rolety, svetlá */
+  .media--fit {
+    flex: 1 1 0;
+    min-height: 0;
+  }
+  .split-btns--row button {
+    flex-direction: row;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    font-size: 15px;
+  }
+
+  /* Kamery, vrátnik */
+  .fit-small {
+    justify-content: space-between;
+  }
+  .fit-small .row-btn {
+    min-height: 44px;
+    font-size: 15px;
+  }
+  .fit-small .row-btn > span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .fit-alert {
+    position: fixed;
+    top: calc(var(--header-h) + 8px);
+    left: 50%;
+    z-index: 30;
+    width: min(460px, 90vw);
+    transform: translateX(-50%);
+  }
+  .fit-alert:empty {
+    display: none;
+  }
+}
+
+/* ---------- Dotyková klávesnica (kiosk) ---------- */
+
+.vk {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 8px max(8px, env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, #151d2a, #0c121b);
+  border-top: 1px solid var(--border-strong);
+  box-shadow: 0 -12px 30px rgba(0, 0, 0, 0.5);
+  user-select: none;
+  touch-action: manipulation;
+}
+.vk__row {
+  display: flex;
+  gap: 6px;
+}
+.vk__key {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: clamp(44px, 8vh, 58px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: #253045;
+  color: #f2f5fa;
+  font-size: 20px;
+  font-weight: 500;
+  display: grid;
+  place-items: center;
+}
+.vk__key:active {
+  background: var(--accent);
+}
+.vk__key--fn {
+  background: #1a2231;
+  font-size: 15px;
+  color: #cdd6e3;
+}
+.vk__key--space {
+  flex-grow: 4;
+}
+.vk__key--enter {
+  flex-grow: 1.6;
+  background: linear-gradient(180deg, #2f7bf0, #1c5fd0);
+  color: #fff;
+}
+.vk__key--shift,
+.vk__key--bksp {
+  flex-grow: 1.4;
+}
+.vk__key--shift.is-once {
+  background: #31507f;
+}
+.vk__key--shift.is-lock {
+  background: var(--accent);
+  color: #fff;
+}
+html.vk-open body {
+  padding-bottom: var(--vk-h, 0px);
+}
+html.vk-open .modal {
+  bottom: var(--vk-h, 0px);
+}
+
+/* ---------- Kiosk a šetrič ---------- */
+
+html.kiosk body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+html.kiosk input,
+html.kiosk textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+.screensaver {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: #000;
+  cursor: none;
+}
+.mb-s {
+  margin-bottom: 8px;
+}

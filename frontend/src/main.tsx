@@ -5,13 +5,24 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { App } from "./App";
+import { Screensaver } from "./components/Screensaver";
+import { VirtualKeyboard } from "./components/VirtualKeyboard";
 import { AppProvider } from "./hooks/AppContext";
+import { initKioskFromUrl, isKiosk } from "./utils/kiosk";
+
+// Kiosk (Raspberry Pi): ?kiosk=1 zapne dotykovú klávesnicu a potlačí kontextové menu dlhého dotyku.
+initKioskFromUrl();
+document.addEventListener("contextmenu", (e) => {
+  if (isKiosk() && !(e.target as HTMLElement).closest("input, textarea")) e.preventDefault();
+});
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <AppProvider>
         <App />
+        <VirtualKeyboard />
+        <Screensaver />
       </AppProvider>
     </BrowserRouter>
   </StrictMode>,

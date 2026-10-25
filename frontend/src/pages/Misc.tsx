@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { getSaverMinutes, setSaverMinutes } from "../components/Screensaver";
+import { isKiosk, setKiosk } from "../utils/kiosk";
 import { Icon } from "../components/Icon";
-import { Card, EmptyState, PageHeader } from "../components/ui";
+import { Card, EmptyState, PageHeader, Segmented, Toggle } from "../components/ui";
 import { useApp } from "../hooks/AppContext";
 
 export function MusicPage() {
@@ -72,6 +75,7 @@ export function SettingsPage() {
             Režim sa mení v lokálnom súbore <code>backend/.env</code> (<code>SGH_MODE=demo</code> alebo <code>live</code>) a reštartom servera. Heslá a kľúče k integráciám patria iba do tohto súboru – nikdy nie do zdrojového kódu.
           </p>
         </Card>
+        <KioskSettings />
         <Card title="Systém" icon="server">
           <div className="row gap-s wrap">
             <Link to="/system" className="btn">
@@ -87,5 +91,47 @@ export function SettingsPage() {
         </Card>
       </div>
     </>
+  );
+}
+
+/** Nastavenia tohto displeja – ukladajú sa iba v tomto prehliadači (napr. na Raspberry Pi). */
+function KioskSettings() {
+  const [kiosk, setKioskState] = useState(isKiosk);
+  const [saver, setSaver] = useState(String(getSaverMinutes()));
+  return (
+    <Card title="Tento displej" icon="settings">
+      <div className="row row--between gap-s">
+        <span>
+          Dotyková klávesnica (režim kiosku)
+          <span className="muted small"> – na Raspberry Pi so 7" displejom</span>
+        </span>
+        <Toggle
+          label="Dotyková klávesnica"
+          checked={kiosk}
+          onChange={(v) => {
+            setKiosk(v);
+            setKioskState(v);
+          }}
+        />
+      </div>
+      <div>
+        <p className="mb-s">Šetrič obrazovky (čierna obrazovka, zobudenie dotykom)</p>
+        <Segmented
+          label="Šetrič obrazovky"
+          value={saver}
+          options={[
+            { value: "0", label: "Vypnutý" },
+            { value: "5", label: "5 min" },
+            { value: "15", label: "15 min" },
+            { value: "30", label: "30 min" },
+          ]}
+          onChange={(v) => {
+            setSaver(v);
+            setSaverMinutes(Number(v));
+          }}
+        />
+        <p className="muted small mt">HDMI výstup sa nevypína, preto sa obraz vždy obnoví dotykom. Predvolene je šetrič vypnutý.</p>
+      </div>
+    </Card>
   );
 }

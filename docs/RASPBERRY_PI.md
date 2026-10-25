@@ -135,5 +135,6 @@ sudo userdel sgh && sudo rm -rf /opt/solargroup-home
 
 ## 12. 7-palcový dotykový displej (kiosk, voliteľné)
 
-Chromium v režime kiosku na `http://127.0.0.1:8080` – ovládacie prvky majú min. 44–56 px a
-rozloženie je odladené pre 1024×600. Konkrétny postup kiosku doplníme pri nasadení.
+Postup pre kiosk (Chromium na labwc/Wayland, rozloženie 1024 × 600 bez posúvania, dotyková
+klávesnica, diagnostika čiernej obrazovky) a aktualizáciu existujúcej inštalácie so zálohou
+a rollbackom je v [RASPBERRY_PI_KIOSK.md](RASPBERRY_PI_KIOSK.md).

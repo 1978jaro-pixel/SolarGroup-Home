@@ -56,6 +56,29 @@ const tempDisabled = (v: View) => !v.power || v.mode === "fan";
 const hhmm = (iso: string | null) =>
   iso ? new Intl.DateTimeFormat("sk-SK", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: TZ }).format(new Date(iso)) : "";
 
+/** Regulátor klimatizácie s potvrdzovaním príkazov – zdieľa ho karta aj kompaktná obrazovka. */
+export function ClimateThermostat({ c, s, size, onCenterTap }: { c: ClimateCtl; s: ClimateState; size: number; onCenterTap?: () => void }) {
+  return (
+    <Thermostat
+      value={s.target_temp}
+      current={s.current_temp}
+      min={s.capabilities.min_temp}
+      max={s.capabilities.max_temp}
+      step={s.capabilities.temp_step}
+      accent={climateAccent(s)}
+      icon={s.power ? MODE_ICON[s.mode] : "power"}
+      modeLabel={climateLabel(s)}
+      label="Požadovaná teplota klimatizácie"
+      size={size}
+      disabled={tempDisabled(s)}
+      pending={c.busy === s.device_id}
+      resetKey={c.failures}
+      onCommit={(v) => void c.send(s.device_id, { target_temp: v })}
+      onCenterTap={onCenterTap}
+    />
+  );
+}
+
 // --- Kompaktná karta -------------------------------------------------------------
 
 export function ClimateCard({ c, onOpen }: { c: ClimateCtl; onOpen: () => void }) {
