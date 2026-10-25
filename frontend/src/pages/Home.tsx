@@ -8,7 +8,7 @@ import type { CameraInfo, EnergySample, Reading } from "../api/types";
 import { Icon } from "../components/Icon";
 import { SolarScene } from "../components/SolarScene";
 import { WeatherArt, WeatherHero } from "../components/WeatherArt";
-import { Card, EmptyState, ReadingView, StatusBadge, Toggle } from "../components/ui";
+import { Card, EmptyState, ReadingView, StatusBadge } from "../components/ui";
 import { useApp } from "../hooks/AppContext";
 import { useResource } from "../hooks/useResource";
 import { dateParts, formatKwh, plural, weatherInfo, weekdayName } from "../utils/format";
@@ -18,7 +18,7 @@ import { ClimateCard, ClimateModal, useClimate } from "./Climate";
 import { HeatingCard, HeatingModal, useHeating } from "./Heating";
 import { useLights } from "./Lights";
 import { useWeather } from "./Weather";
-import { HomeFit } from "./HomeFit";
+import { HomeBoard } from "./HomeBoard";
 import { useLayoutMode } from "../hooks/useLayoutMode";
 
 const badge = (r: Parameters<typeof StatusBadge>[0]["reading"]) => <StatusBadge reading={r} compact hideDemo />;
@@ -72,7 +72,7 @@ function SolarCard() {
   );
 }
 
-function BlindsCard() {
+export function BlindsCard() {
   const b = useBlinds();
   const { group } = useBlindGroup(b.refresh);
   const items = (b.data ?? []).filter((r) => r.data);
@@ -97,7 +97,7 @@ function BlindsCard() {
   );
 }
 
-function LightsCard() {
+export function LightsCard() {
   const l = useLights();
   const items = (l.data ?? []).filter((r) => r.data);
   const on = items.filter((r) => r.data!.on).length;
@@ -115,7 +115,7 @@ function LightsCard() {
   );
 }
 
-function CamerasCard() {
+export function CamerasCard() {
   const r = useResource<Reading<CameraInfo>[]>("/api/cameras", 60000);
   const cams = r.data ?? [];
   const streaming = cams.some((c) => c.data?.stream_available);
@@ -126,7 +126,6 @@ function CamerasCard() {
       icon="camera"
       to="/kamery"
       badge={badge(cams[0] ?? null)}
-      actions={<Toggle label="Živý obraz kamier" checked={streaming} onChange={() => undefined} disabled />}
     >
       <Link to="/kamery" className="cam-hero" aria-label="Kamery – detail">
         <img src={cameraImg} alt="Kamera Tapo" />
@@ -143,7 +142,7 @@ function CamerasCard() {
   );
 }
 
-function IntercomCard() {
+export function IntercomCard() {
   return (
     <Card title="Vrátnik" icon="doorbell" to="/videovratnik">
       <Link to="/videovratnik" className="media media--door" aria-label="Videovrátnik – detail">
@@ -159,7 +158,7 @@ function IntercomCard() {
   );
 }
 
-function MusicCard() {
+export function MusicCard() {
   return (
     <Card title="Rádio a hudba" icon="music" to="/hudba">
       <div className="player">
@@ -193,7 +192,7 @@ function MusicCard() {
   );
 }
 
-function CalendarCard() {
+export function CalendarCard() {
   const now = new Date();
   const { weekday, day, month } = dateParts(now);
   const meniny = meninyFor(now);
@@ -252,7 +251,7 @@ function ConsumptionChart({ samples }: { samples: EnergySample[] }) {
   );
 }
 
-function ConsumptionCard() {
+export function ConsumptionCard() {
   const r = useResource<Reading<EnergySample[]>>("/api/energy/history", 5 * 60000);
   const samples = r.data?.data ?? [];
   const chart = samples.length >= 8 ? <ConsumptionChart samples={samples} /> : null;
@@ -292,12 +291,12 @@ export function HomePage() {
     </>
   );
 
-  if (layout === "fit") {
+  if (layout === "board") {
     return (
       <>
-        <HomeFit climate={climate} heating={heating} openClimate={() => setOpen("climate")} openHeating={() => setOpen("heating")} />
+        <HomeBoard climate={climate} heating={heating} openClimate={() => setOpen("climate")} openHeating={() => setOpen("heating")} />
         {modals}
-        <div className="fit-alert">
+        <div className="board-alert">
           <EmptyStateFallback />
         </div>
       </>
@@ -334,7 +333,7 @@ export function HomePage() {
   );
 }
 
-function EmptyStateFallback() {
+export function EmptyStateFallback() {
   const { serverReachable } = useApp();
   if (serverReachable) return null;
   return <EmptyState icon="offline" title="Server je nedostupný" text="Zobrazené údaje nemusia byť aktuálne." tone="danger" />;

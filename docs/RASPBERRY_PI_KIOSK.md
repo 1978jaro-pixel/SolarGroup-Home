@@ -9,31 +9,18 @@ na výstupe `HDMI-A-2`, Chromium. Úpravy sú kompatibilné s Pi 5 a väčšími
 
 ## 1. Hlavná obrazovka 1024 × 600 bez posúvania
 
-### Rozloženie
+### Rozloženie (od v0.3.0 – náhľad na schválenie)
 
-Výška pre obsah: 600 − hlavička (~51 px) − spodné menu (~57 px) ≈ 480 px → mriežka **4 × 2**:
+Od verzie 0.3.0 má 7" displej **rovnaké rozloženie ako schválený návrh „Môj domov“** – všetkých
+11 modulov (vľavo Počasie a Fotovoltika, vpravo 3 × 3) bez posúvania. Podrobnosti a snímky:
+[V0_3_0_AUDIT_A_PLAN.md](V0_3_0_AUDIT_A_PLAN.md), kapitola 2.
 
-```
-┌ hlavička: čas · dátum · stav ─────────────────────────────────────────┐
-│ Počasie      │ Fotovoltika (2 stĺpce: tok energie)  │ Klíma (regulátor)│
-│ teplota+3 dni│ FV → batéria → dom → sieť             │ zap./vyp., −/+   │
-├──────────────┼───────────────┬──────────────────────┼──────────────────┤
-│ Kúrenie      │ Rolety        │ Svetlá               │ Kamery  ›        │
-│ (regulátor)  │ Otvoriť/Zavr. │ x z y svieti         │ Vrátnik ›        │
-└ spodné menu: Domov · Miestnosti · Kamery · Nastavenia ───────────────┘
-```
-
-- Všetkých 8 modulov je na jednej obrazovke, **bez zvislého aj vodorovného posúvania**.
 - Ťuknutie na kartu otvorí detail (Klíma a Kúrenie ako okno, ostatné ako stránka modulu);
   ťuknutie do stredu regulátora otvorí jeho detail, tlačidlá − / + menia teplotu priamo.
-- Rozmery sa odvodzujú od výšky okna (`dvh`, `clamp()`), nie z `zoom` – na 1280 × 800 alebo
-  1366 × 768 sa karty a regulátory zväčšia. Na veľkých displejoch (≥ 1500 × 880) ostáva pôvodné
-  „nástenné“ rozloženie, na mobile bežný posuvný zoznam.
-![Hlavná obrazovka 1024 × 600](screenshots/kiosk-domov-1024x600.webp)
-
-- Hudba, Kalendár a Spotreba sa na kompaktnú obrazovku nezmestili – sú v Miestnosti → Všetky moduly.
-- Implementácia: `frontend/src/pages/HomeFit.tsx`, `hooks/useLayoutMode.ts`, štýly v `styles/global.css`
-  (blok „fit“). Režim `fit` platí pre šírku ≥ 900 px, výšku ≤ 879 px a orientáciu na šírku.
+- Rozmery sa počítajú z rozmerov bunky (CSS container queries), nie zo `zoom` – rovnaká kompozícia
+  na 1024 × 600 aj Full HD; na mobile ostáva posuvný zoznam.
+- Implementácia: `frontend/src/pages/HomeBoard.tsx`, `hooks/useLayoutMode.ts`, štýly v
+  `styles/global.css` (blok „board“). Platí pre šírku ≥ 900 px, výšku ≥ 500 px, na šírku.
 
 ## 2. Integrovaná dotyková klávesnica
 
@@ -180,8 +167,8 @@ cp /home/solargroup/autostart-povodny-v14.backup ~/.config/labwc/autostart
 
 | Test | Ako | Výsledok |
 |---|---|---|
-| Rozloženie 1024 × 600 – bez posúvania, 8 modulov, menu viditeľné | Playwright/Chromium, `frontend/e2e/kiosk-check.mjs` | ✅ overené v emulácii |
-| Rozloženie 1280 × 800, 1366 × 768 (fit), 1920 × 1080 (nástenné), 390 × 844 (mobil) | to isté | ✅ overené v emulácii |
+| Rozloženie 1024 × 600 – bez posúvania, 11 modulov, menu viditeľné | Playwright/Chromium, `frontend/e2e/kiosk-check.mjs` | ✅ overené v emulácii |
+| Rozloženie 1280 × 800, 1366 × 768 (fit), 1920 × 1080, 2560 × 1440, 390 × 844 (mobil) | to isté | ✅ overené v emulácii |
 | Ťuknutie na kartu otvorí detail v rámci obrazovky | to isté (dotykové udalosti) | ✅ overené v emulácii |
 | Dotykové ciele ≥ 40 px | to isté | ✅ overené v emulácii |
 | Klávesnica: písanie, Shift, mazanie, diakritika, OK odošle, heslo skryté | Vitest + Playwright | ✅ overené v emulácii |
@@ -208,6 +195,6 @@ cp /home/solargroup/autostart-povodny-v14.backup ~/.config/labwc/autostart
 1. `./install-pi-update.sh --dry-run`, potom `./install-pi-update.sh`.
 2. V prehliadači na PC otvoriť `http://<ip-pi>:8080` – overiť prihlásenie a údaje.
 3. `~/solargroup-home-kiosk/sgh-autostart.sh enable`, reštart Pi (`sudo reboot` ručne).
-4. Overiť: kiosk sa spustí sám, 8 modulov bez posúvania, klávesnica pri prihlásení, USB klávesnica.
+4. Overiť: kiosk sa spustí sám, 11 modulov bez posúvania, klávesnica pri prihlásení, USB klávesnica.
 5. Nechať bežať ≥ 24 h; potom `grep súhrn ~/.local/state/solargroup-home/watch.log`.
 6. Pri čiernej obrazovke: `sgh-diag.sh`, potom `sgh-display-recover.sh`; diagnostiku uschovať.

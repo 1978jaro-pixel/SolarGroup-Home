@@ -2,30 +2,27 @@ import { useEffect, useState } from "react";
 
 /**
  * Režim rozloženia hlavnej obrazovky:
- *  - "fit"  – na šírku, nízky displej (napr. 7" 1024 × 600, 1280 × 800): všetko na jednu obrazovku
- *  - "wall" – veľký nástenný displej (od 1500 × 880): rozloženie podľa schváleného návrhu
- *  - "flow" – mobil, tablet na výšku: karty pod sebou s posúvaním
+ *  - "board" – každý displej na šírku (7" 1024 × 600 až 15" Full HD a viac): pevné rozloženie
+ *              podľa schváleného návrhu „Môj domov“, bez posúvania
+ *  - "flow"  – mobil, tablet na výšku: karty pod sebou s posúvaním
  */
-export type LayoutMode = "fit" | "wall" | "flow";
+export type LayoutMode = "board" | "flow";
 
-export const FIT_QUERY = "(min-width: 900px) and (max-height: 879px) and (orientation: landscape)";
-export const WALL_QUERY = "(min-width: 1500px) and (min-height: 880px)";
+export const BOARD_QUERY = "(min-width: 900px) and (min-height: 500px) and (orientation: landscape)";
 
 function current(): LayoutMode {
   if (typeof window === "undefined" || !window.matchMedia) return "flow";
-  if (window.matchMedia(FIT_QUERY).matches) return "fit";
-  if (window.matchMedia(WALL_QUERY).matches) return "wall";
-  return "flow";
+  return window.matchMedia(BOARD_QUERY).matches ? "board" : "flow";
 }
 
 export function useLayoutMode(): LayoutMode {
   const [mode, setMode] = useState<LayoutMode>(current);
   useEffect(() => {
     if (!window.matchMedia) return;
-    const queries = [window.matchMedia(FIT_QUERY), window.matchMedia(WALL_QUERY)];
+    const q = window.matchMedia(BOARD_QUERY);
     const update = () => setMode(current());
-    queries.forEach((q) => q.addEventListener?.("change", update));
-    return () => queries.forEach((q) => q.removeEventListener?.("change", update));
+    q.addEventListener?.("change", update);
+    return () => q.removeEventListener?.("change", update);
   }, []);
   return mode;
 }

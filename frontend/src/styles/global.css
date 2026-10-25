@@ -2720,112 +2720,6 @@ button.card__more {
 }
 
 /* Nástenný displej: celá stránka na jednu obrazovku ako v návrhu */
-@media (min-width: 1500px) and (min-height: 880px) {
-  .home {
-    height: calc(100dvh - var(--header-h) - var(--nav-h) - 32px);
-    min-height: 640px;
-  }
-  .home__left > .card--weather {
-    flex: 0.9 1 0;
-    min-height: 0;
-  }
-  .home__left > .card--pv {
-    flex: 1 1 0;
-    min-height: 0;
-  }
-  .home__right {
-    align-items: stretch;
-    min-height: 0;
-  }
-  .home__col {
-    min-height: 0;
-  }
-  .home__col > .card {
-    min-height: 0;
-    overflow: hidden;
-  }
-  .card--thermo .thermo {
-    max-width: min(250px, calc((100dvh - 320px) * 0.25));
-  }
-  .home__col--a .card--thermo .thermo {
-    max-width: min(260px, calc((100dvh - 320px) * 0.31));
-  }
-  .home__col--a > :nth-child(1) {
-    flex: 1 1 0;
-  }
-  .home__col--a > :nth-child(2) {
-    flex: 0.62 1 0;
-  }
-  .home__col--b > :nth-child(1) {
-    flex: 1.3 1 0;
-  }
-  .home__col--b > :nth-child(2) {
-    flex: 0.62 1 0;
-  }
-  .home__col--a > :nth-child(3),
-  .home__col--b > :nth-child(3) {
-    flex: 0 0 auto;
-  }
-  .home__col--c > :nth-child(1) {
-    flex: 1 1 0;
-  }
-  .home__col--c > :nth-child(2) {
-    flex: 0.9 1 0;
-  }
-  .home__col--c > :nth-child(3) {
-    flex: 0.8 1 0;
-  }
-  .home .card {
-    padding-top: 12px;
-    padding-bottom: 14px;
-  }
-  .cal-today strong {
-    font-size: 46px;
-  }
-  .player__art {
-    width: 72px;
-    height: 72px;
-  }
-  .player__ctrl .player__play {
-    width: 50px;
-    height: 50px;
-  }
-  .cam-hero {
-    flex: 1 1 0;
-    min-height: 0;
-  }
-  .cam-hero img {
-    position: absolute;
-    inset: 0;
-    margin: auto;
-    width: 70%;
-    height: 100%;
-    max-height: none;
-    object-fit: contain;
-  }
-  .card--thermo .mode-tile {
-    min-height: 52px;
-  }
-  .home .media,
-  .home .cam-hero {
-    min-height: 0;
-  }
-  .pv-link {
-    position: relative;
-    min-height: 0;
-  }
-  .pv-link .pv-scene {
-    position: absolute;
-    inset: 0;
-    width: auto;
-    aspect-ratio: auto;
-    max-width: 100%;
-    margin: auto;
-    height: 100%;
-    aspect-ratio: 1136 / 616;
-  }
-}
-
 /* ---------- Responsive ---------- */
 
 @media (max-width: 1499px) {
@@ -3056,198 +2950,479 @@ button.card__more {
 /* ---------- Kompaktná obrazovka (7" 1024 × 600, 1280 × 800 …) ----------
    Rovnaký dizajn, rozmery odvodené od výšky okna. Hlavná obrazovka sa zmestí bez posúvania. */
 
-@media (min-width: 900px) and (max-height: 879px) and (orientation: landscape) {
+/* ---------- Hlavná obrazovka „Môj domov“ – pevné rozloženie (board) ----------
+ * Každý displej na šírku od 900 × 500 px. Veľkosti v kartách sa odvodzujú od rozmerov bunky
+ * (cqmin/cqh), takže 7" 1024 × 600 aj 15" Full HD majú rovnakú kompozíciu bez posúvania.
+ * Sklenený vzhľad nepoužíva backdrop-filter (na Raspberry Pi 4 je drahý a rozmazáva) – pozadie
+ * je vopred rozmazaný obrázok a karta má priesvitnú výplň so svetelným okrajom. */
+@media (min-width: 900px) and (min-height: 500px) and (orientation: landscape) {
   :root {
-    --header-h: clamp(48px, 8.5vh, 66px);
-    --nav-h: clamp(54px, 9.5vh, 70px);
+    --header-h: clamp(48px, 8vh, 84px);
+    --nav-h: clamp(56px, 9.5vh, 92px);
   }
   .topbar {
-    gap: 12px;
-    padding: 4px 14px 0;
+    gap: clamp(10px, 1.2vw, 18px);
+    padding: 4px clamp(12px, 1.6vw, 32px) 0;
   }
   .topbar__home {
-    width: 48px;
-    height: 42px;
+    width: clamp(46px, 4.6vw, 64px);
+    height: clamp(40px, 6.5vh, 52px);
     margin-left: -4px;
   }
   .topbar__title {
-    font-size: clamp(20px, 3.6vh, 30px);
+    font-size: clamp(20px, 4.2vh, 40px);
   }
   .topbar__time {
-    font-size: clamp(22px, 4vh, 32px);
+    font-size: clamp(22px, 4.6vh, 44px);
   }
   .topbar__date {
-    font-size: 13px;
+    font-size: clamp(12px, 2.1vh, 18px);
   }
   .content {
-    padding: 4px 10px calc(var(--nav-h) + 8px);
+    padding: 2px clamp(10px, 1.4vw, 32px) calc(var(--nav-h) + 8px);
   }
   .bottom-nav__item {
-    min-height: 46px;
-    padding: 0 clamp(18px, 3vw, 48px);
-    font-size: 15px;
+    min-height: clamp(44px, 7vh, 60px);
+    padding: 0 clamp(18px, 3.2vw, 64px);
+    font-size: clamp(14px, 2.3vh, 18px);
   }
   .mode-pill {
     padding: 8px 16px;
     font-size: 14px;
   }
+  body:has(.board) .content {
+    max-width: none;
+  }
+  body:has(.board) .topbar {
+    background: none;
+    backdrop-filter: none;
+  }
+  body:has(.board) .bottom-nav {
+    background: rgba(9, 14, 23, 0.82);
+    border-top-color: rgba(190, 215, 255, 0.12);
+    backdrop-filter: none;
+  }
 
-  .home-fit {
+  .board {
+    --gap: clamp(8px, 1.1vh, 14px);
     height: calc(100dvh - var(--header-h) - var(--nav-h) - 12px);
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    grid-template-rows: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    grid-template-columns: minmax(0, 38fr) repeat(3, minmax(0, 20.6fr));
+    grid-template-rows: minmax(0, 1.16fr) minmax(0, 0.54fr) minmax(0, 0.46fr) minmax(0, 1fr);
+    grid-template-areas:
+      "weather climate  heating  blinds"
+      "weather lights   cameras  intercom"
+      "pv      lights   cameras  intercom"
+      "pv      music    calendar consumption";
+    gap: var(--gap);
   }
-  .home-fit__stack {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  .board::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(1200px 600px at 20% 0%, rgba(70, 120, 200, 0.22), transparent 70%),
+      var(--board-bg) center / cover no-repeat,
+      #0b1320;
+  }
+  .board__cell {
+    container-type: size;
+    min-width: 0;
     min-height: 0;
   }
-  .home-fit__stack > .card {
-    flex: 1 1 0;
-  }
-  .fit-card {
-    gap: 6px;
-    min-height: 0;
-    padding: 8px 12px 10px;
+  .board__cell--weather { grid-area: weather; }
+  .board__cell--pv { grid-area: pv; }
+  .board__cell--climate { grid-area: climate; }
+  .board__cell--heating { grid-area: heating; }
+  .board__cell--blinds { grid-area: blinds; }
+  .board__cell--lights { grid-area: lights; }
+  .board__cell--cameras { grid-area: cameras; }
+  .board__cell--intercom { grid-area: intercom; }
+  .board__cell--music { grid-area: music; }
+  .board__cell--calendar { grid-area: calendar; }
+  .board__cell--consumption { grid-area: consumption; }
+
+  /* Sklenená karta */
+  .board .card {
+    height: 100%;
+    gap: clamp(4px, 3cqmin, 12px);
+    padding: clamp(7px, 4.5cqmin, 18px) clamp(9px, 5cqmin, 20px);
     overflow: hidden;
+    border-radius: clamp(12px, 6cqmin, 20px);
+    background: linear-gradient(165deg, rgba(150, 180, 230, 0.17) 0%, rgba(90, 115, 160, 0.1) 40%, rgba(30, 42, 64, 0.34) 100%);
+    border: 1px solid rgba(195, 218, 255, 0.24);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.16),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+      0 10px 28px rgba(0, 0, 0, 0.38);
     animation: none;
   }
-  .fit-card .card__head {
-    min-height: 32px;
-    gap: 8px;
+  .board .card__head {
+    min-height: clamp(26px, 13cqmin, 40px);
+    gap: clamp(6px, 3cqmin, 12px);
   }
-  .fit-card .card__icon svg {
-    width: 22px;
-    height: 22px;
+  /* nadpisy rovnako veľké vo všetkých kartách (podľa výšky displeja) */
+  .board .card__icon svg {
+    width: clamp(18px, 3.2vh, 30px);
+    height: clamp(18px, 3.2vh, 30px);
   }
-  .fit-card .card__title {
-    font-size: 14px;
+  .board .card__title {
+    font-size: clamp(12px, 2.2vh, 21px);
   }
-  .fit-card.fit-weather .card__title {
-    font-size: 18px;
+  .board .card__more {
+    width: 40px;
+    height: 40px;
+    margin: -8px -10px -8px -6px;
   }
-  .fit-card .card__more {
-    width: 44px;
-    height: 44px;
-    margin: -8px -12px -8px -6px;
+  .board .card-error {
+    font-size: 12px;
+  }
+
+  /* Karty s obrázkom na pozadí (počasie, fotovoltika) */
+  .bcard__bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    pointer-events: none;
+    user-select: none;
+  }
+  .bcard--weather::before,
+  .bcard--pv::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .bcard--weather > :not(.bcard__bg),
+  .bcard--pv > :not(.bcard__bg) {
+    position: relative;
+    z-index: 2;
   }
 
   /* Počasie */
-  .fit-weather__now {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
+  .bcard--weather .bcard__bg {
+    object-position: 60% 30%;
   }
-  .fit-weather__temp {
-    font-size: clamp(40px, 9vh, 76px);
+  .bcard--weather::before {
+    background:
+      linear-gradient(90deg, rgba(8, 14, 26, 0.55) 0%, rgba(8, 14, 26, 0.1) 55%, transparent 100%),
+      linear-gradient(180deg, rgba(8, 14, 26, 0.25) 0%, transparent 30%, rgba(8, 14, 26, 0.55) 100%);
+  }
+  /* kým nie sú fotografie pre jednotlivé počasia, zamračené/dážď tlmí slnečnú fotografiu */
+  .bcard--weather.is-cloud .bcard__bg,
+  .bcard--weather.is-snow .bcard__bg {
+    filter: saturate(0.45) brightness(0.8);
+  }
+  .bcard--weather.is-rain .bcard__bg {
+    filter: saturate(0.35) brightness(0.62);
+  }
+  .bcard--weather .card__title {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: clamp(16px, 3.2vh, 30px);
+  }
+  .bw-now {
+    display: flex;
+    flex-direction: column;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+  }
+  .bw-now__temp {
+    font-size: clamp(40px, 24cqh, 128px);
     font-weight: 300;
-    line-height: 1;
+    line-height: 0.95;
     letter-spacing: -0.03em;
   }
-  .fit-weather__label {
-    font-size: 15px;
-    color: #dfe6f1;
+  .bw-now__label {
+    font-size: clamp(14px, 6.2cqh, 28px);
   }
-  .fit-forecast {
+  .bw-forecast {
     list-style: none;
     margin: auto 0 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    border-radius: 10px;
-    background: rgba(8, 12, 20, 0.35);
-    border: 1px solid var(--border);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-radius: clamp(10px, 4cqmin, 16px);
+    background: rgba(14, 22, 36, 0.58);
+    border: 1px solid rgba(195, 218, 255, 0.2);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
-  .fit-forecast li {
+  .bw-forecast li {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
-    padding: 6px 2px;
-    font-size: 13px;
+    gap: clamp(1px, 1cqh, 6px);
+    padding: clamp(4px, 2.4cqh, 14px) 2px;
+    font-size: clamp(11px, 4.6cqh, 19px);
+    white-space: nowrap;
   }
-  .fit-forecast li + li {
-    border-left: 1px solid var(--border);
+  .bw-forecast li + li {
+    border-left: 1px solid rgba(195, 218, 255, 0.14);
   }
-  .fit-forecast small {
-    color: var(--text-2);
-    font-size: 12px;
+  .bw-forecast li > :first-child {
+    color: #dfe7f3;
+  }
+  .bw-forecast svg,
+  .bw-forecast img {
+    width: clamp(22px, 11cqh, 52px);
+    height: clamp(22px, 11cqh, 52px);
   }
 
   /* Fotovoltika */
-  .fit-pv {
-    grid-column: span 2;
+  .bcard--pv .bcard__bg {
+    object-position: 50% 45%;
   }
-  .fit-pv__scene {
-    position: relative;
-    flex: 1 1 0;
-    min-height: 0;
+  .bcard--pv::before {
+    background: linear-gradient(180deg, rgba(8, 14, 26, 0.45) 0%, transparent 28%, transparent 55%, rgba(8, 14, 26, 0.6) 100%);
   }
-  .fit-pv__scene .pv-scene {
-    position: absolute;
-    inset: 0;
-    margin: auto;
-    width: auto;
-    height: 100%;
-    max-width: 100%;
-    aspect-ratio: 1136 / 616;
-  }
-
-  /* Klíma a kúrenie */
-  .fit-thermo__dial {
-    flex: 1 1 0;
-    min-height: 0;
+  .bpv-chip {
+    position: absolute !important;
+    top: clamp(44px, 18cqh, 80px);
+    right: clamp(9px, 5cqmin, 20px);
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 10px;
+    padding: clamp(6px, 2.6cqh, 12px) clamp(10px, 3cqi, 16px);
+    border-radius: 14px;
+    background: rgba(14, 22, 36, 0.66);
+    border: 1px solid rgba(195, 218, 255, 0.2);
+    font-size: clamp(11px, 4.4cqh, 16px);
+    max-width: 52%;
   }
-  .fit-thermo .thermo {
-    max-width: min(100% - 64px, calc(50dvh - 120px));
+  .bpv-chip span {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
   }
-  /* tlačidlá −/+ mimo stredu regulátora, aby neprekrývali texty */
-  .fit-thermo .thermo__btn--minus {
-    left: -18%;
-  }
-  .fit-thermo .thermo__btn--plus {
-    right: -18%;
-  }
-  .fit-thermo .thermo__mode,
-  .fit-thermo .thermo__current {
-    font-size: max(12px, 5.4cqi);
-  }
-
-  /* Rolety, svetlá */
-  .media--fit {
-    flex: 1 1 0;
-    min-height: 0;
-  }
-  .split-btns--row button {
-    flex-direction: row;
-    justify-content: center;
-    gap: 6px;
-    min-height: 44px;
-    font-size: 15px;
-  }
-
-  /* Kamery, vrátnik */
-  .fit-small {
-    justify-content: space-between;
-  }
-  .fit-small .row-btn {
-    min-height: 44px;
-    font-size: 15px;
-  }
-  .fit-small .row-btn > span {
+  .bpv-chip small {
+    color: var(--text-2);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .bpv-tiles {
+    margin-top: auto;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(6px, 2cqi, 12px);
+  }
+  .bpv-tile {
+    display: flex;
+    align-items: center;
+    gap: clamp(6px, 2.2cqi, 14px);
+    padding: clamp(6px, 3cqh, 14px) clamp(8px, 2.6cqi, 16px);
+    border-radius: clamp(10px, 4cqmin, 16px);
+    background: rgba(14, 22, 36, 0.62);
+    border: 1px solid rgba(195, 218, 255, 0.2);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    min-width: 0;
+  }
+  .bpv-tile svg {
+    flex: none;
+    width: clamp(20px, 9cqh, 36px);
+    height: clamp(20px, 9cqh, 36px);
+    color: #dfe7f3;
+  }
+  .bpv-tile span {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .bpv-tile small {
+    font-size: clamp(11px, 4.4cqh, 17px);
+    color: #c9d4e4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .bpv-tile strong {
+    font-size: clamp(15px, 7.4cqh, 30px);
+    font-weight: 600;
+    white-space: nowrap;
+  }
 
-  .fit-alert {
+  /* Klíma a kúrenie – existujúci regulátor, veľkosť podľa bunky */
+  .bthermo {
+    flex: 1 1 0;
+    min-height: 0;
+    container-type: size;
+    display: grid;
+    place-items: center;
+  }
+  /* −/+ v spodnej medzere prstenca ako na predlohe (neprekrývajú texty v strede) */
+  .bthermo .thermo {
+    width: min(86cqh, 80cqi);
+    max-width: none;
+    margin-bottom: 14cqh;
+  }
+  .bthermo .thermo__btn {
+    top: auto;
+    bottom: -17%;
+    width: max(40px, 25%);
+    height: max(40px, 25%);
+  }
+  .bthermo .thermo__btn--minus {
+    left: 2%;
+  }
+  .bthermo .thermo__btn--plus {
+    right: 2%;
+  }
+  .bcard--heating .daynight {
+    gap: clamp(6px, 2cqi, 10px);
+  }
+  .bcard--heating .daynight button {
+    min-height: 40px;
+    gap: 6px;
+    font-size: clamp(13px, 5cqmin, 16px);
+  }
+  .board .card .toggle {
+    transform-origin: right center;
+  }
+
+  /* Rolety, svetlá, kamery, vrátnik */
+  .board .media {
+    flex: 1 1 0;
+    min-height: 0;
+    border-radius: clamp(8px, 4cqmin, 14px);
+  }
+  .board .media__chip {
+    font-size: clamp(11px, 5cqmin, 14px);
+    padding: 3px 9px;
+    left: 8px;
+    bottom: 8px;
+  }
+  .board .split-btns {
+    gap: clamp(6px, 2.4cqi, 10px);
+  }
+  .board .split-btns button {
+    flex-direction: row;
+    justify-content: center;
+    gap: 6px;
+    min-height: 40px;
+    font-size: clamp(13px, 5.2cqmin, 17px);
+  }
+  .board .cam-hero {
+    flex: 1 1 0;
+    min-height: 0;
+  }
+  .board .cam-hero img {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 74%;
+    height: 100%;
+    max-height: none;
+    object-fit: contain;
+  }
+  .board .cam-hero__model {
+    font-size: clamp(11px, 4.6cqmin, 15px);
+  }
+  .board .row-btn {
+    min-height: 40px;
+    padding: 0 clamp(10px, 4cqi, 16px);
+    font-size: clamp(13px, 5.6cqmin, 18px);
+    border-radius: clamp(10px, 4cqmin, 14px);
+  }
+  .board .row-btn > span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .board .row-btn__sub {
+    font-size: clamp(11px, 4.6cqmin, 14px);
+  }
+  .board .row-btn__lead {
+    gap: clamp(8px, 4cqi, 18px);
+  }
+
+  /* Rádio a hudba */
+  .board .player {
+    gap: clamp(8px, 3cqi, 14px);
+    flex: 1 1 0;
+    min-height: 0;
+  }
+  .board .player__art {
+    width: clamp(40px, 34cqh, 110px);
+    height: clamp(40px, 34cqh, 110px);
+  }
+  .board .player__info {
+    font-size: clamp(11px, 5cqmin, 18px);
+  }
+  .board .player__info > span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .board .player__info strong {
+    font-size: clamp(13px, 6cqmin, 21px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .board .player__bar {
+    margin-top: clamp(4px, 2cqh, 10px);
+  }
+  .board .player__times {
+    font-size: clamp(10px, 4.2cqmin, 14px);
+  }
+  .board .player__ctrl {
+    gap: clamp(14px, 8cqi, 34px);
+  }
+  .board .player__ctrl .player__play {
+    width: clamp(40px, 20cqh, 60px);
+    height: clamp(40px, 20cqh, 60px);
+  }
+
+  /* Kalendár */
+  .board .cal-today {
+    font-size: clamp(12px, 6cqmin, 19px);
+    line-height: 1.1;
+    min-height: 0;
+  }
+  .board .cal-today strong {
+    font-size: clamp(28px, 22cqmin, 64px);
+  }
+  .board .cal-pill {
+    padding: clamp(5px, 2.6cqh, 12px) 12px;
+    font-size: clamp(12px, 5.6cqmin, 19px);
+  }
+
+  /* Spotreba */
+  .board .spark {
+    min-height: 0;
+    gap: clamp(4px, 2cqh, 10px);
+  }
+  .board .spark > svg {
+    min-height: 0;
+    margin-top: clamp(6px, 4cqh, 14px);
+  }
+  .board .spark__unit {
+    font-size: clamp(10px, 4.2cqmin, 14px);
+  }
+  .board .spark figcaption {
+    gap: 8px;
+    padding-left: clamp(0px, 6cqi, 40px);
+    font-size: clamp(11px, 5cqmin, 18px);
+    min-width: 0;
+  }
+  .board .spark figcaption span {
+    min-width: 0;
+  }
+  .board .spark figcaption span span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .board .spark figcaption svg {
+    width: clamp(18px, 8cqmin, 26px);
+    height: clamp(18px, 8cqmin, 26px);
+  }
+
+  .board-alert {
     position: fixed;
     top: calc(var(--header-h) + 8px);
     left: 50%;
@@ -3255,7 +3430,30 @@ button.card__more {
     width: min(460px, 90vw);
     transform: translateX(-50%);
   }
-  .fit-alert:empty {
+  .board-alert:empty {
+    display: none;
+  }
+}
+
+/* Malá bunka kúrenia (7" displej): Deň/Noc ako okrúhle tlačidlá v dolných rohoch, mimo regulátora */
+@container (max-height: 230px) {
+  .bcard--heating .daynight {
+    position: absolute;
+    left: clamp(7px, 4cqmin, 16px);
+    right: clamp(7px, 4cqmin, 16px);
+    top: calc(clamp(7px, 4.5cqmin, 18px) + clamp(26px, 13cqmin, 40px) + 6px);
+    width: auto;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+  .bcard--heating .daynight button {
+    pointer-events: auto;
+    width: 40px;
+    min-width: 0;
+    padding: 0;
+  }
+  .bcard--heating .daynight__label {
     display: none;
   }
 }

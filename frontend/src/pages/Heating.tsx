@@ -134,6 +134,34 @@ export function HeatingThermostat({ h, s, size, onCenterTap }: { h: HeatingCtl; 
   );
 }
 
+/** Rýchla voľba Deň (komfort) / Noc (útlm) – v režime AUTO ako dočasná zmena. */
+export function HeatingDayNight({ h, s }: { h: HeatingCtl; s: HeatingState }) {
+  const level = s.target_temp === s.comfort_temp ? "comfort" : s.target_temp === s.eco_temp ? "eco" : null;
+  return (
+    <div className="daynight" role="radiogroup" aria-label="Dočasne komfort alebo útlm">
+      {(
+        [
+          ["comfort", "Deň", "sun", s.comfort_temp],
+          ["eco", "Noc", "moon", s.eco_temp],
+        ] as const
+      ).map(([lvl, label, icon, temp]) => (
+        <button
+          key={lvl}
+          type="button"
+          role="radio"
+          aria-checked={level === lvl}
+          className={level === lvl ? "is-active" : ""}
+          title={`${LEVEL_NAME[lvl]} ${formatTemp(temp)}`}
+          aria-label={`${label} – ${LEVEL_NAME[lvl]} ${formatTemp(temp)}`}
+          onClick={() => void h.send(s.device_id, s.mode === "manual" ? { target_temp: temp } : { mode: "temporary", target_temp: temp })}
+        >
+          <Icon name={icon} size={20} filled={icon === "moon"} /> <span className="daynight__label">{label}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 // --- Kompaktná karta na hlavnej obrazovke ------------------------------------------
 
 export function HeatingCard({ h, onOpen }: { h: HeatingCtl; onOpen: () => void }) {
@@ -142,31 +170,11 @@ export function HeatingCard({ h, onOpen }: { h: HeatingCtl; onOpen: () => void }
     <Card title="Kúrenie" icon="heat" onOpen={onOpen} className="card--thermo" badge={<StatusBadge reading={r ?? null} compact hideDemo />}>
       <ReadingView reading={r} error={h.error} loading={h.loading}>
         {(s) => {
-          const level = s.target_temp === s.comfort_temp ? "comfort" : s.target_temp === s.eco_temp ? "eco" : null;
           return (
             <div className="thermo-card">
               <HeatingThermostat h={h} s={s} size={250} />
               <ModeTiles label="Režim kúrenia" value={s.mode} options={HEATING_MODE_TILES} onChange={(m) => sendMode(h, s, m, onOpen)} />
-              <div className="daynight" role="radiogroup" aria-label="Dočasne komfort alebo útlm">
-                {(
-                  [
-                    ["comfort", "Deň", "sun", s.comfort_temp],
-                    ["eco", "Noc", "moon", s.eco_temp],
-                  ] as const
-                ).map(([lvl, label, icon, temp]) => (
-                  <button
-                    key={lvl}
-                    type="button"
-                    role="radio"
-                    aria-checked={level === lvl}
-                    className={level === lvl ? "is-active" : ""}
-                    title={`${LEVEL_NAME[lvl]} ${formatTemp(temp)}`}
-                    onClick={() => void h.send(s.device_id, s.mode === "manual" ? { target_temp: temp } : { mode: "temporary", target_temp: temp })}
-                  >
-                    <Icon name={icon} size={20} filled={icon === "moon"} /> {label}
-                  </button>
-                ))}
-              </div>
+              <HeatingDayNight h={h} s={s} />
               {h.cmdError && <p className="card-error">{h.cmdError}</p>}
             </div>
           );

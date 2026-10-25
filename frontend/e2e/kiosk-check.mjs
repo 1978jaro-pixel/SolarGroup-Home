@@ -20,7 +20,7 @@ const BASE = process.env.SGH_URL ?? "http://127.0.0.1:8080";
 const USER = process.env.SGH_USER ?? "jaro";
 const PASS = process.env.SGH_PASS ?? "velmi-tajne-heslo";
 const SOAK_MIN = Number(process.env.SOAK_MIN ?? 0);
-const MODULES = ["Žilina", "Fotovoltika", "Klíma", "Kúrenie", "Rolety", "Svetlá", "Kamery", "Vrátnik"];
+const MODULES = ["Žilina", "Fotovoltika", "Klíma", "Kúrenie", "Rolety", "Svetlá", "Kamery", "Vrátnik", "Rádio a hudba", "Kalendár", "Spotreba"];
 
 const results = [];
 const check = (name, ok, detail = "") => {
@@ -64,7 +64,7 @@ async function layout(browser, w, h, expectFit) {
   if (expectFit) {
     check(`${tag}: bez vertikálneho posúvania`, m.sh <= m.ih, `výška obsahu ${m.sh} / ${m.ih}`);
     const missing = m.cards.filter((c) => !c.found || !c.inside).map((c) => c.t);
-    check(`${tag}: všetkých 8 modulov viditeľných nad spodnou lištou`, missing.length === 0, missing.join(", "));
+    check(`${tag}: všetkých 11 modulov viditeľných nad spodnou lištou`, missing.length === 0, missing.join(", "));
   }
   check(`${tag}: bez vodorovného posúvania`, m.sw <= m.iw, `šírka ${m.sw} / ${m.iw}`);
   check(`${tag}: dotykové prvky aspoň 40 px`, m.small.length === 0, m.small.join("; "));
@@ -183,7 +183,8 @@ try {
   await layout(browser, 1024, 600, true);
   await layout(browser, 1280, 800, true);
   await layout(browser, 1366, 768, true);
-  await layout(browser, 1920, 1080, false);
+  await layout(browser, 1920, 1080, true);
+  await layout(browser, 2560, 1440, true);
   await layout(browser, 390, 844, false);
   await keyboardLogin(browser);
   await mobileNoSecondKeyboard(browser);
