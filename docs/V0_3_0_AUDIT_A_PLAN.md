@@ -1,6 +1,6 @@
 # SolarGroup Home v0.3.0 – audit, návrh a plán
 
-Stav: **na schválenie**. Súčasťou je náhľad hlavnej obrazovky (snímky v
+Stav: **náhľad schválený**, etapa E1 hotová – pozri [E1_SPRAVA.md](E1_SPRAVA.md). Súčasťou je náhľad hlavnej obrazovky (snímky v
 [`docs/navrh-v0.3.0/`](navrh-v0.3.0/)). Ďalšie etapy sa začnú až po schválení náhľadu.
 Nič sa nenasadzuje na Raspberry Pi bez výslovného súhlasu.
 
@@ -173,8 +173,8 @@ Testy, ktoré nevykonám bez fyzického Pi, budú v odovzdaní označené ako **
 
 | Etapa | Obsah | Predpoklad |
 |---|---|---|
-| E0 | audit, plán, náhľad hlavnej obrazovky | ✅ (tento dokument) |
-| E1 | hlavná obrazovka finálne + podklady G1, G4, G5 + test na Pi 4 | schválenie náhľadu, podklady |
+| E0 | audit, plán, náhľad hlavnej obrazovky | ✅ schválené |
+| E1 | hlavná obrazovka finálne + podklady G1, G4, G5 + test na Pi 4 | ✅ kód hotový ([správa](E1_SPRAVA.md)); G4 a test na Pi čakajú |
 | E2 | Fotovoltika: dátový model, história, DEMO všetkých záložiek, grafy | – |
 | E3 | Fotovoltika LIVE: adaptér meniča/batérie/wallboxu, nastavenia, test komunikácie | kópia v1.4, modely zariadení |
 | E4 | Počasie: 10 dní, hodinová, mapa, výber mesta, offline | rozhodnutie o licencii Open-Meteo/radaru |

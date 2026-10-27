@@ -1423,26 +1423,14 @@ button.card__more {
 .pv-scene {
   position: relative;
   width: 100%;
-  aspect-ratio: 1136 / 616;
+  aspect-ratio: 1651 / 953;
 }
-.pv-scene__img {
+.pv-scene__house {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  user-select: none;
-  -webkit-mask-image:
-    linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%),
-    linear-gradient(180deg, transparent 0, #000 6%, #000 92%, transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask-image:
-    linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%),
-    linear-gradient(180deg, transparent 0, #000 6%, #000 92%, transparent 100%);
-  mask-composite: intersect;
 }
-.pv-scene.is-empty .pv-scene__img {
-  opacity: 0.55;
+.pv-scene.is-empty .house-scene__img {
+  opacity: 0.6;
   filter: saturate(0.6);
 }
 .pv-label {
@@ -1496,24 +1484,117 @@ button.card__more {
   );
 }
 .pv-label--solar {
-  left: 12%;
-  top: 2%;
+  left: 24%;
+  top: 0;
 }
 .pv-label--battery {
-  left: 73%;
-  top: 2%;
+  left: 66%;
+  top: 1%;
 }
 .pv-label--home {
-  left: 10%;
-  top: 79%;
+  left: 7%;
+  top: 80%;
 }
 .pv-label--grid {
-  left: 47%;
-  top: 79%;
+  left: 43%;
+  top: 80%;
 }
 .pv-label--charger {
-  right: 1%;
+  right: 2%;
   top: 80%;
+}
+
+/* ---------- Solárny dom: obrázok + vrstva tokov energie ---------- */
+.house-scene {
+  position: relative;
+  aspect-ratio: 1651 / 953;
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%),
+    linear-gradient(180deg, transparent 0, #000 7%, #000 88%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%),
+    linear-gradient(180deg, transparent 0, #000 7%, #000 88%, transparent 100%);
+  mask-composite: intersect;
+}
+.house-scene__img,
+.house-scene__flows {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+}
+.house-scene__img {
+  object-fit: contain;
+}
+.flow path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* nečinné vedenie: tmavá lišta na stene */
+.flow__duct {
+  stroke: rgba(40, 52, 70, 0.85);
+  stroke-width: 9;
+}
+.flow__glow {
+  stroke: rgba(45, 150, 255, 0.28);
+  stroke-width: 22;
+}
+.flow__core {
+  stroke: #2f9bff;
+  stroke-width: 6;
+}
+/* pohybujúce sa impulzy – smer podľa znamienka výkonu, rýchlosť podľa veľkosti */
+.flow__pulse {
+  stroke: #d9f1ff;
+  stroke-width: 6;
+  stroke-dasharray: 14 46;
+  animation: flow-move var(--flow-dur, 1.6s) linear infinite;
+}
+.flow.is-reverse .flow__pulse {
+  animation-direction: reverse;
+}
+.flow--ev .flow__core {
+  stroke: #36b4ff;
+}
+@keyframes flow-move {
+  to {
+    stroke-dashoffset: -60;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flow__pulse {
+    animation: none;
+  }
+}
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Diagnostika displeja (Nastavenia → Tento displej) */
+.disp-diag {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.disp-diag__list {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 4px 16px;
+  margin: 0;
+  font-size: 14px;
+}
+.disp-diag__list dt {
+  color: var(--text-2);
+}
+.disp-diag__list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 .pv-note {
   display: flex;
@@ -3099,7 +3180,7 @@ button.card__more {
     pointer-events: none;
   }
   .bcard--weather > :not(.bcard__bg),
-  .bcard--pv > :not(.bcard__bg) {
+  .bcard--pv > :not(.bcard__bg):not(.bpv-scene) {
     position: relative;
     z-index: 2;
   }
@@ -3173,11 +3254,18 @@ button.card__more {
   }
 
   /* Fotovoltika */
-  .bcard--pv .bcard__bg {
-    object-position: 50% 45%;
+  /* dom pod hlavičkou karty, celý v šírke karty (garáž ani auto sa neorežú) */
+  .bcard--pv > .bpv-scene {
+    position: absolute;
+    z-index: 0;
+    top: 4cqh;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    width: min(100%, calc(100cqh * 1.55));
   }
   .bcard--pv::before {
-    background: linear-gradient(180deg, rgba(8, 14, 26, 0.45) 0%, transparent 28%, transparent 55%, rgba(8, 14, 26, 0.6) 100%);
+    background: linear-gradient(180deg, rgba(8, 14, 26, 0.35) 0%, transparent 24%, transparent 62%, rgba(8, 14, 26, 0.45) 100%);
   }
   .bpv-chip {
     position: absolute !important;
@@ -3313,7 +3401,7 @@ button.card__more {
     position: absolute;
     inset: 0;
     margin: auto;
-    width: 74%;
+    width: min(74%, 328px); /* nie viac ako skutočné rozlíšenie obrázka */
     height: 100%;
     max-height: none;
     object-fit: contain;

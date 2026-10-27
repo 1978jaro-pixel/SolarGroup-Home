@@ -58,13 +58,27 @@ async function layout(browser, w, h, expectFit) {
       .map((b) => ({ b, r: b.getBoundingClientRect() }))
       .filter(({ r }) => r.height < 40 || r.width < 40)
       .map(({ b, r }) => `${(b.getAttribute("aria-label") || b.textContent).trim().slice(0, 24)} ${Math.round(r.width)}×${Math.round(r.height)}`);
-    return { sh: document.documentElement.scrollHeight, sw: document.documentElement.scrollWidth, ih: innerHeight, iw: innerWidth, cards, small };
+    // ostrosť: obrázok sa nesmie zväčšovať nad svoje skutočné rozlíšenie (dpr = mierka displeja)
+    const imgs = [...document.querySelectorAll(".board img")].filter((i) => i.offsetParent).map((i) => {
+      const r = i.getBoundingClientRect();
+      const ratio = i.naturalWidth / (r.width * devicePixelRatio);
+      return { src: (i.currentSrc || i.src).startsWith("data:") ? "vložený obrázok" : (i.currentSrc || i.src).split("/").pop().replace(/-[\w]{8}\./, "."), ratio: Math.round(ratio * 100) / 100, loaded: i.complete && i.naturalWidth > 0 };
+    });
+    const flows = document.querySelectorAll(".bcard--pv .flow.is-active").length;
+    return { sh: document.documentElement.scrollHeight, sw: document.documentElement.scrollWidth, ih: innerHeight, iw: innerWidth, cards, small, imgs, flows };
   }, MODULES);
   const tag = `${w}×${h}`;
   if (expectFit) {
     check(`${tag}: bez vertikálneho posúvania`, m.sh <= m.ih, `výška obsahu ${m.sh} / ${m.ih}`);
     const missing = m.cards.filter((c) => !c.found || !c.inside).map((c) => c.t);
     check(`${tag}: všetkých 11 modulov viditeľných nad spodnou lištou`, missing.length === 0, missing.join(", "));
+    const notLoaded = m.imgs.filter((i) => !i.loaded).map((i) => i.src);
+    check(`${tag}: všetky obrázky načítané`, notLoaded.length === 0, notLoaded.join(", "));
+    const upscaled = m.imgs.filter((i) => i.ratio < 0.98 && !i.src.startsWith("weather-zilina"));
+    check(`${tag}: obrázky sa nezväčšujú (ostrosť)`, upscaled.length === 0, upscaled.map((i) => `${i.src} ${i.ratio}×`).join(", ") || m.imgs.map((i) => `${i.src} ${i.ratio}×`).join(", "));
+    const weather = m.imgs.find((i) => i.src.startsWith("weather-zilina"));
+    if (weather) console.log(`INFO ${tag}: dočasná fotografia počasia ${weather.ratio}× (pod 1 = zväčšená, čaká na podklad G4)`);
+    check(`${tag}: animované toky energie na karte Fotovoltika (DEMO)`, m.flows > 0, `aktívnych tokov ${m.flows}`);
   }
   check(`${tag}: bez vodorovného posúvania`, m.sw <= m.iw, `šírka ${m.sw} / ${m.iw}`);
   check(`${tag}: dotykové prvky aspoň 40 px`, m.small.length === 0, m.small.join("; "));

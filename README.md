@@ -37,6 +37,7 @@ počítača – `localhost`). Predvolený režim je **DEMO**.
 
 - [docs/WINDOWS.md](docs/WINDOWS.md) – inštalácia a spustenie na Windows, vývojový režim
 - [docs/RASPBERRY_PI.md](docs/RASPBERRY_PI.md) – budúce bezpečné nasadenie na Raspberry Pi 4/5
+- [docs/V0_3_0_AUDIT_A_PLAN.md](docs/V0_3_0_AUDIT_A_PLAN.md) – v0.3.0: audit, plán a etapy; [docs/E1_SPRAVA.md](docs/E1_SPRAVA.md) – správa etapy E1
 - [docs/RASPBERRY_PI_KIOSK.md](docs/RASPBERRY_PI_KIOSK.md) – 7" kiosk 1024 × 600, dotyková klávesnica, diagnostika HDMI, aktualizácia a rollback
 - [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md) – architektúra, dátový model, API, bezpečnosť
 - [docs/INTEGRACIE.md](docs/INTEGRACIE.md) – adaptéry zariadení a ako pridať novú integráciu

@@ -1,4 +1,4 @@
-# Raspberry Pi 4 – kiosk na 7" displeji (verzia 0.2.0)
+# Raspberry Pi 4 – kiosk na 7" displeji (verzia 0.3.0)
 
 Cieľová zostava: Raspberry Pi 4 (1 GB RAM), Debian 13, labwc (Wayland), Waveshare 7" 1024 × 600
 na výstupe `HDMI-A-2`, Chromium. Úpravy sú kompatibilné s Pi 5 a väčšími displejmi.
@@ -9,7 +9,7 @@ na výstupe `HDMI-A-2`, Chromium. Úpravy sú kompatibilné s Pi 5 a väčšími
 
 ## 1. Hlavná obrazovka 1024 × 600 bez posúvania
 
-### Rozloženie (od v0.3.0 – náhľad na schválenie)
+### Rozloženie (v0.3.0 – schválené)
 
 Od verzie 0.3.0 má 7" displej **rovnaké rozloženie ako schválený návrh „Môj domov“** – všetkých
 11 modulov (vľavo Počasie a Fotovoltika, vpravo 3 × 3) bez posúvania. Podrobnosti a snímky:
@@ -94,6 +94,26 @@ Diagnostické súbory pošlite na analýzu. `dmesg` môže vyžadovať `sudo` �
   (`SGH_SLEEP_MINUTES` v `kiosk.env` a odkomentovanie riadku v autostarte). Kým diagnostika
   nevysvetlí hypotézu B, **neodporúčame ho**.
 - Celé Raspberry Pi sa nikdy automaticky nereštartuje.
+
+### Ostrosť a výkon (etapa E1)
+
+- **Mierka 1:1:** na 1024 × 600 musí byť okno 1024 × 600 CSS px a mierka (device pixel ratio) 1.
+  Overenie priamo na displeji: Nastavenia → Tento displej → **Zistiť parametre displeja**
+  (rozlíšenie, mierka, GPU, pamäť stránky) a **Zmerať plynulosť (FPS)**. Pri neceločíselnej mierke
+  aplikácia upozorní – vtedy nastavte mierku výstupu na 1 (`wlr-randr --output HDMI-A-2 --scale 1`)
+  alebo v `~/.config/solargroup-home/kiosk.env` `SGH_CHROMIUM_EXTRA=--force-device-scale-factor=1`.
+- **GPU:** ak diagnostika ukáže softvérové vykresľovanie (SwiftShader/llvmpipe), Chromium nepoužíva
+  GPU – na Pi 4 má byť „V3D“. Skúšobne `SGH_CHROMIUM_EXTRA=--enable-gpu-rasterization`
+  (zmenu vždy porovnať meraním FPS).
+- **Bez CSS zoomu a transformácií textu:** veľkosti sa počítajú z rozmerov bunky; text sa nikdy
+  nezväčšuje transformáciou. Sklenený vzhľad nepoužíva `backdrop-filter` (rozmazanie je vopred
+  pripravené v obrázku pozadia), takže obsah kariet sa nerozmazáva.
+- **Obrázky v dvoch veľkostiach:** solárny dom 826 px pre 7" a 1651 px pre Full HD (prehliadač
+  si vyberie sám). E2E test kontroluje, že sa žiadny obrázok nezväčšuje nad svoje rozlíšenie.
+  Výnimka: dočasná fotografia počasia (na 7" 1,08×, na Full HD rozmazaná – čaká na podklad G4).
+- **Animácie:** toky energie sú SVG čiary s pohybujúcimi sa impulzmi (iba pri skutočnom výkone).
+  Prepínač **Bez animácií** (Nastavenia → Tento displej) vypne všetky animácie a prechody;
+  rovnako sa správa systémové nastavenie „obmedziť pohyb“.
 
 ## 4. Stabilný kiosk (`sgh-kiosk.sh`)
 
@@ -188,7 +208,9 @@ cp /home/solargroup/autostart-povodny-v14.backup ~/.config/labwc/autostart
 | **Čierna obrazovka / HDMI – príčina** | na Pi, `sgh-diag.sh` počas výpadku | ⚠️ **NEOVERENÉ – príčina nie je známa** |
 | **`sgh-display-recover.sh` a `sgh-display-sleep.sh` na labwc** | na Pi | ⚠️ **NEOVERENÉ** |
 | **Inštalátor a rollback na skutočnom Debiane 13 so systemd** | na Pi (`--dry-run` najprv) | ⚠️ **NEOVERENÉ** |
-| Výkon animácií a regulátorov na Pi 4 | na Pi | ⚠️ **NEOVERENÉ** |
+| Výkon animácií a regulátorov na Pi 4 | na Pi, Nastavenia → Zmerať plynulosť | ⚠️ **NEOVERENÉ** |
+| Ostrosť (mierka 1, GPU V3D) na displeji Waveshare | na Pi, Nastavenia → Zistiť parametre | ⚠️ **NEOVERENÉ** |
+| Kontrast kariet na displeji Waveshare (deň/noc) | na Pi, vizuálne | ⚠️ **NEOVERENÉ** |
 
 ### Odporúčaný postup testu na Pi
 

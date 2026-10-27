@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import backdropImg from "../assets/design/backdrop.webp";
-import houseImg from "../assets/design/house.webp";
 import weatherImg from "../assets/design/weather-zilina.webp";
+import { HouseScene } from "../components/HouseScene";
 import { Icon, type IconName } from "../components/Icon";
 import { WeatherArt } from "../components/WeatherArt";
 import { Card, ReadingView, StatusBadge, Toggle } from "../components/ui";
@@ -87,7 +87,7 @@ function SolarBoard() {
   const grid = d ? (d.grid_kw > 0.05 ? "Sieť · odber" : d.grid_kw < -0.05 ? "Sieť · dodávka" : "Sieť") : "Sieť";
   return (
     <Card title="Fotovoltika" icon="solar" to="/fotovoltika" expand className="bcard bcard--pv" badge={badge(energy)}>
-      <img className="bcard__bg" src={houseImg} alt="" draggable={false} />
+      <HouseScene data={d} className="bpv-scene" />
       {!d && (
         <div className="bpv-chip">
           <Icon name="offline" size={22} />

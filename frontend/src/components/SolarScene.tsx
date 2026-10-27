@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
-import houseImg from "../assets/design/house.webp";
 import type { EnergySnapshot } from "../api/types";
+import { HouseScene } from "./HouseScene";
 
 /**
- * Fotovoltika podľa schváleného návrhu: 3D dom so solárnymi panelmi, batériou, garážou
- * a nabíjačkou elektromobilu. Hodnoty sa dopĺňajú zo živých údajov – bez údajov sa zobrazí „–“.
+ * Fotovoltika podľa schváleného návrhu: solárny dom s animovanými tokmi energie a popismi hodnôt.
+ * Hodnoty sa dopĺňajú zo živých údajov – bez údajov sa zobrazí „–“.
  */
 
 const nf1 = new Intl.NumberFormat("sk-SK", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -39,7 +39,7 @@ export function SolarScene({ data }: { data: EnergySnapshot | null }) {
   const gridDir = d ? (d.grid_kw > 0.05 ? " · odber" : d.grid_kw < -0.05 ? " · dodávka" : "") : "";
   return (
     <div className={`pv-scene ${d ? "" : "is-empty"}`}>
-      <img src={houseImg} alt="Dom so solárnymi panelmi, batériou, garážou a nabíjačkou elektromobilu" className="pv-scene__img" draggable={false} />
+      <HouseScene data={d} className="pv-scene__house" />
       <Label cls="pv-label--solar" label="Výroba" kw={d?.pv_kw ?? null} line="blue" />
       <Label
         cls="pv-label--battery"

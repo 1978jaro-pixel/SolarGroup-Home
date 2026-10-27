@@ -8,10 +8,12 @@ import { App } from "./App";
 import { Screensaver } from "./components/Screensaver";
 import { VirtualKeyboard } from "./components/VirtualKeyboard";
 import { AppProvider } from "./hooks/AppContext";
+import { applyReduceMotion } from "./utils/display";
 import { initKioskFromUrl, isKiosk } from "./utils/kiosk";
 
 // Kiosk (Raspberry Pi): ?kiosk=1 zapne dotykovú klávesnicu a potlačí kontextové menu dlhého dotyku.
 initKioskFromUrl();
+applyReduceMotion();
 document.addEventListener("contextmenu", (e) => {
   if (isKiosk() && !(e.target as HTMLElement).closest("input, textarea")) e.preventDefault();
 });

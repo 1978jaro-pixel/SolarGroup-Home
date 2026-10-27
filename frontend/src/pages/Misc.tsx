@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { getSaverMinutes, setSaverMinutes } from "../components/Screensaver";
+import { displayInfo, getReduceMotion, measureFps, setReduceMotion, type DisplayInfo } from "../utils/display";
 import { isKiosk, setKiosk } from "../utils/kiosk";
 import { Icon } from "../components/Icon";
 import { Card, EmptyState, PageHeader, Segmented, Toggle } from "../components/ui";
@@ -98,6 +99,7 @@ export function SettingsPage() {
 function KioskSettings() {
   const [kiosk, setKioskState] = useState(isKiosk);
   const [saver, setSaver] = useState(String(getSaverMinutes()));
+  const [calm, setCalm] = useState(getReduceMotion);
   return (
     <Card title="Tento displej" icon="settings">
       <div className="row row--between gap-s">
@@ -132,6 +134,89 @@ function KioskSettings() {
         />
         <p className="muted small mt">HDMI výstup sa nevypína, preto sa obraz vždy obnoví dotykom. Predvolene je šetrič vypnutý.</p>
       </div>
+      <div className="row row--between gap-s">
+        <span>
+          Bez animácií
+          <span className="muted small"> – šetrí výkon (toky energie sa zobrazia bez pohybu)</span>
+        </span>
+        <Toggle
+          label="Bez animácií"
+          checked={calm}
+          onChange={(v) => {
+            setReduceMotion(v);
+            setCalm(v);
+          }}
+        />
+      </div>
+      <DisplayDiagnostics />
     </Card>
+  );
+}
+
+/** Rozlíšenie, mierka, GPU a FPS – na overenie ostrosti a plynulosti priamo na displeji. */
+function DisplayDiagnostics() {
+  const [info, setInfo] = useState<DisplayInfo | null>(null);
+  const [fps, setFps] = useState<number | null>(null);
+  const [busy, setBusy] = useState(false);
+  return (
+    <div className="disp-diag">
+      <div className="row gap-s wrap">
+        <button type="button" className="btn" onClick={() => setInfo(displayInfo())}>
+          <Icon name="info" size={18} /> Zistiť parametre displeja
+        </button>
+        <button
+          type="button"
+          className="btn"
+          disabled={busy}
+          onClick={() => {
+            setBusy(true);
+            void measureFps().then((v) => {
+              setFps(v);
+              setBusy(false);
+            });
+          }}
+        >
+          <Icon name="chart" size={18} /> {busy ? "Meria sa…" : "Zmerať plynulosť (FPS)"}
+        </button>
+      </div>
+      {(info || fps != null) && (
+        <dl className="disp-diag__list">
+          {info && (
+            <>
+              <dt>Okno (CSS px)</dt>
+              <dd>{info.viewport}</dd>
+              <dt>Obrazovka</dt>
+              <dd>{info.screen}</dd>
+              <dt>Mierka (DPR)</dt>
+              <dd>{info.dpr}</dd>
+              <dt>Fyzické pixely</dt>
+              <dd>{info.physical}</dd>
+              <dt>GPU</dt>
+              <dd>
+                {info.gpu}
+                {info.gpuAccelerated === false && " (bez akcelerácie)"}
+              </dd>
+              <dt>Pamäť stránky</dt>
+              <dd>{info.heapMb != null ? `${info.heapMb} MB` : "–"}</dd>
+              <dt>Jadrá CPU</dt>
+              <dd>{info.cores ?? "–"}</dd>
+              <dt>Prehliadač</dt>
+              <dd>{info.browser}</dd>
+            </>
+          )}
+          {fps != null && (
+            <>
+              <dt>Plynulosť</dt>
+              <dd>{fps} snímok/s</dd>
+            </>
+          )}
+        </dl>
+      )}
+      {info?.warnings.map((w) => (
+        <p key={w} className="card-error">
+          {w}
+        </p>
+      ))}
+    </div>
   );
 }
