@@ -81,7 +81,7 @@ fp_before="$(protected_fingerprint)"
 ok "odtlačok $SGH_PROTECTED: ${fp_before:0:16}…"
 need_pip=0
 if ! cmp -s "$PKG/backend/requirements.txt" "$APP_DIR/backend/requirements.txt" ||
-  ! sudo -u "$SVC_USER" "$PY" -c 'import fastapi, uvicorn, pydantic_settings, httpx, tzdata' 2>/dev/null; then
+  ! sudo -u "$SVC_USER" "$PY" -c 'import fastapi, uvicorn, pydantic_settings, httpx, tzdata, cryptography, icalendar, recurring_ical_events' 2>/dev/null; then
   need_pip=1
   warn "zmenené alebo chýbajúce Python balíky – bude potrebný internet (pip install)"
 fi

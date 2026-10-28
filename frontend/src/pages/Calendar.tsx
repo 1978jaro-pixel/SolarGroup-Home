@@ -347,13 +347,13 @@ export function CalendarPage() {
             <>
               <div className="cal-nav">
                 <button type="button" className="round-btn" aria-label="Predchádzajúci týždeň" onClick={() => setSelected(addDays(selected, -7))}>
-                  <Icon name="prev" size={20} filled />
+                  <Icon name="back" size={22} />
                 </button>
                 <strong>
                   {from.getDate()}. – {addDays(from, 6).getDate()}. {cap(MONTH.format(addDays(from, 6)))}
                 </strong>
                 <button type="button" className="round-btn" aria-label="Nasledujúci týždeň" onClick={() => setSelected(addDays(selected, 7))}>
-                  <Icon name="next" size={20} filled />
+                  <Icon name="chevron" size={22} />
                 </button>
               </div>
               <div className="cal-days">
@@ -367,11 +367,11 @@ export function CalendarPage() {
             <>
               <div className="cal-nav">
                 <button type="button" className="round-btn" aria-label="Predchádzajúci mesiac" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))}>
-                  <Icon name="prev" size={20} filled />
+                  <Icon name="back" size={22} />
                 </button>
                 <strong>{cap(MONTH.format(month))}</strong>
                 <button type="button" className="round-btn" aria-label="Nasledujúci mesiac" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))}>
-                  <Icon name="next" size={20} filled />
+                  <Icon name="chevron" size={22} />
                 </button>
               </div>
               <div className="cal-month-wrap">

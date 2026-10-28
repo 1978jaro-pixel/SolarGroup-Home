@@ -815,7 +815,10 @@ button.card__more {
   font-size: 14px;
   color: var(--text-2);
 }
-.field input {
+.field input,
+.radio-search input,
+.radio-custom input,
+.radio-out select {
   min-height: var(--touch);
   padding: 0 14px;
   border-radius: 12px;
@@ -824,7 +827,10 @@ button.card__more {
   color: var(--text);
   color-scheme: dark;
 }
-.field input:focus {
+.field input:focus,
+.radio-search input:focus,
+.radio-custom input:focus,
+.radio-out select:focus {
   outline: 2px solid var(--accent);
   outline-offset: 0;
 }
@@ -1838,6 +1844,8 @@ html.reduce-motion *::after {
   overflow: hidden;
 }
 .cal-card__list li {
+  flex-shrink: 0;
+  line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -20,7 +20,8 @@ const BASE = process.env.SGH_URL ?? "http://127.0.0.1:8080";
 const USER = process.env.SGH_USER ?? "jaro";
 const PASS = process.env.SGH_PASS ?? "velmi-tajne-heslo";
 const SOAK_MIN = Number(process.env.SOAK_MIN ?? 0);
-const MODULES = ["Žilina", "Fotovoltika", "Klíma", "Kúrenie", "Rolety", "Svetlá", "Kamery", "Vrátnik", "Rádio a hudba", "Kalendár", "Spotreba"];
+// Karta Fotovoltika nemá nadpis (iba scéna s domom) – overuje sa cez .bcard--pv.
+const MODULES = ["Žilina", "Klíma", "Kúrenie", "Rolety", "Svetlá", "Kamery", "Vrátnik", "Rádio a hudba", "Kalendár", "Spotreba"];
 
 const results = [];
 const check = (name, ok, detail = "") => {
@@ -53,6 +54,14 @@ async function layout(browser, w, h, expectFit) {
       const r = el.closest(".card").getBoundingClientRect();
       return { t, found: true, inside: r.top >= 0 && r.left >= 0 && r.right <= innerWidth + 0.5 && r.bottom <= nav.top + 0.5 };
     });
+    const pvEl = document.querySelector(".bcard--pv");
+    if (pvEl) {
+      const r = pvEl.getBoundingClientRect();
+      cards.push({ t: "Fotovoltika", found: true, inside: r.top >= 0 && r.left >= 0 && r.right <= innerWidth + 0.5 && r.bottom <= nav.top + 0.5 });
+    } else cards.push({ t: "Fotovoltika", found: false });
+    const labels = [...document.querySelectorAll(".bcard--pv .pvs-lab")].map((l) => l.getBoundingClientRect());
+    const pvBox = pvEl?.getBoundingClientRect();
+    const labelsInside = pvBox ? labels.every((r) => r.left >= pvBox.left - 0.5 && r.right <= pvBox.right + 0.5 && r.top >= pvBox.top - 0.5 && r.bottom <= pvBox.bottom + 0.5) : false;
     const small = [...document.querySelectorAll(".content button, .content a, .bottom-nav a")]
       .filter((b) => b.offsetParent && b.getAttribute("role") !== "switch")
       .map((b) => ({ b, r: b.getBoundingClientRect() }))
@@ -64,14 +73,15 @@ async function layout(browser, w, h, expectFit) {
       const ratio = i.naturalWidth / (r.width * devicePixelRatio);
       return { src: (i.currentSrc || i.src).startsWith("data:") ? "vložený obrázok" : (i.currentSrc || i.src).split("/").pop().replace(/-[\w]{8}\./, "."), ratio: Math.round(ratio * 100) / 100, loaded: i.complete && i.naturalWidth > 0 };
     });
-    const flows = document.querySelectorAll(".bcard--pv .flow.is-active").length;
-    return { sh: document.documentElement.scrollHeight, sw: document.documentElement.scrollWidth, ih: innerHeight, iw: innerWidth, cards, small, imgs, flows };
+    const flows = document.querySelectorAll(".bcard--pv .pvf").length;
+    const audio = [...document.querySelectorAll("audio")].map((a) => a.paused);
+    return { sh: document.documentElement.scrollHeight, sw: document.documentElement.scrollWidth, ih: innerHeight, iw: innerWidth, cards, small, imgs, flows, labels: labels.length, labelsInside, audio };
   }, MODULES);
   const tag = `${w}×${h}`;
   if (expectFit) {
     check(`${tag}: bez vertikálneho posúvania`, m.sh <= m.ih, `výška obsahu ${m.sh} / ${m.ih}`);
     const missing = m.cards.filter((c) => !c.found || !c.inside).map((c) => c.t);
-    check(`${tag}: všetkých 11 modulov viditeľných nad spodnou lištou`, missing.length === 0, missing.join(", "));
+    check(`${tag}: všetkých ${MODULES.length + 1} modulov viditeľných nad spodnou lištou`, missing.length === 0, missing.join(", "));
     const notLoaded = m.imgs.filter((i) => !i.loaded).map((i) => i.src);
     check(`${tag}: všetky obrázky načítané`, notLoaded.length === 0, notLoaded.join(", "));
     const upscaled = m.imgs.filter((i) => i.ratio < 0.98 && !i.src.startsWith("weather-zilina"));
@@ -79,6 +89,8 @@ async function layout(browser, w, h, expectFit) {
     const weather = m.imgs.find((i) => i.src.startsWith("weather-zilina"));
     if (weather) console.log(`INFO ${tag}: dočasná fotografia počasia ${weather.ratio}× (pod 1 = zväčšená, čaká na podklad G4)`);
     check(`${tag}: animované toky energie na karte Fotovoltika (DEMO)`, m.flows > 0, `aktívnych tokov ${m.flows}`);
+    check(`${tag}: 5 hodnôt fotovoltiky v rámci karty`, m.labels === 5 && m.labelsInside, `popisov ${m.labels}`);
+    check(`${tag}: rádio sa po štarte samo nespustí`, m.audio.every((p) => p), `audio paused=${JSON.stringify(m.audio)}`);
   }
   check(`${tag}: bez vodorovného posúvania`, m.sw <= m.iw, `šírka ${m.sw} / ${m.iw}`);
   check(`${tag}: dotykové prvky aspoň 40 px`, m.small.length === 0, m.small.join("; "));
@@ -94,6 +106,22 @@ async function layout(browser, w, h, expectFit) {
     check(`${tag}: detailné okno v rámci obrazovky`, r.y >= 0 && r.y + r.height <= h + 0.5, JSON.stringify(r));
     await page.screenshot({ path: `e2e/out/kurenie-${w}x${h}.png` });
     await page.keyboard.press("Escape");
+    await page.waitForTimeout(300);
+
+    // ťuknutie na kartu Fotovoltika otvorí detail na celú obrazovku
+    await page.locator(".bcard--pv").tap();
+    await page.waitForURL("**/fotovoltika", { timeout: 3000 });
+    const hero = await page.locator(".pv-hero .pvs").boundingBox();
+    check(`${tag}: karta Fotovoltika otvorí detail`, !!hero, JSON.stringify(hero));
+    await page.screenshot({ path: `e2e/out/fotovoltika-${w}x${h}.png` });
+    for (const [path, name, file] of [["/hudba", "Rádio a hudba", "radio"], ["/kalendar", "Kalendár", "kalendar"]]) {
+      await page.goto(`${BASE}${path}`);
+      await page.getByRole("heading", { name, level: 1 }).waitFor({ timeout: 5000 });
+      await page.waitForTimeout(600);
+      const sw = await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth);
+      check(`${tag}: ${name} bez vodorovného posúvania`, sw);
+      await page.screenshot({ path: `e2e/out/${file}-${w}x${h}.png` });
+    }
   }
   await ctx.close();
 }
