@@ -11,12 +11,12 @@ import { WeatherArt, WeatherHero } from "../components/WeatherArt";
 import { Card, EmptyState, ReadingView, StatusBadge } from "../components/ui";
 import { useApp } from "../hooks/AppContext";
 import { useResource } from "../hooks/useResource";
-import { dateParts, formatKwh, plural, weatherInfo, weekdayName } from "../utils/format";
-import { meninyFor } from "../utils/meniny";
+import { formatKwh, plural, weatherInfo, weekdayName } from "../utils/format";
 import { useBlindGroup, useBlinds } from "./Blinds";
 import { ClimateCard, ClimateModal, useClimate } from "./Climate";
 import { HeatingCard, HeatingModal, useHeating } from "./Heating";
 import { useLights } from "./Lights";
+import { CalendarCard } from "./Calendar";
 import { RadioCard } from "./Radio";
 import { useWeather } from "./Weather";
 import { HomeBoard } from "./HomeBoard";
@@ -149,22 +149,6 @@ export function IntercomCard() {
         </span>
         <Icon name="chevron" size={20} />
       </Link>
-    </Card>
-  );
-}
-
-export function CalendarCard() {
-  const now = new Date();
-  const { weekday, day, month } = dateParts(now);
-  const meniny = meninyFor(now);
-  return (
-    <Card title="Kalendár" icon="calendar" to="/kalendar">
-      <div className="cal-today">
-        <span>{weekday}</span>
-        <strong>{day}</strong>
-        <span>{month}</span>
-      </div>
-      <div className="cal-pill">{meniny ? `Meniny: ${meniny}` : "Dnes nemá meniny nikto"}</div>
     </Card>
   );
 }

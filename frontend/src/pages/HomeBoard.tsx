@@ -9,7 +9,8 @@ import { useApp } from "../hooks/AppContext";
 import { weatherInfo, weekdayName } from "../utils/format";
 import { ClimateThermostat, type ClimateCtl } from "./Climate";
 import { HeatingDayNight, HeatingThermostat, type HeatingCtl } from "./Heating";
-import { BlindsCard, CalendarCard, CamerasCard, ConsumptionCard, IntercomCard, LightsCard } from "./Home";
+import { CalendarCard } from "./Calendar";
+import { BlindsCard, CamerasCard, ConsumptionCard, IntercomCard, LightsCard } from "./Home";
 import { RadioCard } from "./Radio";
 import { useWeather } from "./Weather";
 

@@ -258,3 +258,45 @@ export interface RadioState {
   station_id: string | null;
   volume: number;
 }
+
+// --- Kalendár ------------------------------------------------------------------------
+
+export interface CalendarEvent {
+  source_id: string;
+  cal_id: string;
+  uid: string;
+  title: string;
+  location: string;
+  /** ISO dátum (celodenná) alebo dátum a čas s posunom (Europe/Bratislava) */
+  start: string;
+  end: string;
+  all_day: boolean;
+  color: string;
+  calendar: string;
+}
+
+export interface CalendarEvents {
+  events: CalendarEvent[];
+  sources: number;
+  synced_at: string | null;
+  stale: boolean;
+}
+
+export interface CalendarSource {
+  id: string;
+  kind: "google" | "ical";
+  name: string;
+  account: string;
+  enabled: boolean;
+  last_sync: string | null;
+  last_ok: string | null;
+  last_error: string | null;
+  calendars: { cal_id: string; name: string; color: string; selected: boolean }[];
+}
+
+export interface CalendarStatus {
+  google_configured: boolean;
+  google_login_host: string;
+  sync_minutes: number;
+  sources: CalendarSource[];
+}

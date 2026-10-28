@@ -46,6 +46,14 @@ class Settings(BaseSettings):
     weather_lat: float = 49.2231
     weather_lon: float = 18.7394
 
+    # Google Kalendár (OAuth 2.0, iba čítanie). Klient typu „Desktop app“ v Google Cloud Console;
+    # prihlásenie sa spúšťa priamo na displeji zariadenia (adresa 127.0.0.1).
+    google_client_id: str | None = None
+    google_client_secret: SecretStr | None = None
+    google_redirect_uri: str = "http://127.0.0.1:8080/api/calendar/google/callback"
+    # Synchronizácia kalendárov na pozadí (minúty, 0 = vypnutá)
+    calendar_sync_minutes: int = 10
+
     frontend_dist: Path = PROJECT_DIR / "frontend" / "dist"
 
     @property

@@ -1,5 +1,6 @@
 """Vstupný bod FastAPI aplikácie."""
 
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -11,11 +12,13 @@ from fastapi.staticfiles import StaticFiles
 from . import __version__
 from .adapters import build_adapters
 from .auth import AuthService
+from .calendar_sync import CalendarService
 from .config import Settings, get_settings
 from .db import Database
 from .events import EventBus
 from .radio import RadioService
-from .routers import auth, devices, radio, system, thermostats
+from .routers import auth, calendar, devices, radio, system, thermostats
+from .secrets_store import SecretStore
 
 log = logging.getLogger("solargroup_home")
 
@@ -37,7 +40,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         log.info("SolarGroup Home %s štartuje v režime %s", __version__, settings.mode.upper())
+        # synchronizácia kalendárov na pozadí (neblokuje dashboard)
+        task = (
+            asyncio.create_task(app.state.calendar.run_forever())
+            if settings.calendar_sync_minutes > 0
+            else None
+        )
         yield
+        if task:
+            task.cancel()
 
     app = FastAPI(
         title="SolarGroup Home",
@@ -57,6 +68,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.adapters = build_adapters(settings, db)
     app.state.bus = EventBus()
     app.state.radio = RadioService(settings.data_path)
+    app.state.secrets = SecretStore(settings.data_path)
+    app.state.calendar = CalendarService(db, settings, app.state.secrets)
 
     @app.middleware("http")
     async def security_headers(request: Request, call_next):
@@ -70,6 +83,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(devices.router)
     app.include_router(thermostats.router)
     app.include_router(radio.router)
+    app.include_router(calendar.router)
 
     @app.api_route("/api/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
     def api_not_found(path: str):

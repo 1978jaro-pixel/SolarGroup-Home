@@ -4,40 +4,8 @@ import { getSaverMinutes, setSaverMinutes } from "../components/Screensaver";
 import { displayInfo, getReduceMotion, measureFps, setReduceMotion, type DisplayInfo } from "../utils/display";
 import { isKiosk, setKiosk } from "../utils/kiosk";
 import { Icon } from "../components/Icon";
-import { Card, EmptyState, PageHeader, Segmented, Toggle } from "../components/ui";
+import { Card, PageHeader, Segmented, Toggle } from "../components/ui";
 import { useApp } from "../hooks/AppContext";
-
-export function CalendarPage() {
-  const today = new Date();
-  const first = new Date(today.getFullYear(), today.getMonth(), 1);
-  const offset = (first.getDay() + 6) % 7;
-  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-  const cells = Array.from({ length: offset + daysInMonth }, (_, i) => (i < offset ? null : i - offset + 1));
-  return (
-    <>
-      <PageHeader title="Kalendár" subtitle={today.toLocaleDateString("sk-SK", { month: "long", year: "numeric" })} />
-      <div className="grid grid--detail">
-        <Card>
-          <div className="calendar">
-            {["Po", "Ut", "St", "Št", "Pi", "So", "Ne"].map((d) => (
-              <span key={d} className="calendar__dow">
-                {d}
-              </span>
-            ))}
-            {cells.map((d, i) => (
-              <span key={i} className={`calendar__day ${d === today.getDate() ? "is-today" : ""}`}>
-                {d ?? ""}
-              </span>
-            ))}
-          </div>
-        </Card>
-        <Card title="Udalosti" icon="calendar">
-          <EmptyState icon="calendar" title="Žiadny prepojený kalendár" text="Prepojenie s kalendárom doplníme neskôr – vždy ako voliteľnú funkciu, ovládanie domácnosti nebude závisieť od cloudu." />
-        </Card>
-      </div>
-    </>
-  );
-}
 
 export function SettingsPage() {
   const { user, mode, logout } = useApp();
