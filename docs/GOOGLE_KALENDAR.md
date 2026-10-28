@@ -72,7 +72,8 @@ v domácej sieti (napr. `http://192.168.1.192:8080`). Z telefónu alebo PC v sie
 zobrazí vysvetlenie namiesto prihlásenia. Ak potrebujete prihlásenie aj zo vzdialeného prehliadača,
 je potrebná HTTPS adresa s doménou (reverse proxy) – mimo rozsahu E2.
 
-Ak dotyková klávesnica pri prihlásení Google nestačí, pripojte dočasne USB klávesnicu.
+**Na prihlásenie pripojte dočasne USB klávesnicu.** Dotyková klávesnica SolarGroup Home funguje iba
+v aplikácii, nie na stránke Google. Ak máte zapnuté overenie v dvoch krokoch, potvrďte ho na telefóne.
 
 ### Zrušenie prístupu
 - v SolarGroup Home: **Kalendár → Prepojené kalendáre → kôš** (token sa vymaže z databázy);
@@ -85,6 +86,8 @@ Ak dotyková klávesnica pri prihlásení Google nestačí, pripojte dočasne US
 1. Na počítači otvorte <https://calendar.google.com> → **⚙ Nastavenia** → vľavo vyberte kalendár.
 2. Časť **Integrovať kalendár** → **Tajná adresa vo formáte iCal** → skopírujte.
 3. V SolarGroup Home: **Kalendár → Pridať iCal kalendár** → vložte adresu → **Pridať**.
+   Toto sa dá urobiť aj z prehliadača na PC (napr. `http://192.168.1.192:8080/kalendar`) –
+   adresu stačí skopírovať a vložiť, na Pi netreba klávesnicu.
    Adresa sa pred uložením overí (stiahnutie a kontrola formátu) a uloží sa šifrovane.
 
 Adresu nezdieľajte – kto ju pozná, vidí udalosti. Ak unikne, v Google Kalendári ju **Obnovte**

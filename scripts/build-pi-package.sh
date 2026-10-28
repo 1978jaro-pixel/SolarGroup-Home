@@ -22,18 +22,19 @@ cp backend/requirements.txt backend/.env.example "$STAGE/backend/"
 cp -a frontend/dist "$STAGE/frontend/dist"
 cp -a deploy docs scripts "$STAGE/"
 cp README.md "$STAGE/"
-cp deploy/pi/install-pi-update.sh deploy/pi/sgh-rollback.sh deploy/pi/sgh-install-lib.sh "$STAGE/"
+cp deploy/pi/install-pi-update.sh deploy/pi/sgh-rollback.sh deploy/pi/sgh-install-lib.sh deploy/pi/sgh-full-backup.sh deploy/pi/sgh-preflight.sh "$STAGE/"
 find "$STAGE" -name '__pycache__' -prune -exec rm -rf {} +
 echo "$VERSION" >"$STAGE/VERSION"
 cat >"$STAGE/NAINSTALUJ.txt" <<TXT
 SolarGroup Home $VERSION – aktualizácia na Raspberry Pi
 
-1. Skúška (nič nemení):   ./install-pi-update.sh --dry-run
-2. Aktualizácia:          ./install-pi-update.sh
-3. Zapnutie kiosku:       ~/solargroup-home-kiosk/sgh-autostart.sh enable
-4. Návrat späť:           ~/solargroup-home-backups/<záloha>/sgh-rollback.sh
+1. Kontrola (nič nemení): ./sgh-preflight.sh
+2. Úplná záloha:          ./sgh-full-backup.sh
+3. Skúška (nič nemení):   ./install-pi-update.sh --dry-run
+4. Aktualizácia:          ./install-pi-update.sh
+5. Návrat späť:           ~/solargroup-home-backups/<záloha>/sgh-rollback.sh <záloha>
 
-Podrobne: docs/RASPBERRY_PI_KIOSK.md
+Podrobne: docs/NASADENIE_E2.md (kiosk: docs/RASPBERRY_PI_KIOSK.md)
 TXT
 tar -C "$OUT" -czf "$OUT/$NAME.tar.gz" "$NAME"
 (cd "$OUT" && sha256sum "$NAME.tar.gz" >"$NAME.tar.gz.sha256")
