@@ -2,6 +2,15 @@ import cv2, numpy as np, sys
 SC = float(sys.argv[1]) if len(sys.argv) > 1 else 0.36
 NOSE = (int(sys.argv[2]) if len(sys.argv) > 2 else 1276, int(sys.argv[3]) if len(sys.argv) > 3 else 692)
 car = cv2.imread('car_noplate.png'); m = cv2.imread('car_mask.png', 0)
+# biela farba karosérie: lak (stredne svetlý, mierne sýty) → neutrálna biela; sklo, pneumatiky, svetlá ostávajú
+hsv = cv2.cvtColor(car, cv2.COLOR_BGR2HSV).astype(np.float32)
+Hh, Ss, Vv = hsv[..., 0], hsv[..., 1], hsv[..., 2]
+paint = (Vv > 70) & (Hh > 70) & (Hh < 110) & (Ss > 18)
+pw = cv2.GaussianBlur(paint.astype(np.float32), (0, 0), 1.2)
+gray = cv2.cvtColor(car, cv2.COLOR_BGR2GRAY).astype(np.float32)
+white = np.clip(gray * 1.22 + 46, 0, 255)
+white3 = np.stack([white * 0.985, white * 0.99, white], -1)
+car = (car.astype(np.float32) * (1 - pw[..., None]) + white3 * pw[..., None]).astype(np.uint8)
 # doplnenie tmavých častí predného nárazníka (mriežky), ktoré segmentácia vynechala
 cv2.fillPoly(m, [np.array([(322, 690), (332, 845), (600, 858), (875, 850), (905, 780), (885, 690)], np.int32)], 255)
 # odstrániť prípadné pozadie pod autom mimo karosérie (tiene ostanú z masky)
@@ -22,7 +31,7 @@ tesla = np.zeros((hh, hw), np.uint8)
 cv2.fillPoly(tesla, [np.array([(1108, 534), (1150, 538), (1205, 573), (1252, 598), (1279, 610), (1283, 670), (1262, 702), (1108, 706)], np.int32)], 255)
 cable = ((G - R) > 40) & (G > 110)
 cable_top = cable & (np.arange(hw)[None, :] > 1271)
-tesla[cable] = 0
+tesla[cable & (np.arange(hw)[None, :] > 1262)] = 0
 clean = cv2.inpaint(house, tesla, 7, cv2.INPAINT_NS)
 # zjemnenie retušovanej plochy (iba stena za autom)
 soft = cv2.GaussianBlur(clean, (0, 0), 5)
@@ -57,9 +66,9 @@ graded = np.clip(graded, 0, 255)
 out = clean.astype(np.float32)
 sh = np.zeros((hh, hw), np.float32)
 cy = NOSE[1] - 2
-cv2.ellipse(sh, (NOSE[0] - int(150 * SC / 0.36), cy), (int(170 * SC / 0.36), 9), 0, 0, 360, 0.75, -1)
+cv2.ellipse(sh, (NOSE[0] - int(150 * SC / 0.36), cy), (int(170 * SC / 0.36), 11), 0, 0, 360, 0.75, -1)
 sh = cv2.GaussianBlur(sh, (0, 0), 6)[..., None]
-out = out * (1 - sh * 0.8)
+out = out * (1 - sh * 0.9)
 # 4) vloženie auta, iba v otvore garáže (ľavý stĺp zakrýva zadok auta)
 opening = np.zeros((hh, hw), np.float32)
 cv2.fillPoly(opening, [np.array([(1105, 478), (1368, 478), (1368, 760), (1105, 760)], np.int32)], 1.0)
@@ -72,6 +81,7 @@ alpha *= opening
 a = alpha[..., None]
 out = out * (1 - a) + layer * a
 # 5) kábel z pôvodného obrázka ostáva navrchu
+cable_top &= alpha < 0.5
 out[cable_top] = house[cable_top]
 cv2.imwrite('composite.png', out.astype(np.uint8))
 cv2.imwrite('comp_zoom.png', cv2.resize(out.astype(np.uint8)[440:720, 1060:1400], (1020, 840), interpolation=cv2.INTER_LANCZOS4))
