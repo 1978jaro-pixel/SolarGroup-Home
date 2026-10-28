@@ -7,17 +7,6 @@ import { Icon } from "../components/Icon";
 import { Card, EmptyState, PageHeader, Segmented, Toggle } from "../components/ui";
 import { useApp } from "../hooks/AppContext";
 
-export function MusicPage() {
-  return (
-    <>
-      <PageHeader title="Hudba" />
-      <Card>
-        <EmptyState icon="music" title="Modul pripravujeme" text="Sem doplníme ovládanie hudby (napr. reproduktory v miestnostiach). Zatiaľ nie je pripojený žiadny prehrávač." />
-      </Card>
-    </>
-  );
-}
-
 export function CalendarPage() {
   const today = new Date();
   const first = new Date(today.getFullYear(), today.getMonth(), 1);

@@ -8,6 +8,7 @@ import { App } from "./App";
 import { Screensaver } from "./components/Screensaver";
 import { VirtualKeyboard } from "./components/VirtualKeyboard";
 import { AppProvider } from "./hooks/AppContext";
+import { RadioProvider } from "./radio/RadioProvider";
 import { applyReduceMotion } from "./utils/display";
 import { initKioskFromUrl, isKiosk } from "./utils/kiosk";
 
@@ -22,9 +23,11 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <AppProvider>
-        <App />
-        <VirtualKeyboard />
-        <Screensaver />
+        <RadioProvider>
+          <App />
+          <VirtualKeyboard />
+          <Screensaver />
+        </RadioProvider>
       </AppProvider>
     </BrowserRouter>
   </StrictMode>,

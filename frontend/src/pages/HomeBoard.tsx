@@ -9,7 +9,8 @@ import { useApp } from "../hooks/AppContext";
 import { weatherInfo, weekdayName } from "../utils/format";
 import { ClimateThermostat, type ClimateCtl } from "./Climate";
 import { HeatingDayNight, HeatingThermostat, type HeatingCtl } from "./Heating";
-import { BlindsCard, CalendarCard, CamerasCard, ConsumptionCard, IntercomCard, LightsCard, MusicCard } from "./Home";
+import { BlindsCard, CalendarCard, CamerasCard, ConsumptionCard, IntercomCard, LightsCard } from "./Home";
+import { RadioCard } from "./Radio";
 import { useWeather } from "./Weather";
 
 /**
@@ -150,7 +151,7 @@ export function HomeBoard({ climate, heating, openClimate, openHeating }: { clim
         <IntercomCard />
       </Cell>
       <Cell area="music">
-        <MusicCard />
+        <RadioCard />
       </Cell>
       <Cell area="calendar">
         <CalendarCard />

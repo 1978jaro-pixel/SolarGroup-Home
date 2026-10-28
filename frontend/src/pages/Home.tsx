@@ -17,6 +17,7 @@ import { useBlindGroup, useBlinds } from "./Blinds";
 import { ClimateCard, ClimateModal, useClimate } from "./Climate";
 import { HeatingCard, HeatingModal, useHeating } from "./Heating";
 import { useLights } from "./Lights";
+import { RadioCard } from "./Radio";
 import { useWeather } from "./Weather";
 import { HomeBoard } from "./HomeBoard";
 import { useLayoutMode } from "../hooks/useLayoutMode";
@@ -152,40 +153,6 @@ export function IntercomCard() {
   );
 }
 
-export function MusicCard() {
-  return (
-    <Card title="Rádio a hudba" icon="music" to="/hudba">
-      <div className="player">
-        <div className="player__art" aria-hidden="true">
-          <Icon name="music" size={34} />
-        </div>
-        <div className="player__info">
-          <strong>Nič sa neprehráva</strong>
-          <span>Prehrávač nie je pripojený</span>
-          <div className="player__bar">
-            <i style={{ width: "0%" }} />
-          </div>
-          <div className="player__times">
-            <span>0:00</span>
-            <span>–:––</span>
-          </div>
-        </div>
-      </div>
-      <div className="player__ctrl">
-        <button type="button" aria-label="Predchádzajúca" disabled>
-          <Icon name="prev" size={24} filled />
-        </button>
-        <button type="button" className="player__play" aria-label="Prehrať" disabled title="Prehrávač nie je pripojený">
-          <Icon name="play" size={26} filled />
-        </button>
-        <button type="button" aria-label="Ďalšia" disabled>
-          <Icon name="next" size={24} filled />
-        </button>
-      </div>
-    </Card>
-  );
-}
-
 export function CalendarCard() {
   const now = new Date();
   const { weekday, day, month } = dateParts(now);
@@ -307,7 +274,7 @@ export function HomePage() {
         <div className="home__col home__col--a">
           <ClimateCard c={climate} onOpen={() => setOpen("climate")} />
           <LightsCard />
-          <MusicCard />
+          <RadioCard />
         </div>
         <div className="home__col home__col--b">
           <HeatingCard h={heating} onOpen={() => setOpen("heating")} />

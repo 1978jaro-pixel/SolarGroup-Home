@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { MemoryRouter } from "react-router-dom";
 import { App } from "../App";
 import { AppProvider } from "../hooks/AppContext";
+import { RadioProvider } from "../radio/RadioProvider";
 
 const HEAT = {
   device_id: "heating-main",
@@ -58,7 +59,7 @@ describe("App", () => {
     render(
       <MemoryRouter>
         <AppProvider>
-          <App />
+          <RadioProvider><App /></RadioProvider>
         </AppProvider>
       </MemoryRouter>,
     );
@@ -85,7 +86,7 @@ describe("App", () => {
     render(
       <MemoryRouter>
         <AppProvider>
-          <App />
+          <RadioProvider><App /></RadioProvider>
         </AppProvider>
       </MemoryRouter>,
     );
@@ -119,7 +120,7 @@ describe("App", () => {
     render(
       <MemoryRouter>
         <AppProvider>
-          <App />
+          <RadioProvider><App /></RadioProvider>
         </AppProvider>
       </MemoryRouter>,
     );
@@ -159,7 +160,7 @@ describe("App", () => {
     render(
       <MemoryRouter>
         <AppProvider>
-          <App />
+          <RadioProvider><App /></RadioProvider>
         </AppProvider>
       </MemoryRouter>,
     );

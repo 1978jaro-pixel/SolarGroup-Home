@@ -3564,3 +3564,291 @@ html.kiosk textarea {
 .pv-hero .pvs {
   width: min(100%, calc((100dvh - var(--header-h) - var(--nav-h) - 96px) * 1.5));
 }
+
+/* ---------- Internetové rádio ---------- */
+.radio-logo {
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  overflow: hidden;
+  color: #8ea3c2;
+  background: linear-gradient(145deg, #2b3a52, #121925);
+  border: 1px solid var(--border);
+}
+.radio-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #fff;
+}
+.radio-play {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  flex: none;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background: radial-gradient(circle at 35% 30%, #4a9bff, #1f6fff);
+  box-shadow: 0 0 22px rgba(31, 123, 255, 0.5);
+}
+.radio-play:disabled {
+  opacity: 0.45;
+  box-shadow: none;
+}
+.radio-play--lg {
+  width: 68px;
+  height: 68px;
+}
+.radio-vol {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  min-height: 44px;
+  color: #c9d2df;
+}
+.radio-vol input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  accent-color: #2d8cff;
+}
+.radio-vol output {
+  min-width: 3.5em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.radio-card__now {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.radio-card__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.radio-card__info strong,
+.radio-card__info span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.radio-card__info span {
+  color: var(--text-2);
+  font-size: 14px;
+}
+.radio-card__info .is-error {
+  color: #ff9d9d;
+}
+.radio-card__ctrl {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.radio-page {
+  display: grid;
+  gap: 16px;
+}
+.radio-player__now {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.radio-player__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.radio-player__info strong {
+  font-size: 22px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.radio-player__status {
+  font-size: 15px;
+  color: var(--text-2);
+}
+.radio-player__status.is-playing {
+  color: #3fd98a;
+}
+.radio-player__status.is-error {
+  color: #ff9d9d;
+}
+.radio-player__ctrl {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 14px;
+}
+.radio-star {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: #8c99ab;
+}
+.radio-star.is-on {
+  color: #ffc53d;
+}
+.radio-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.radio-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+}
+.radio-row.is-current {
+  border-color: rgba(70, 150, 255, 0.6);
+  background: rgba(31, 123, 255, 0.12);
+}
+.radio-row__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 60px;
+  padding: 6px 10px;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+}
+.radio-row.is-blocked .radio-row__main {
+  opacity: 0.55;
+}
+.radio-row__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.radio-row__text strong,
+.radio-row__text span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.radio-row__text span {
+  font-size: 13px;
+  color: var(--text-2);
+}
+.radio-row__on {
+  color: #3fd98a;
+}
+.radio-badge {
+  flex: none;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  color: var(--text-2);
+}
+.radio-badge.is-danger {
+  color: #ff9d9d;
+  border-color: rgba(255, 120, 120, 0.4);
+}
+.radio-badge.is-warn {
+  color: #ffd27a;
+  border-color: rgba(255, 200, 100, 0.4);
+}
+.radio-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+.radio-search input {
+  flex: 1;
+  min-width: 0;
+  min-height: 46px;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d5deea;
+  font-size: 14px;
+}
+.chip.is-on {
+  color: #fff;
+  border-color: rgba(70, 150, 255, 0.7);
+  background: rgba(31, 123, 255, 0.28);
+}
+.radio-custom {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+.radio-custom label,
+.radio-out {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-2);
+}
+.radio-custom input,
+.radio-out select {
+  min-height: 46px;
+}
+.radio-custom .btn {
+  justify-self: start;
+}
+.ok-text {
+  color: #3fd98a;
+}
+
+/* karta rádia v pevnom rozložení hlavnej obrazovky */
+@media (min-width: 900px) and (min-height: 500px) and (orientation: landscape) {
+  .board .radio-card .radio-logo {
+    width: clamp(36px, 30cqh, 72px) !important;
+    height: clamp(36px, 30cqh, 72px) !important;
+  }
+  .board .radio-card__info strong {
+    font-size: clamp(13px, 6cqmin, 20px);
+  }
+  .board .radio-card__info span {
+    font-size: clamp(11px, 4.8cqmin, 16px);
+  }
+  .board .radio-card__ctrl {
+    gap: clamp(6px, 3cqi, 14px);
+  }
+  .board .radio-play {
+    width: clamp(44px, 22cqh, 60px);
+    height: clamp(44px, 22cqh, 60px);
+  }
+}

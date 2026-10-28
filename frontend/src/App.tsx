@@ -10,7 +10,8 @@ import { HomePage } from "./pages/Home";
 import { LightsPage } from "./pages/Lights";
 import { LoginPage, ServerDown } from "./pages/Login";
 import { RoomsPage } from "./pages/Rooms";
-import { CalendarPage, MusicPage, SettingsPage } from "./pages/Misc";
+import { CalendarPage, SettingsPage } from "./pages/Misc";
+import { RadioPage } from "./pages/Radio";
 import { SolarPage } from "./pages/Solar";
 import { SystemPage } from "./pages/System";
 import { WeatherPage } from "./pages/Weather";
@@ -34,7 +35,7 @@ export function App() {
         <Route path="videovratnik" element={<IntercomPage />} />
         <Route path="energia" element={<EnergyPage />} />
         <Route path="pocasie" element={<WeatherPage />} />
-        <Route path="hudba" element={<MusicPage />} />
+        <Route path="hudba" element={<RadioPage />} />
         <Route path="kalendar" element={<CalendarPage />} />
         <Route path="system" element={<SystemPage />} />
         <Route path="nastavenia" element={<SettingsPage />} />

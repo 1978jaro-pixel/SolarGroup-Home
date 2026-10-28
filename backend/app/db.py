@@ -6,7 +6,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL);
@@ -50,6 +50,63 @@ CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
 );
+
+-- Internetové rádio: predvoľby, obľúbené, vlastné a z katalógu pridané stanice (v3)
+CREATE TABLE IF NOT EXISTS radio_stations (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    url TEXT NOT NULL,
+    homepage TEXT NOT NULL DEFAULT '',
+    favicon TEXT NOT NULL DEFAULT '',
+    countrycode TEXT NOT NULL DEFAULT '',
+    tags TEXT NOT NULL DEFAULT '',
+    codec TEXT NOT NULL DEFAULT '',
+    bitrate INTEGER NOT NULL DEFAULT 0,
+    source TEXT NOT NULL,
+    favorite INTEGER NOT NULL DEFAULT 0,
+    sort INTEGER NOT NULL DEFAULT 0,
+    status TEXT NOT NULL DEFAULT 'unknown',
+    status_detail TEXT NOT NULL DEFAULT '',
+    checked_at TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Kalendár (v3): zdroje (Google účet / súkromná iCal adresa), vybrané kalendáre, uložené udalosti.
+-- `secret` je zašifrovaný (token Google alebo iCal adresa) – nikdy sa neposiela do prehliadača.
+CREATE TABLE IF NOT EXISTS calendar_sources (
+    id TEXT PRIMARY KEY,
+    kind TEXT NOT NULL,
+    name TEXT NOT NULL,
+    account TEXT NOT NULL DEFAULT '',
+    secret TEXT NOT NULL DEFAULT '',
+    enabled INTEGER NOT NULL DEFAULT 1,
+    last_sync TEXT,
+    last_ok TEXT,
+    last_error TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS calendar_calendars (
+    source_id TEXT NOT NULL REFERENCES calendar_sources(id) ON DELETE CASCADE,
+    cal_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    color TEXT NOT NULL DEFAULT '',
+    selected INTEGER NOT NULL DEFAULT 1,
+    PRIMARY KEY (source_id, cal_id)
+);
+
+CREATE TABLE IF NOT EXISTS calendar_events (
+    source_id TEXT NOT NULL REFERENCES calendar_sources(id) ON DELETE CASCADE,
+    cal_id TEXT NOT NULL,
+    uid TEXT NOT NULL,
+    title TEXT NOT NULL,
+    location TEXT NOT NULL DEFAULT '',
+    start TEXT NOT NULL,
+    end TEXT NOT NULL,
+    all_day INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (source_id, cal_id, uid, start)
+);
+CREATE INDEX IF NOT EXISTS calendar_events_start ON calendar_events(start);
 
 -- Uložený stav / nastavenia zariadenia (napr. týždenné programy kúrenia, DEMO stav klimatizácie)
 CREATE TABLE IF NOT EXISTS device_state (
@@ -147,8 +204,11 @@ class Database:
             if row is None:
                 conn.execute("INSERT INTO schema_version (version) VALUES (?)", (SCHEMA_VERSION,))
                 self._seed(conn)
-            elif row["version"] < 2:
-                self._migrate_v2(conn)
+            else:
+                if row["version"] < 2:
+                    self._migrate_v2(conn)
+                if row["version"] < 3:
+                    self._migrate_v3(conn)
 
     @staticmethod
     def _seed(conn: sqlite3.Connection) -> None:
@@ -161,6 +221,7 @@ class Database:
                 for i, d in enumerate(DEFAULT_DEVICES)
             ],
         )
+        Database._seed_radio(conn)
 
     @staticmethod
     def _migrate_v2(conn: sqlite3.Connection) -> None:
@@ -171,6 +232,38 @@ class Database:
                 (json.dumps(config), device_id),
             )
         conn.execute("UPDATE schema_version SET version = 2")
+
+    @staticmethod
+    def _seed_radio(conn: sqlite3.Connection) -> None:
+        from .radio import PRESETS
+
+        conn.executemany(
+            "INSERT OR IGNORE INTO radio_stations "
+            "(id, name, url, homepage, countrycode, source, sort) "
+            "VALUES (?, ?, ?, ?, 'SK', 'preset', ?)",
+            [(p["id"], p["name"], p["urls"][0], p["homepage"], i) for i, p in enumerate(PRESETS)],
+        )
+
+    @staticmethod
+    def _migrate_v3(conn: sqlite3.Connection) -> None:
+        """v2 → v3: tabuľky rádia a kalendára (vytvorí SCHEMA), slovenské predvoľby rádií."""
+        Database._seed_radio(conn)
+        conn.execute("UPDATE schema_version SET version = 3")
+
+    # --- Nastavenia (kľúč → JSON) -------------------------------------------
+
+    def get_setting(self, key: str, default=None):
+        with self.connect() as conn:
+            row = conn.execute("SELECT value FROM settings WHERE key = ?", (key,)).fetchone()
+        return json.loads(row["value"]) if row else default
+
+    def set_setting(self, key: str, value) -> None:
+        with self.connect() as conn:
+            conn.execute(
+                "INSERT INTO settings (key, value) VALUES (?, ?) "
+                "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+                (key, json.dumps(value, ensure_ascii=False)),
+            )
 
     # --- Uložený stav zariadení ------------------------------------------
 

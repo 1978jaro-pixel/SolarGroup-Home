@@ -207,3 +207,54 @@ export interface AuthStatus {
   setup_allowed_here: boolean;
   user: User | null;
 }
+
+// --- Internetové rádio -------------------------------------------------------------
+
+export type StationStatus = "unknown" | "ok" | "unavailable" | "unsupported";
+
+export interface RadioStation {
+  id: string;
+  name: string;
+  url: string;
+  homepage: string;
+  favicon: string;
+  countrycode: string;
+  tags: string[];
+  codec: string;
+  bitrate: number;
+  /** preset = slovenská predvoľba, catalog = z Radio Browser, custom = vlastná URL */
+  source: "preset" | "catalog" | "custom";
+  favorite: boolean;
+  status: StationStatus;
+  status_detail: string;
+  checked_at: string | null;
+  logo: string | null;
+}
+
+/** Výsledok vyhľadávania v katalógu (ešte neuložená stanica). */
+export interface CatalogStation {
+  id: string;
+  name: string;
+  url: string;
+  homepage: string;
+  favicon: string;
+  countrycode: string;
+  language: string;
+  tags: string[];
+  codec: string;
+  bitrate: number;
+  catalog_ok: boolean;
+  logo: string | null;
+}
+
+export interface StreamCheck {
+  status: Exclude<StationStatus, "unknown">;
+  codec: string | null;
+  url: string;
+  detail: string;
+}
+
+export interface RadioState {
+  station_id: string | null;
+  volume: number;
+}

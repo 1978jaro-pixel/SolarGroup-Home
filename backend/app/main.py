@@ -14,7 +14,8 @@ from .auth import AuthService
 from .config import Settings, get_settings
 from .db import Database
 from .events import EventBus
-from .routers import auth, devices, system, thermostats
+from .radio import RadioService
+from .routers import auth, devices, radio, system, thermostats
 
 log = logging.getLogger("solargroup_home")
 
@@ -25,7 +26,7 @@ SECURITY_HEADERS = {
     "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
     "Content-Security-Policy": (
         "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; "
-        "connect-src 'self'; frame-ancestors 'none'; base-uri 'self'"
+        "connect-src 'self'; media-src 'self' http: https:; frame-ancestors 'none'; base-uri 'self'"
     ),
 }
 
@@ -55,6 +56,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.auth = AuthService(db, settings.session_hours)
     app.state.adapters = build_adapters(settings, db)
     app.state.bus = EventBus()
+    app.state.radio = RadioService(settings.data_path)
 
     @app.middleware("http")
     async def security_headers(request: Request, call_next):
@@ -67,6 +69,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(system.router)
     app.include_router(devices.router)
     app.include_router(thermostats.router)
+    app.include_router(radio.router)
 
     @app.api_route("/api/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
     def api_not_found(path: str):
