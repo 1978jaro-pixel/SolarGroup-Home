@@ -96,7 +96,7 @@ describe("App", () => {
     expect(await screen.findByRole("slider", { name: "Požadovaná teplota kúrenia" })).toHaveAttribute("aria-valuenow", "21");
     // Hodnoty fotovoltiky z API (nie z obrázka návrhu)
     expect(await screen.findByText("Výroba")).toBeInTheDocument();
-    expect(screen.getByText("50%")).toBeInTheDocument();
+    expect(document.querySelector('[data-label="battery"]')?.textContent).toContain("50 %");
     // Navigácia podľa návrhu
     for (const name of ["Domov", "Miestnosti", "Kamery", "Nastavenia"]) {
       expect(screen.getByRole("link", { name })).toBeInTheDocument();

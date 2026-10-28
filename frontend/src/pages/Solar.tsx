@@ -1,6 +1,6 @@
 import type { EnergySample, Reading } from "../api/types";
 import { EnergyChart } from "../components/EnergyChart";
-import { SolarScene } from "../components/SolarScene";
+import { PvScene } from "../components/HouseScene";
 import { Card, IntegrationNote, PageHeader, ReadingView, Stat, StatusBadge } from "../components/ui";
 import { useApp } from "../hooks/AppContext";
 import { useResource } from "../hooks/useResource";
@@ -9,16 +9,17 @@ import { formatKwh, formatPower } from "../utils/format";
 export function SolarPage() {
   const { energy } = useApp();
   const hist = useResource<Reading<EnergySample[]>>("/api/energy/history", 60000);
-  const d = energy?.data ?? null;
+  // staré hodnoty sa nezobrazujú – iba aktuálne (status ok)
+  const d = energy?.status === "ok" ? (energy.data ?? null) : null;
 
   return (
     <>
       <PageHeader title="Fotovoltika" subtitle="Výroba, spotreba, batéria a sieť" badge={<StatusBadge reading={energy} />} />
+      {/* scéna na celú obrazovku (bez rolovania aj na 1024 × 600), podrobnosti pod ňou */}
+      <section className="pv-hero" aria-label="Energetické toky domu">
+        <PvScene reading={energy} />
+      </section>
       <div className="grid grid--solar">
-        <Card className="card--hero" accent="blue">
-          <SolarScene data={d} />
-          {!d && energy && <ReadingView reading={energy}>{() => null}</ReadingView>}
-        </Card>
         <div className="stack">
           <Card title="Teraz" icon="solar">
             <div className="stats">

@@ -1420,154 +1420,147 @@ button.card__more {
   align-items: center;
   flex: 1;
 }
-.pv-scene {
+/* ---------- Fotovoltika: schválený dom + vrstvy (PvScene) ---------- */
+.pvs {
   position: relative;
   width: 100%;
-  aspect-ratio: 1651 / 953;
+  aspect-ratio: 1536 / 1024;
+  container-type: inline-size;
+  user-select: none;
 }
-.pv-scene__house {
-  position: absolute;
-  inset: 0;
-}
-.pv-scene.is-empty .house-scene__img {
-  opacity: 0.6;
-  filter: saturate(0.6);
-}
-.pv-label {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  line-height: 1.1;
-  white-space: nowrap;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
-}
-.pv-label__name {
-  font-size: clamp(12px, 1vw, 16px);
-  color: #e1e8f2;
-}
-.pv-label__row {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-.pv-label__value {
-  font-size: clamp(20px, 1.9vw, 28px);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-.pv-label__value small {
-  font-size: 0.68em;
-  font-weight: 400;
-  margin-left: 2px;
-}
-.pv-label__soc {
-  font-size: clamp(18px, 1.6vw, 25px);
-  font-weight: 600;
-  color: var(--green);
-}
-.pv-label__line {
-  display: block;
-  width: 100%;
-  height: 2px;
-  margin-top: 6px;
-  border-radius: 2px;
-}
-.pv-label__line--blue {
-  background: var(--accent);
-  box-shadow: 0 0 8px rgba(31, 123, 255, 0.7);
-}
-.pv-label__line--green {
-  background: linear-gradient(
-    90deg,
-    rgba(61, 220, 132, 0.5),
-    rgba(61, 220, 132, 0)
-  );
-}
-.pv-label--solar {
-  left: 24%;
-  top: 0;
-}
-.pv-label--battery {
-  left: 66%;
-  top: 1%;
-}
-.pv-label--home {
-  left: 7%;
-  top: 80%;
-}
-.pv-label--grid {
-  left: 43%;
-  top: 80%;
-}
-.pv-label--charger {
-  right: 2%;
-  top: 80%;
-}
-
-/* ---------- Solárny dom: obrázok + vrstva tokov energie ---------- */
-.house-scene {
-  position: relative;
-  aspect-ratio: 1651 / 953;
-  -webkit-mask-image:
-    linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%),
-    linear-gradient(180deg, transparent 0, #000 7%, #000 88%, transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask-image:
-    linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%),
-    linear-gradient(180deg, transparent 0, #000 7%, #000 88%, transparent 100%);
-  mask-composite: intersect;
-}
-.house-scene__img,
-.house-scene__flows {
+.pvs-img,
+.pvs-flows {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  user-select: none;
 }
-.house-scene__img {
+.pvs-img {
   object-fit: contain;
+  /* okraje obrázka splynú s pozadím karty alebo stránky */
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%),
+    linear-gradient(180deg, transparent 0, #000 6%, #000 90%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%),
+    linear-gradient(180deg, transparent 0, #000 6%, #000 90%, transparent 100%);
+  mask-composite: intersect;
 }
-.flow path {
+.pvs-glow {
+  position: absolute;
+  height: auto;
+  pointer-events: none;
+  transition: opacity 1.2s var(--ease);
+}
+.pvs-flows {
+  overflow: visible;
+  pointer-events: none;
+}
+.pvf path {
   fill: none;
   stroke-linecap: round;
-  stroke-linejoin: round;
 }
-/* nečinné vedenie: tmavá lišta na stene */
-.flow__duct {
-  stroke: rgba(40, 52, 70, 0.85);
-  stroke-width: 9;
+.pvf-glow {
+  stroke: rgba(46, 242, 180, 0.22);
+  stroke-width: 16;
 }
-.flow__glow {
-  stroke: rgba(45, 150, 255, 0.28);
-  stroke-width: 22;
+.pvf-core {
+  stroke: #18c996;
+  stroke-width: 5;
 }
-.flow__core {
-  stroke: #2f9bff;
-  stroke-width: 6;
+/* plynulé svetlo putujúce po vedení (nie bodky): dlhý mäkký úsek, ktorý sa posúva v smere toku */
+.pvf-light-wide,
+.pvf-light {
+  stroke-dasharray: 34 66;
+  animation: pvf-run var(--flow-dur, 2.4s) linear infinite;
 }
-/* pohybujúce sa impulzy – smer podľa znamienka výkonu, rýchlosť podľa veľkosti */
-.flow__pulse {
-  stroke: #d9f1ff;
-  stroke-width: 6;
-  stroke-dasharray: 14 46;
-  animation: flow-move var(--flow-dur, 1.6s) linear infinite;
+.pvf-light-wide {
+  stroke: rgba(150, 255, 220, 0.35);
+  stroke-width: 12;
 }
-.flow.is-reverse .flow__pulse {
+.pvf-light {
+  stroke: #c9fff0;
+  stroke-width: 4;
+}
+.pvf.is-reverse .pvf-light-wide,
+.pvf.is-reverse .pvf-light {
   animation-direction: reverse;
 }
-.flow--ev .flow__core {
-  stroke: #36b4ff;
-}
-@keyframes flow-move {
+@keyframes pvf-run {
+  from {
+    stroke-dashoffset: 100;
+  }
   to {
-    stroke-dashoffset: -60;
+    stroke-dashoffset: 0;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .flow__pulse {
+  .pvf-light-wide,
+  .pvf-light {
     animation: none;
   }
+}
+.pvs-lab {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.08;
+  white-space: nowrap;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
+}
+.pvs-lab--center {
+  align-items: center;
+  text-align: center;
+  transform: translateX(-50%);
+}
+.pvs-lab--start {
+  align-items: flex-start;
+}
+.pvs-name {
+  font-size: max(11px, 2.35cqi);
+  color: #c4cdd8;
+}
+.pvs-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+}
+.pvs-val {
+  font-size: max(15px, 4.4cqi);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #f4f7fb;
+  font-variant-numeric: tabular-nums;
+}
+.pvs-val small {
+  font-size: 0.66em;
+  font-weight: 500;
+  color: #9aa6b4;
+}
+.pvs-offline {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0.6em 1.1em;
+  border-radius: 14px;
+  background: rgba(10, 15, 24, 0.78);
+  border: 1px solid rgba(255, 120, 120, 0.45);
+  font-size: max(12px, 2.4cqi);
+  color: #e8edf4;
+  text-align: center;
+}
+.pvs-offline strong {
+  color: #ff8d8d;
+  letter-spacing: 0.06em;
+}
+.pvs.is-offline .pvs-img {
+  filter: saturate(0.7) brightness(0.85);
 }
 html.reduce-motion *,
 html.reduce-motion *::before,
@@ -2972,15 +2965,6 @@ html.reduce-motion *::after {
   .forecast__day {
     font-size: 13.5px;
   }
-  .pv-label__name {
-    font-size: 11px;
-  }
-  .pv-label__value {
-    font-size: 16px;
-  }
-  .pv-label__soc {
-    font-size: 14px;
-  }
   .card {
     padding: 14px;
   }
@@ -3171,16 +3155,14 @@ html.reduce-motion *::after {
     pointer-events: none;
     user-select: none;
   }
-  .bcard--weather::before,
-  .bcard--pv::before {
+  .bcard--weather::before {
     content: "";
     position: absolute;
     inset: 0;
     z-index: 1;
     pointer-events: none;
   }
-  .bcard--weather > :not(.bcard__bg),
-  .bcard--pv > :not(.bcard__bg):not(.bpv-scene) {
+  .bcard--weather > :not(.bcard__bg) {
     position: relative;
     z-index: 2;
   }
@@ -3254,83 +3236,20 @@ html.reduce-motion *::after {
   }
 
   /* Fotovoltika */
-  /* dom pod hlavičkou karty, celý v šírke karty (garáž ani auto sa neorežú) */
-  .bcard--pv > .bpv-scene {
-    position: absolute;
-    z-index: 0;
-    top: 4cqh;
-    left: 0;
-    right: 0;
-    margin: 0 auto;
-    width: min(100%, calc(100cqh * 1.55));
-  }
-  .bcard--pv::before {
-    background: linear-gradient(180deg, rgba(8, 14, 26, 0.35) 0%, transparent 24%, transparent 62%, rgba(8, 14, 26, 0.45) 100%);
-  }
-  .bpv-chip {
-    position: absolute !important;
-    top: clamp(44px, 18cqh, 80px);
-    right: clamp(9px, 5cqmin, 20px);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: clamp(6px, 2.6cqh, 12px) clamp(10px, 3cqi, 16px);
-    border-radius: 14px;
-    background: rgba(14, 22, 36, 0.66);
-    border: 1px solid rgba(195, 218, 255, 0.2);
-    font-size: clamp(11px, 4.4cqh, 16px);
-    max-width: 52%;
-  }
-  .bpv-chip span {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-  .bpv-chip small {
-    color: var(--text-2);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .bpv-tiles {
-    margin-top: auto;
+  /* karta Fotovoltika: celá karta je odkaz na detail, scéna bez nadpisu, zachované proporcie */
+  .bcard--pv {
+    padding: 0;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(6px, 2cqi, 12px);
+    place-items: center;
+    color: inherit;
+    text-decoration: none;
   }
-  .bpv-tile {
-    display: flex;
-    align-items: center;
-    gap: clamp(6px, 2.2cqi, 14px);
-    padding: clamp(6px, 3cqh, 14px) clamp(8px, 2.6cqi, 16px);
-    border-radius: clamp(10px, 4cqmin, 16px);
-    background: rgba(14, 22, 36, 0.62);
-    border: 1px solid rgba(195, 218, 255, 0.2);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    min-width: 0;
+  .bcard--pv .pvs {
+    width: min(100cqi, calc(100cqh * 1.5));
   }
-  .bpv-tile svg {
-    flex: none;
-    width: clamp(20px, 9cqh, 36px);
-    height: clamp(20px, 9cqh, 36px);
-    color: #dfe7f3;
-  }
-  .bpv-tile span {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-  .bpv-tile small {
-    font-size: clamp(11px, 4.4cqh, 17px);
-    color: #c9d4e4;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .bpv-tile strong {
-    font-size: clamp(15px, 7.4cqh, 30px);
-    font-weight: 600;
-    white-space: nowrap;
+  .bcard--pv:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 
   /* Klíma a kúrenie – existujúci regulátor, veľkosť podľa bunky */
@@ -3634,4 +3553,14 @@ html.kiosk textarea {
 }
 .mb-s {
   margin-bottom: 8px;
+}
+
+/* Detail fotovoltiky: scéna na celú výšku obrazovky (bez rolovania), podrobnosti pod ňou */
+.pv-hero {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.pv-hero .pvs {
+  width: min(100%, calc((100dvh - var(--header-h) - var(--nav-h) - 96px) * 1.5));
 }

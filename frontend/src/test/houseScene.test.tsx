@@ -1,7 +1,7 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import type { EnergySnapshot } from "../api/types";
-import { flowDuration, HouseScene } from "../components/HouseScene";
+import { flowDuration, panelGlow, PvScene } from "../components/HouseScene";
 import { getReduceMotion, setReduceMotion } from "../utils/display";
 
 const snap = (p: Partial<EnergySnapshot>): EnergySnapshot => ({
@@ -20,34 +20,50 @@ const snap = (p: Partial<EnergySnapshot>): EnergySnapshot => ({
   ...p,
 });
 
-const flow = (c: HTMLElement, id: string) => c.querySelector(`[data-flow="${id}"]`)!;
 
-describe("HouseScene – vrstva tokov energie", () => {
-  it("bez údajov nie je žiadny tok aktívny (iba vedenia)", () => {
-    const { container } = render(<HouseScene data={null} />);
-    expect(container.querySelectorAll(".flow.is-active")).toHaveLength(0);
-    expect(container.querySelectorAll(".flow__duct")).toHaveLength(5);
-    expect(container.querySelector("img")?.getAttribute("srcset")).toContain("1651w");
+const ok = (d: EnergySnapshot) => ({ status: "ok" as const, source: "demo" as const, updated_at: "2026-10-28T10:00:00Z", message: null, data: d });
+
+describe("PvScene – dom, vrstvy a hodnoty", () => {
+  it("bez údajov: žiadne toky, panely nesvietia, hodnoty „–“", () => {
+    const { container } = render(<PvScene reading={null} />);
+    expect(container.querySelectorAll("[data-flow]")).toHaveLength(0);
+    expect(container.querySelector(".pvs-glow")?.getAttribute("data-glow")).toBe("0.00");
+    expect(container.querySelectorAll(".pvs-lab")).toHaveLength(5);
+    expect(container.querySelector('[data-label="pv"] .pvs-val')?.textContent).toBe("–");
+    expect(container.querySelector(".pvs-img")?.getAttribute("srcset")).toContain("1536w");
   });
 
-  it("smer toku zodpovedá znamienku výkonu", () => {
-    const { container } = render(<HouseScene data={snap({ pv_kw: 3, house_kw: 1.2, battery_kw: -0.8, grid_kw: -1.5, ev_kw: 0 })} />);
-    expect(flow(container, "pv").classList).toContain("is-active");
-    expect(flow(container, "pv").classList).not.toContain("is-reverse");
-    expect(flow(container, "battery").classList).toContain("is-reverse"); // vybíjanie
-    expect(flow(container, "grid").classList).toContain("is-reverse"); // dodávka do siete
-    expect(flow(container, "ev").classList).not.toContain("is-active");
+  it("OFFLINE: staré hodnoty sa nezobrazia a toky sú vypnuté", () => {
+    const r = { ...ok(snap({ pv_kw: 5, house_kw: 2 })), status: "offline" as const, message: "Bez spojenia" };
+    const { container, getByRole } = render(<PvScene reading={r} />);
+    expect(getByRole("status").textContent).toContain("OFFLINE");
+    expect(container.querySelector('[data-label="pv"] .pvs-val')?.textContent).toBe("–");
+    expect(container.querySelectorAll("[data-flow]")).toHaveLength(0);
   });
 
-  it("zanedbateľný výkon sa nezobrazí ako tok", () => {
-    const { container } = render(<HouseScene data={snap({ house_kw: 0.02 })} />);
-    expect(flow(container, "house").classList).not.toContain("is-active");
+  it("smer toku podľa znamienka, nulový výkon = neaktívny tok", () => {
+    const { container } = render(<PvScene reading={ok(snap({ pv_kw: 3, house_kw: 1.2, battery_kw: -0.8, grid_kw: -1.5, ev_kw: 0 }))} />);
+    const f = (id: string) => container.querySelector(`[data-flow="${id}"]`);
+    expect(f("pv")?.classList).not.toContain("is-reverse");
+    expect(f("battery")?.classList).toContain("is-reverse"); // vybíjanie
+    expect(f("grid")?.classList).toContain("is-reverse"); // dodávka
+    expect(f("ev")).toBeNull();
+    expect(container.querySelector('[data-label="battery"]')?.textContent).toContain("vybíja");
+    expect(container.querySelector('[data-label="grid"]')?.textContent).toContain("dodávka");
+    expect(container.querySelector('[data-label="pv"] .pvs-val')?.textContent).toBe("3,0 kW");
   });
 
-  it("väčší výkon = rýchlejší pohyb, v rozsahu 0,7–2,6 s", () => {
-    expect(flowDuration(0.1)).toBeGreaterThan(flowDuration(5));
-    expect(flowDuration(100)).toBe(0.7);
-    expect(flowDuration(0.05)).toBeLessThanOrEqual(2.6);
+  it("zanedbateľný výkon sa nezobrazí ako tok; jas panelov podľa výroby", () => {
+    const { container } = render(<PvScene reading={ok(snap({ house_kw: 0.02 }))} />);
+    expect(container.querySelector('[data-flow="house"]')).toBeNull();
+    expect(panelGlow(0)).toBe(0);
+    expect(panelGlow(2)).toBeGreaterThan(panelGlow(0.5));
+    expect(panelGlow(50)).toBe(1);
+  });
+
+  it("väčší výkon = rýchlejší pohyb svetla", () => {
+    expect(flowDuration(0.1)).toBeGreaterThan(flowDuration(8));
+    expect(flowDuration(1000)).toBe(1.2);
   });
 });
 

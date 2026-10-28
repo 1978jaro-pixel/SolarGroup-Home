@@ -6,7 +6,7 @@ import doorImg from "../assets/design/door.webp";
 import floorImg from "../assets/design/floor.webp";
 import type { CameraInfo, EnergySample, Reading } from "../api/types";
 import { Icon } from "../components/Icon";
-import { SolarScene } from "../components/SolarScene";
+import { PvScene } from "../components/HouseScene";
 import { WeatherArt, WeatherHero } from "../components/WeatherArt";
 import { Card, EmptyState, ReadingView, StatusBadge } from "../components/ui";
 import { useApp } from "../hooks/AppContext";
@@ -57,17 +57,11 @@ function WeatherCard() {
 
 function SolarCard() {
   const { energy } = useApp();
-  const d = energy?.data ?? null;
   return (
     <Card title="Fotovoltika" icon="solar" to="/fotovoltika" expand className="card--pv" badge={badge(energy)}>
       <Link to="/fotovoltika" className="pv-link" aria-label="Fotovoltika – detail">
-        <SolarScene data={d} />
+        <PvScene reading={energy} />
       </Link>
-      {!d && energy && energy.status !== "ok" && (
-        <p className="pv-note">
-          <Icon name="offline" size={16} /> {energy.message ?? "Údaje nie sú k dispozícii"}
-        </p>
-      )}
     </Card>
   );
 }

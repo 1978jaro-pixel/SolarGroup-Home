@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 import backdropImg from "../assets/design/backdrop.webp";
 import weatherImg from "../assets/design/weather-zilina.webp";
-import { HouseScene } from "../components/HouseScene";
-import { Icon, type IconName } from "../components/Icon";
+import { Link } from "react-router-dom";
+import { PvScene } from "../components/HouseScene";
 import { WeatherArt } from "../components/WeatherArt";
 import { Card, ReadingView, StatusBadge, Toggle } from "../components/ui";
 import { useApp } from "../hooks/AppContext";
-import { formatPower, weatherInfo, weekdayName } from "../utils/format";
+import { weatherInfo, weekdayName } from "../utils/format";
 import { ClimateThermostat, type ClimateCtl } from "./Climate";
 import { HeatingDayNight, HeatingThermostat, type HeatingCtl } from "./Heating";
 import { BlindsCard, CalendarCard, CamerasCard, ConsumptionCard, IntercomCard, LightsCard, MusicCard } from "./Home";
@@ -69,40 +69,13 @@ function WeatherBoard() {
   );
 }
 
-function PvTile({ icon, label, kw }: { icon: IconName; label: string; kw: number | null }) {
-  return (
-    <div className="bpv-tile">
-      <Icon name={icon} size={28} />
-      <span>
-        <small>{label}</small>
-        <strong>{kw == null ? "–" : formatPower(Math.abs(kw))}</strong>
-      </span>
-    </div>
-  );
-}
-
+/** Karta Fotovoltika: schválený dom s hodnotami, bez nadpisu; celá karta otvorí detail. */
 function SolarBoard() {
   const { energy } = useApp();
-  const d = energy?.data ?? null;
-  const grid = d ? (d.grid_kw > 0.05 ? "Sieť · odber" : d.grid_kw < -0.05 ? "Sieť · dodávka" : "Sieť") : "Sieť";
   return (
-    <Card title="Fotovoltika" icon="solar" to="/fotovoltika" expand className="bcard bcard--pv" badge={badge(energy)}>
-      <HouseScene data={d} className="bpv-scene" />
-      {!d && (
-        <div className="bpv-chip">
-          <Icon name="offline" size={22} />
-          <span>
-            <strong>Nepripojené</strong>
-            <small>{energy?.message ?? "Údaje nie sú k dispozícii"}</small>
-          </span>
-        </div>
-      )}
-      <div className="bpv-tiles">
-        <PvTile icon="sun" label="Výroba" kw={d?.pv_kw ?? null} />
-        <PvTile icon="home" label="Dom" kw={d?.house_kw ?? null} />
-        <PvTile icon="grid" label={grid} kw={d?.grid_kw ?? null} />
-      </div>
-    </Card>
+    <Link to="/fotovoltika" className="card bcard bcard--pv" aria-label="Fotovoltika – otvoriť detail">
+      <PvScene reading={energy} />
+    </Link>
   );
 }
 
