@@ -1,0 +1,35 @@
+# Šablóna systemd služby pre Raspberry Pi – NEINŠTALUJE sa automaticky.
+# Postup je v docs/RASPBERRY_PI.md. Predpokladá používateľa "sgh" a adresár /opt/solargroup-home.
+[Unit]
+Description=SolarGroup Home
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=sgh
+Group=sgh
+WorkingDirectory=/opt/solargroup-home/backend
+ExecStart=/opt/solargroup-home/backend/.venv/bin/python -m app
+Restart=on-failure
+RestartSec=5
+
+# Obmedzenie pamäte – ochrana ostatných projektov na Pi (vhodné aj pre Pi 4 / 1 GB)
+MemoryMax=300M
+
+# Bezpečnostné obmedzenia
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/solargroup-home/backend/data
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+
+[Install]
+WantedBy=multi-user.target

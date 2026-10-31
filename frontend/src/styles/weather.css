@@ -1,0 +1,1093 @@
+/* ==========================================================================================
+ * Počasie E4 – karta na úvodnej obrazovke, hlavná stránka, detail dňa, radar.
+ * Statické grafy a obrázky; žiadne nepretržité animácie ani backdrop-filter (Raspberry Pi 4).
+ * ======================================================================================== */
+
+/* ---------- karta na úvodnej obrazovke (svetlá obloha podľa počasia) ---------- */
+.bcard--weather.wc {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  color: #fff;
+  text-decoration: none;
+  border-color: rgba(190, 220, 255, 0.38);
+  container-type: size;
+  background: #6f9fd6;
+}
+.bcard--weather.wc::before {
+  display: none;
+}
+.bcard--weather.wc > * {
+  position: relative;
+  z-index: 1;
+}
+.bcard--weather.wc > .wc-sky,
+.bcard--weather.wc > .wc-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.wc-sky {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+/* stmavenie za textom – biele písmo čitateľné aj na bielych oblakoch, obloha ostáva svetlá */
+.wc-shade {
+  background:
+    radial-gradient(62% 52% at 50% 30%, rgba(22, 60, 125, 0.38), transparent 78%),
+    linear-gradient(180deg, rgba(20, 55, 115, 0.12), transparent 40%);
+}
+.wc-top {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  text-align: center;
+  line-height: 1.1;
+  padding: 4px 8px 0;
+  text-shadow:
+    0 1px 2px rgba(10, 35, 80, 0.55),
+    0 2px 16px rgba(15, 45, 100, 0.55);
+}
+.wc-city {
+  font-size: clamp(15px, 7.4cqh, 34px);
+  font-weight: 600;
+}
+.wc-t {
+  font-size: clamp(50px, 27cqh, 140px);
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  margin-left: 0.18em;
+}
+.wc-s {
+  font-size: clamp(13px, 5.8cqh, 28px);
+  font-weight: 650;
+}
+.wc-mm {
+  font-size: clamp(12px, 5.3cqh, 26px);
+  font-weight: 600;
+}
+/* výraznejší spodný panel s predpoveďou na 4 dni */
+.wc-panel {
+  margin: 0 9px 9px;
+  padding: 7px 10px 6px;
+  border-radius: 15px;
+  background: linear-gradient(180deg, rgba(34, 86, 168, 0.78), rgba(26, 72, 150, 0.86));
+  border: 1px solid rgba(220, 235, 255, 0.4);
+  box-shadow:
+    0 6px 18px rgba(10, 35, 85, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+.wc-panel__h {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: clamp(9.5px, 4cqh, 18px);
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  color: rgba(232, 242, 255, 0.92);
+  text-transform: uppercase;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(220, 235, 255, 0.24);
+}
+.wc-days {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding-top: 3px;
+}
+.wc-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+}
+.wc-day + .wc-day {
+  border-left: 1px solid rgba(220, 235, 255, 0.16);
+}
+.wc-day__n {
+  font-size: clamp(12px, 5.3cqh, 24px);
+  font-weight: 650;
+}
+.wc-day .wx-ic {
+  width: clamp(26px, 12cqh, 60px);
+  height: clamp(26px, 12cqh, 60px);
+  margin: -1px 0;
+}
+.wc-day__p {
+  font-size: clamp(9.5px, 4.1cqh, 18px);
+  font-weight: 700;
+  color: #a6e4ff;
+  min-height: 1.1em;
+}
+.wc-day__t {
+  font-size: clamp(12px, 5.3cqh, 24px);
+  font-weight: 650;
+}
+.wc-day__t span {
+  color: rgba(230, 240, 255, 0.78);
+  font-weight: 500;
+}
+.wc-badge {
+  position: absolute !important;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+}
+
+/* ---------- stránky počasia ---------- */
+body:has(.wxp) {
+  background:
+    radial-gradient(900px 460px at 18% 0%, rgba(46, 104, 190, 0.3), transparent 65%),
+    radial-gradient(700px 500px at 95% 100%, rgba(30, 80, 160, 0.24), transparent 70%),
+    linear-gradient(180deg, #0d1c35 0%, #0a1629 100%);
+  background-attachment: fixed;
+}
+.wxp {
+  --wx-card: linear-gradient(180deg, rgba(31, 55, 94, 0.88) 0%, rgba(19, 36, 64, 0.94) 100%);
+  --wx-border: rgba(110, 165, 255, 0.17);
+  --wx-text: #eef4ff;
+  --wx-text2: #a9bbd6;
+  --wx-muted: #7489a8;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  color: var(--wx-text);
+  padding-top: 4px;
+}
+.wxp a {
+  color: inherit;
+  text-decoration: none;
+}
+.wxp h1,
+.wxp h2,
+.wxp h3 {
+  margin: 0;
+}
+.wx-card {
+  background: var(--wx-card);
+  border: 1px solid var(--wx-border);
+  border-radius: 18px;
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.wx-card__h {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.wx-card__h h2 {
+  font-size: 15px;
+  font-weight: 650;
+}
+.wx-muted {
+  color: var(--wx-muted);
+  font-size: 13px;
+}
+.wx-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 200px;
+  color: var(--wx-text2);
+  border-radius: 18px;
+  border: 1px dashed rgba(255, 140, 140, 0.4);
+}
+.wx-empty strong {
+  color: #ff9a9a;
+  letter-spacing: 0.05em;
+}
+.wx-stale {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffc76b;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(240, 180, 41, 0.12);
+  border: 1px solid rgba(240, 180, 41, 0.4);
+}
+.wx-ic--hero {
+  filter: drop-shadow(0 6px 10px rgba(20, 50, 100, 0.35));
+  animation: wx-in 0.6s var(--ease) both; /* jednorazový nástup, nie slučka */
+}
+@keyframes wx-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+}
+
+/* hlavička */
+.wx-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 42px;
+  flex: none;
+}
+.wx-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 10px 0 8px;
+  border-radius: 14px;
+  background: rgba(40, 70, 115, 0.55);
+  border: 1px solid var(--wx-border);
+  font-size: 14px;
+  font-weight: 600;
+  color: #dbe7fb;
+}
+.wx-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+}
+.wx-title h1 {
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.wx-city {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--wx-text2);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(74, 163, 255, 0.12);
+  border: 1px solid rgba(74, 163, 255, 0.25);
+}
+.wx-head__right {
+  margin-left: auto;
+}
+.wx-upd {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 13px;
+  color: var(--wx-text2);
+  line-height: 1.25;
+}
+.wx-upd small {
+  color: var(--wx-muted);
+  font-size: 11px;
+}
+
+/* rad A: teraz + 7 dní */
+.wx-rowA {
+  display: grid;
+  grid-template-columns: minmax(250px, 28%) 1fr;
+  gap: 10px;
+  height: clamp(178px, 30vh, 330px);
+  flex: none;
+}
+.wx-now {
+  border-radius: 20px;
+  padding: 13px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(155deg, #d6e8ff 0%, #a8cbf6 60%, #8db9ef 100%);
+  color: #0c1c34;
+  box-shadow:
+    0 12px 28px rgba(20, 70, 150, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+.wx-now__top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  color: #26446d;
+}
+.wx-now__mid {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.wx-now__t {
+  font-size: clamp(56px, 11vh, 110px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+.wx-now__s {
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+.wx-now__bot {
+  display: flex;
+  gap: 14px;
+  font-size: 13px;
+  color: #2a4772;
+}
+.wx-now__bot b {
+  color: #0c1c34;
+}
+.wx-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  min-width: 0;
+}
+.wx-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 10px 4px 9px;
+  border-radius: 18px;
+  background: var(--wx-card);
+  border: 1px solid var(--wx-border);
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.wx-day:active {
+  transform: scale(0.97);
+}
+.wx-day.is-today {
+  border-color: rgba(74, 163, 255, 0.75);
+  box-shadow:
+    0 0 0 2px rgba(74, 163, 255, 0.25),
+    0 8px 20px rgba(0, 0, 0, 0.25);
+}
+.wx-day__n {
+  font-size: 15px;
+  font-weight: 650;
+}
+.wx-day__dt {
+  font-size: 11px;
+  color: var(--wx-muted);
+  margin-bottom: 2px;
+}
+.wx-day__max {
+  font-size: 23px;
+  font-weight: 700;
+  line-height: 1;
+  margin-top: 2px;
+}
+.wx-day__min {
+  font-size: 14px;
+  color: var(--wx-text2);
+}
+.wx-range {
+  position: relative;
+  width: 70%;
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(150, 185, 235, 0.16);
+  margin: 5px 0 4px;
+}
+.wx-range i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #5ab4ff, #ffc35c);
+}
+.wx-day__p {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  color: #8cc8ff;
+}
+
+/* rad B */
+.wx-rowB {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 40%) minmax(0, 1fr) minmax(170px, 20%);
+  gap: 10px;
+}
+.wx-hourly {
+  padding: 12px 12px 6px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.wx-hourly__chart {
+  flex: 1;
+  min-height: 0;
+}
+.wx-leg {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--wx-text2);
+}
+.wx-leg i {
+  display: inline-block;
+  width: 12px;
+  height: 3px;
+  border-radius: 2px;
+  margin-left: 6px;
+}
+.wx-leg i.t {
+  background: #ffbf5e;
+}
+.wx-leg i.p {
+  background: #4aa3ff;
+  height: 8px;
+  width: 5px;
+}
+.wx-chart text {
+  font-family: inherit;
+  text-anchor: middle;
+}
+.wx-cv {
+  font-size: 11px;
+  font-weight: 650;
+  fill: #ffe2b0;
+}
+.wx-pv {
+  font-size: 9.5px;
+  fill: #8cc8ff;
+}
+.wx-hl {
+  font-size: 10.5px;
+  fill: #8fa3c2;
+}
+.wx-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 1fr 1fr;
+  gap: 8px;
+  min-height: 0;
+}
+.wx-tile {
+  background: var(--wx-card);
+  border: 1px solid var(--wx-border);
+  border-radius: 16px;
+  padding: 9px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  min-height: 0;
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.wx-tile h3 {
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--wx-text2);
+}
+.wx-tile svg {
+  align-self: center;
+}
+.wx-tile__v {
+  font-size: 20px;
+  font-weight: 700;
+}
+.wx-tile__v small {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--wx-text2);
+}
+.wx-big {
+  font-size: 28px;
+  line-height: 1;
+}
+.wx-tile__sub {
+  font-size: 11.5px;
+  color: var(--wx-text2);
+}
+.wx-tile__sub b {
+  color: var(--wx-text);
+}
+.wx-sun {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffd98a;
+}
+.wx-wind {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.wx-wind > div {
+  line-height: 1.1;
+}
+.wx-wind small {
+  font-size: 11px;
+  color: var(--wx-text2);
+}
+.wx-cmp {
+  font-size: 7.5px;
+  fill: #8fa3c2;
+  text-anchor: middle;
+  font-weight: 600;
+}
+.wx-bar {
+  height: 5px;
+  border-radius: 5px;
+  background: rgba(150, 185, 235, 0.16);
+  overflow: hidden;
+}
+.wx-bar i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #4aa3ff, #7fd4ff);
+}
+.wx-radar {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 8px;
+  min-height: 0;
+}
+.wx-live {
+  font-size: 11px;
+  color: #8cc8ff;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(74, 163, 255, 0.14);
+}
+.wx-mini {
+  position: relative;
+  flex: 1;
+  min-height: 60px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(110, 165, 255, 0.18);
+  background: #15294a;
+}
+.wx-mini__tiles {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 768px;
+  height: 768px;
+  filter: invert(1) hue-rotate(195deg) brightness(0.92) contrast(0.88) saturate(0.55);
+}
+.wx-mini__tiles img {
+  position: absolute;
+  width: 256px;
+  height: 256px;
+}
+.wx-mini__pin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  background: #4aa3ff;
+  border: 2.4px solid #fff;
+  box-shadow: 0 0 0 8px rgba(80, 160, 255, 0.18);
+}
+.wx-mini__lab {
+  position: absolute;
+  left: calc(50% + 11px);
+  top: calc(50% - 22px);
+  font-size: 14px;
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(8, 18, 34, 0.9);
+}
+.wx-radar__cta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 650;
+  color: #cfe4ff;
+  padding: 7px 10px;
+  border-radius: 12px;
+  background: rgba(74, 163, 255, 0.18);
+  min-height: 40px;
+}
+.wx-radar__cta span {
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* ---------- detail dňa ---------- */
+.wx-chips {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 14px;
+  background: rgba(15, 30, 55, 0.7);
+  border: 1px solid var(--wx-border);
+}
+.wx-chip {
+  display: grid;
+  place-items: center;
+  min-width: 46px;
+  height: 40px;
+  padding: 0 4px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--wx-text2);
+}
+.wx-chip.is-on {
+  background: linear-gradient(155deg, #d6e8ff, #9fc5f3);
+  color: #0c1c34;
+}
+.wx-dayGrid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(230px, 25%) minmax(0, 1fr);
+  gap: 10px;
+}
+.wx-sum {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+.wx-sum__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.wx-sum__t {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.wx-sum__t span {
+  font-size: 22px;
+  color: var(--wx-text2);
+  font-weight: 600;
+}
+.wx-sum__s {
+  font-size: 13px;
+  color: var(--wx-text2);
+}
+.wx-kv {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid rgba(150, 185, 235, 0.1);
+  font-size: 13.5px;
+  color: var(--wx-text2);
+}
+.wx-kv b {
+  color: var(--wx-text);
+  font-weight: 650;
+  text-align: right;
+}
+.wx-hours {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+  min-width: 0;
+}
+.wx-scroll {
+  font-size: 12px;
+  color: var(--wx-muted);
+}
+.wx-hours__body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+.wx-gut {
+  position: relative;
+  width: 50px;
+  flex: none;
+}
+.wx-gut span {
+  position: absolute;
+  left: 0;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wx-muted);
+  line-height: 1.2;
+}
+.wx-hours__scroll {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.wx-hours__scroll::-webkit-scrollbar {
+  display: none;
+}
+.wx-hours__grid {
+  position: relative;
+  height: 100%;
+}
+.wx-hours__curve {
+  position: absolute;
+  left: 0;
+  top: 50px;
+  pointer-events: none;
+}
+.wx-cols {
+  display: grid;
+  height: 100%;
+}
+.wx-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 4px;
+  border-radius: 12px;
+}
+.wx-col:nth-child(odd) {
+  background: rgba(74, 163, 255, 0.045);
+}
+.wx-col.is-now {
+  background: rgba(74, 163, 255, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(74, 163, 255, 0.5);
+}
+.wx-col__h {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--wx-text2);
+}
+.wx-col .wx-ic {
+  margin-top: 2px;
+}
+.wx-col__p {
+  margin-top: 116px;
+  font-size: 11px;
+  color: #8cc8ff;
+  font-weight: 600;
+}
+.wx-col__bar {
+  height: 46px;
+  width: 14px;
+  display: flex;
+  align-items: flex-end;
+  margin-top: 3px;
+  border-radius: 7px;
+  background: rgba(150, 185, 235, 0.08);
+}
+.wx-col__bar i {
+  display: block;
+  width: 100%;
+  border-radius: 7px;
+  background: linear-gradient(180deg, #6cc0ff, #2f86e8);
+}
+.wx-col__mm {
+  font-size: 10.5px;
+  color: var(--wx-text2);
+  margin-top: 3px;
+}
+.wx-col__wd {
+  margin-top: 14px;
+}
+.wx-col__w {
+  font-size: 12px;
+  font-weight: 600;
+}
+.wx-hours__sum {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 22px;
+  padding: 8px 4px 0;
+  border-top: 1px solid rgba(150, 185, 235, 0.12);
+  font-size: 13px;
+  color: var(--wx-text2);
+}
+.wx-hours__sum span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.wx-hours__sum b {
+  color: var(--wx-text);
+}
+
+/* ---------- radar ---------- */
+.wxp--radar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: var(--header-h);
+  bottom: var(--nav-h);
+  z-index: 1;
+  padding: 0;
+  background: #0d1d35;
+}
+.wxr-map,
+.wxr-map.leaflet-container {
+  position: absolute;
+  inset: 0;
+  background: #0d1d35;
+  font-family: inherit;
+}
+/* tmavý vzhľad mapového podkladu (filter sa počíta pri vykreslení dlaždice, nie neustále) */
+.wxr-map .wxr-base {
+  filter: invert(1) hue-rotate(195deg) brightness(0.92) contrast(0.88) saturate(0.55);
+}
+.wxr-map .leaflet-tooltip.wxr-label {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(8, 18, 34, 0.95);
+  padding: 0;
+}
+.wxr-map .leaflet-tooltip.wxr-label::before {
+  display: none;
+}
+.wxp--radar > :not(.wxr-map) {
+  z-index: 500;
+}
+.wx-rhead {
+  position: absolute;
+  left: 14px;
+  top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.wx-back--glass {
+  background: rgba(12, 26, 48, 0.85);
+}
+.wx-rtitle {
+  padding: 6px 14px;
+  border-radius: 14px;
+  background: rgba(12, 26, 48, 0.85);
+  border: 1px solid var(--wx-border);
+  line-height: 1.15;
+}
+.wx-rtitle h1 {
+  font-size: 17px;
+}
+.wx-rtitle span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--wx-text2);
+}
+.wx-rerr {
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: rgba(60, 20, 26, 0.9);
+  border: 1px solid rgba(255, 120, 120, 0.5);
+  color: #ffd0d0;
+  font-size: 13px;
+}
+.wx-zoom {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wx-zoom button {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(12, 26, 48, 0.88);
+  border: 1px solid var(--wx-border);
+  color: #eef4ff;
+  font: inherit;
+  font-size: 26px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.wx-time {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  width: min(600px, calc(100% - 330px));
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px 8px 10px;
+  border-radius: 18px;
+  background: rgba(12, 26, 48, 0.9);
+  border: 1px solid var(--wx-border);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+}
+.wx-play {
+  width: 52px;
+  height: 52px;
+  flex: none;
+  border-radius: 50%;
+  border: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(155deg, #4aa3ff, #1f6fe0);
+  box-shadow: 0 6px 16px rgba(31, 111, 224, 0.45);
+  cursor: pointer;
+}
+.wx-play:disabled {
+  opacity: 0.45;
+}
+.wx-track {
+  flex: 1;
+  min-width: 0;
+}
+.wx-track__now {
+  font-size: 15px;
+  font-weight: 700;
+}
+.wx-track__now small {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--wx-text2);
+  margin-left: 6px;
+}
+.wx-range-in {
+  width: 100%;
+  height: 32px;
+  margin: 0;
+  accent-color: #4aa3ff;
+}
+.wx-track__lab {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--wx-text2);
+}
+.wx-legend {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  width: 280px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: rgba(12, 26, 48, 0.9);
+  border: 1px solid var(--wx-border);
+}
+.wx-legend h3 {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--wx-text2);
+  margin-bottom: 7px;
+}
+/* farebná schéma RainViewer č. 2 „Universal Blue“ */
+.wx-legend__bar {
+  display: block;
+  height: 10px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #9be1ff, #3fa5ff 22%, #1f5fd6 40%, #f7e23b 58%, #ff8c1a 72%, #e83030 86%, #c53fd8);
+}
+.wx-legend__lab {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  margin-top: 5px;
+}
+.wx-attr {
+  position: absolute;
+  right: 14px;
+  bottom: 94px;
+  font-size: 10px;
+  color: #a9bbd6;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(12, 26, 48, 0.75);
+}
+
+/* ---------- pevné rozloženie pre displeje na šírku (7" 1024 × 600 … 13,3") ---------- */
+@media (min-width: 900px) and (min-height: 500px) and (orientation: landscape) {
+  .wxp:not(.wxp--radar) {
+    height: calc(100dvh - var(--header-h) - var(--nav-h) - 10px);
+    overflow: hidden;
+  }
+}
+
+/* ---------- úzke obrazovky (mobil): pod sebou, s posúvaním ---------- */
+@media not ((min-width: 900px) and (min-height: 500px) and (orientation: landscape)) {
+  /* mimo pevnej mriežky musí mať karta pevnú výšku (veľkosti písma sa odvodzujú od nej) */
+  .bcard--weather.wc {
+    height: clamp(280px, 72vw, 400px);
+  }
+  .wx-rowA,
+  .wx-rowB,
+  .wx-dayGrid {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+  }
+  .wx-days {
+    display: flex;
+    overflow-x: auto;
+  }
+  .wx-day {
+    min-width: 84px;
+  }
+  .wx-hourly {
+    height: 240px;
+  }
+  .wx-tiles {
+    grid-auto-rows: 120px;
+  }
+  .wx-radar {
+    height: 240px;
+  }
+  .wx-hours {
+    height: 420px;
+  }
+  .wx-head {
+    flex-wrap: wrap;
+  }
+  .wx-time {
+    width: calc(100% - 28px);
+    bottom: 120px;
+  }
+  .wx-attr {
+    bottom: auto;
+    top: 64px;
+  }
+}
+
+html.reduce-motion .wx-ic--hero {
+  animation: none;
+}

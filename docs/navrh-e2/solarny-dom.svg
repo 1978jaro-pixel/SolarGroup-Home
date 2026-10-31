@@ -1,0 +1,224 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1046 1010" width="1046" height="1010">
+  <!-- SolarGroup Home – solárny dom (statická vrstva, večerná paleta, priehľadné pozadie).
+       Súradnice zodpovedajú referenčnej fotografii (1046 × 1010), takže popisy hodnôt
+       a vrstva tokov sedia na rovnakých miestach. Bez textov a hodnôt. -->
+  <defs>
+    <linearGradient id="gSide" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#d9dfe8"/>
+      <stop offset="0.55" stop-color="#e6ebf2"/>
+      <stop offset="1" stop-color="#cdd4de"/>
+    </linearGradient>
+    <linearGradient id="gSideV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000" stop-opacity="0.18"/>
+      <stop offset="0.12" stop-color="#000" stop-opacity="0"/>
+      <stop offset="0.85" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.16"/>
+    </linearGradient>
+    <linearGradient id="gFront" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c2c9d3"/>
+      <stop offset="1" stop-color="#a9b1bd"/>
+    </linearGradient>
+    <linearGradient id="gFrontEdge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#eef1f5"/>
+      <stop offset="1" stop-color="#d5dbe3"/>
+    </linearGradient>
+    <radialGradient id="gGlass" cx="0.5" cy="0.62" r="0.75">
+      <stop offset="0" stop-color="#ffe2a6"/>
+      <stop offset="0.45" stop-color="#f8c46d"/>
+      <stop offset="0.8" stop-color="#e3963c"/>
+      <stop offset="1" stop-color="#b8692a"/>
+    </radialGradient>
+    <linearGradient id="gGlassSheen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.28"/>
+      <stop offset="0.35" stop-color="#fff" stop-opacity="0.05"/>
+      <stop offset="0.36" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="gRoof" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a414b"/>
+      <stop offset="1" stop-color="#2a3038"/>
+    </linearGradient>
+    <linearGradient id="gPanel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2a3b50"/>
+      <stop offset="0.5" stop-color="#1b2838"/>
+      <stop offset="1" stop-color="#14202d"/>
+    </linearGradient>
+    <linearGradient id="gPanelSheen" x1="0" y1="0" x2="1" y2="0.3">
+      <stop offset="0" stop-color="#9fc4ff" stop-opacity="0.22"/>
+      <stop offset="0.5" stop-color="#9fc4ff" stop-opacity="0.04"/>
+      <stop offset="1" stop-color="#9fc4ff" stop-opacity="0.12"/>
+    </linearGradient>
+    <linearGradient id="gBox" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f7f9fb"/>
+      <stop offset="1" stop-color="#dfe4ea"/>
+    </linearGradient>
+    <linearGradient id="gBoxSide" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c7ced8"/>
+      <stop offset="1" stop-color="#aeb6c2"/>
+    </linearGradient>
+    <linearGradient id="gGarageIn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6cf8a"/>
+      <stop offset="0.55" stop-color="#d9a35c"/>
+      <stop offset="1" stop-color="#8d6233"/>
+    </linearGradient>
+    <linearGradient id="gGarageSide" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#b98747"/>
+      <stop offset="1" stop-color="#e2b26b"/>
+    </linearGradient>
+    <linearGradient id="gGarageWall" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#d4dae3"/>
+      <stop offset="1" stop-color="#e4e9f0"/>
+    </linearGradient>
+    <linearGradient id="gCar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d3d8de"/>
+      <stop offset="0.45" stop-color="#9aa2ac"/>
+      <stop offset="1" stop-color="#5d646d"/>
+    </linearGradient>
+    <linearGradient id="gCarGlass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b4450"/>
+      <stop offset="1" stop-color="#151a20"/>
+    </linearGradient>
+    <radialGradient id="gShadow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#000" stop-opacity="0.55"/>
+      <stop offset="0.7" stop-color="#000" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="gWarmFloor" cx="0.5" cy="0" r="0.8">
+      <stop offset="0" stop-color="#ffbf66" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#ffbf66" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="cGlass">
+      <path d="M134 418 L205 330 L280 410 L280 657 L134 636 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- tieň a teplý odraz na zemi -->
+  <ellipse cx="520" cy="672" rx="500" ry="70" fill="url(#gShadow)"/>
+  <ellipse cx="210" cy="690" rx="150" ry="34" fill="url(#gWarmFloor)"/>
+  <ellipse cx="830" cy="660" rx="110" ry="26" fill="url(#gWarmFloor)"/>
+
+  <!-- ===== Garáž (za domom vpravo) ===== -->
+  <!-- strecha garáže (horná plocha) -->
+  <path d="M610 404 L938 412 L946 420 L616 414 Z" fill="#f2f4f7"/>
+  <path d="M616 414 L946 420 L946 430 L618 425 Z" fill="#c9d0d9"/>
+  <!-- čelná stena garáže s otvorom -->
+  <path d="M618 425 L946 430 L942 612 L620 652 Z" fill="url(#gGarageWall)"/>
+  <path d="M618 425 L946 430 L946 440 L618 436 Z" fill="#000" opacity="0.07"/>
+  <!-- otvor: interiér -->
+  <path d="M752 450 L906 452 L906 624 L752 640 Z" fill="url(#gGarageIn)"/>
+  <!-- ľavá vnútorná stena otvoru (hĺbka) -->
+  <path d="M752 450 L772 462 L772 628 L752 640 Z" fill="url(#gGarageSide)" opacity="0.9"/>
+  <!-- strop otvoru – svetelný pás -->
+  <path d="M752 450 L906 452 L898 462 L772 462 Z" fill="#fff1d2" opacity="0.85"/>
+  <!-- podlaha garáže -->
+  <path d="M772 628 L906 616 L906 624 L752 640 Z" fill="#6f522e" opacity="0.8"/>
+
+  <!-- wallbox -->
+  <g>
+    <rect x="862" y="478" width="34" height="62" rx="9" fill="#1d2329"/>
+    <rect x="866" y="482" width="26" height="40" rx="7" fill="#f4f6f8"/>
+    <circle cx="879" cy="500" r="6.5" fill="none" stroke="#5aa9ff" stroke-width="2.4"/>
+    <rect x="868" y="526" width="22" height="9" rx="3" fill="#2b333c"/>
+  </g>
+
+  <!-- auto: sivé elektrické športové auto (štylizované, pohľad spredu zboku), v garáži -->
+  <g>
+    <ellipse cx="830" cy="634" rx="80" ry="10" fill="#000" opacity="0.4"/>
+    <path d="M758 628 L757 610 C757 600 763 594 772 591 L800 584 L818 562 C822 557 828 555 836 555 L860 555 C868 555 874 558 879 564 L892 580 C899 583 904 590 905 600 L906 624 C906 628 903 630 899 630 L764 632 C760 632 758 631 758 628 Z" fill="url(#gCar)"/>
+    <path d="M806 584 L820 564 C823 560 827 559 833 559 L858 559 C864 559 868 561 872 566 L884 582 Z" fill="url(#gCarGlass)"/>
+    <path d="M840 559 L836 584" stroke="#7d858f" stroke-width="2"/>
+    <path d="M762 606 C790 600 860 598 902 604" fill="none" stroke="#eef2f6" stroke-width="1.6" opacity="0.65"/>
+    <path d="M760 620 L904 616" stroke="#3a4048" stroke-width="2.5"/>
+    <path d="M764 600 L790 595" stroke="#eaf4ff" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M762 612 L776 611" stroke="#c8d0d8" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="790" cy="629" r="13" fill="#14181d"/>
+    <circle cx="790" cy="629" r="7" fill="#59616b"/>
+    <circle cx="878" cy="627" r="13" fill="#14181d"/>
+    <circle cx="878" cy="627" r="7" fill="#59616b"/>
+  </g>
+
+  <!-- ===== Hlavný dom ===== -->
+  <!-- bočná stena -->
+  <path d="M300 385 L728 386 L728 610 L300 668 Z" fill="url(#gSide)"/>
+  <path d="M300 385 L728 386 L728 610 L300 668 Z" fill="url(#gSideV)"/>
+  <!-- odtokový žľab pod strechou -->
+  <path d="M300 385 L728 386 L728 393 L300 393 Z" fill="#000" opacity="0.12"/>
+
+  <!-- predný štít: rám -->
+  <path d="M100 394 L205 262 L304 386 L300 668 L108 642 Z" fill="url(#gFrontEdge)"/>
+  <!-- vnútorný ústup okna -->
+  <path d="M122 408 L205 306 L290 404 L290 664 L122 640 Z" fill="url(#gFront)"/>
+  <!-- presklenie s teplým svetlom -->
+  <path d="M134 418 L205 330 L280 410 L280 657 L134 636 Z" fill="url(#gGlass)"/>
+  <g clip-path="url(#cGlass)">
+    <!-- interiér: podlaha, svetlo pri strope -->
+    <path d="M134 600 L280 618 L280 660 L134 640 Z" fill="#9c6a35" opacity="0.55"/>
+    <ellipse cx="205" cy="420" rx="70" ry="18" fill="#fff4d8" opacity="0.55"/>
+    <path d="M134 418 L280 410 L280 657 L134 636 Z" fill="url(#gGlassSheen)"/>
+  </g>
+  <!-- stĺpiky okna -->
+  <path d="M184 368 L184 643" stroke="#2c3238" stroke-width="5"/>
+  <path d="M234 352 L234 650" stroke="#2c3238" stroke-width="5"/>
+  <path d="M134 418 L205 330 L280 410" fill="none" stroke="#2c3238" stroke-width="4"/>
+  <path d="M134 418 L134 636 L280 657 L280 410" fill="none" stroke="#2c3238" stroke-width="4"/>
+
+  <!-- strecha: hrana štítu a plocha -->
+  <path d="M94 396 L205 256 L212 262 L104 398 Z" fill="#2e343b"/>
+  <path d="M205 262 L620 270 L732 384 L304 386 Z" fill="url(#gRoof)"/>
+  <!-- hrúbka strechy (odkvap) -->
+  <path d="M304 386 L732 384 L734 392 L304 394 Z" fill="#1d2228"/>
+
+  <!-- fotovoltické panely: 8 × 2 v rovine strechy (u: pozdĺž hrebeňa, v: od hrebeňa k odkvapu) -->
+  <g transform="matrix(415 8 99 122 205 262)">
+    <g fill="url(#gPanel)" stroke="#5f6f82" stroke-width="0.8" vector-effect="non-scaling-stroke">
+      <rect x="0.105" y="0.07" width="0.104" height="0.42" vector-effect="non-scaling-stroke"/>
+      <rect x="0.215" y="0.07" width="0.104" height="0.42" vector-effect="non-scaling-stroke"/>
+      <rect x="0.325" y="0.07" width="0.104" height="0.42" vector-effect="non-scaling-stroke"/>
+      <rect x="0.435" y="0.07" width="0.104" height="0.42" vector-effect="non-scaling-stroke"/>
+      <rect x="0.545" y="0.07" width="0.104" height="0.42" vector-effect="non-scaling-stroke"/>
+      <rect x="0.655" y="0.07" width="0.104" height="0.42" vector-effect="non-scaling-stroke"/>
+      <rect x="0.765" y="0.07" width="0.104" height="0.42" vector-effect="non-scaling-stroke"/>
+      <rect x="0.875" y="0.07" width="0.104" height="0.42" vector-effect="non-scaling-stroke"/>
+      <rect x="0.105" y="0.51" width="0.104" height="0.42" vector-effect="non-scaling-stroke"/>
+      <rect x="0.215" y="0.51" width="0.104" height="0.42" vector-effect="non-scaling-stroke"/>
+      <rect x="0.325" y="0.51" width="0.104" height="0.42" vector-effect="non-scaling-stroke"/>
+      <rect x="0.435" y="0.51" width="0.104" height="0.42" vector-effect="non-scaling-stroke"/>
+      <rect x="0.545" y="0.51" width="0.104" height="0.42" vector-effect="non-scaling-stroke"/>
+      <rect x="0.655" y="0.51" width="0.104" height="0.42" vector-effect="non-scaling-stroke"/>
+      <rect x="0.765" y="0.51" width="0.104" height="0.42" vector-effect="non-scaling-stroke"/>
+      <rect x="0.875" y="0.51" width="0.104" height="0.42" vector-effect="non-scaling-stroke"/>
+    </g>
+    <!-- bunky (jemná mriežka) -->
+    <g stroke="#3d4c5e" stroke-width="0.5" vector-effect="non-scaling-stroke" opacity="0.8">
+      <path d="M0.105 0.21 H0.979 M0.105 0.35 H0.979 M0.105 0.65 H0.979 M0.105 0.79 H0.979" vector-effect="non-scaling-stroke"/>
+      <path d="M0.157 0.07 V0.93 M0.267 0.07 V0.93 M0.377 0.07 V0.93 M0.487 0.07 V0.93 M0.597 0.07 V0.93 M0.707 0.07 V0.93 M0.817 0.07 V0.93 M0.927 0.07 V0.93" vector-effect="non-scaling-stroke"/>
+    </g>
+    <rect x="0.105" y="0.07" width="0.874" height="0.86" fill="url(#gPanelSheen)"/>
+  </g>
+
+  <!-- vedenia na stene (nečinné; aktívne toky kreslí samostatná vrstva) -->
+  <g stroke="#7d8896" stroke-width="4" stroke-linecap="round" opacity="0.75">
+    <path d="M490 393 L490 500"/>
+    <path d="M490 568 L490 660"/>
+    <path d="M302 548 L458 536"/>
+    <path d="M528 532 L640 524"/>
+  </g>
+
+  <!-- striedač na stene -->
+  <g>
+    <path d="M452 504 L458 498 L458 570 L452 574 Z" fill="url(#gBoxSide)"/>
+    <path d="M458 498 L528 494 L528 562 L458 570 Z" fill="url(#gBox)"/>
+    <path d="M458 498 L528 494" stroke="#fff" stroke-width="1.5" opacity="0.9"/>
+    <rect x="482" y="520" width="22" height="9" rx="3" fill="#1c232b" transform="skewY(-3)" />
+    <circle cx="493" cy="523" r="2" fill="#5aa9ff" transform="skewY(-3)"/>
+  </g>
+
+  <!-- batéria pri stene -->
+  <g>
+    <path d="M632 486 L644 476 L648 652 L636 660 Z" fill="url(#gBoxSide)"/>
+    <path d="M644 476 L702 474 L706 646 L648 652 Z" fill="url(#gBox)"/>
+    <path d="M644 476 L702 474" stroke="#fff" stroke-width="1.5"/>
+    <path d="M646 560 L704 556" stroke="#aeb6c2" stroke-width="1.2"/>
+    <rect x="660" y="490" width="26" height="7" rx="3" fill="#1c232b"/>
+  </g>
+</svg>
