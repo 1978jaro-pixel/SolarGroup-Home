@@ -63,3 +63,6 @@ Postup grafiky: `porsche_white.py` (auto) → `house_white.py` (vrstvy) v `tools
 - Aby nepôsobilo nalepene (`tools/design/e5/porsche3_white.py`): farba a ostrosť ako render domu, teplé svetlo
   garáže vzadu, denné vpredu, mäkký okraj so svetlom okolia, tieň pod autom a kolesami, slabý odraz na podlahe,
   odstránená zelená žiara starého kábla.
+
+**Schválené** (commit `b166bc9`) a zapracované do aplikácie vo verzii **0.5.2** – drobná korekcia napojenia kábla
+(koncovka zástrčky za blatníkom, poloha auta nezmenená). Postup: `docs/NASADENIE_0.5.2.md`.

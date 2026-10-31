@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
-import base1536 from "../assets/design/pv-house-base-1536.webp";
-import base768 from "../assets/design/pv-house-base-768.webp";
-import glowImg from "../assets/design/pv-house-glow.webp";
+import base1536 from "../assets/design/pv-house-white-1536.webp";
+import base768 from "../assets/design/pv-house-white-768.webp";
+import glowImg from "../assets/design/pv-house-white-glow.webp";
 import type { EnergySnapshot, Reading } from "../api/types";
 import { formatTime } from "../utils/format";
 
@@ -22,8 +22,8 @@ const W = 1536;
 const H = 1024;
 /** Pod touto hodnotou (kW) je tok neaktívny. */
 export const IDLE_KW = 0.05;
-/** Výrez vrstvy svietiacich panelov (tools/design/e2/house_layers.py → pv-house-glow.json). */
-const GLOW = { x: 380, y: 224, w: 683, h: 177 };
+/** Výrez vrstvy svietiacich panelov (tools/design/e5/house_white.py → pv-house-white.json). */
+const GLOW = { x: 398, y: 202, w: 667, h: 199 };
 
 export type FlowId = "pv" | "house" | "battery" | "grid" | "ev";
 
@@ -49,15 +49,15 @@ export function flowDuration(kw: number): number {
 export function flows(d: EnergySnapshot | null): Flow[] {
   return [
     // panely → striedač (zvod zo strechy)
-    { id: "pv", d: "M733 408 L733 512", a: [733, 408], b: [733, 512], kw: d ? d.pv_kw : null },
+    { id: "pv", d: "M723.6 384.5 L723.6 509.1", a: [723.6, 384.5], b: [723.6, 509.1], kw: d ? d.pv_kw : null },
     // striedač → dom
-    { id: "house", d: "M684 566 L502 581", a: [684, 566], b: [502, 581], kw: d ? d.house_kw : null },
+    { id: "house", d: "M683 562.2 L496.6 570.9", a: [683, 562.2], b: [496.6, 570.9], kw: d ? d.house_kw : null },
     // striedač → batéria (kladné = nabíjanie)
-    { id: "battery", d: "M790 564 L942 554", a: [790, 564], b: [942, 554], kw: d ? d.battery_kw : null },
+    { id: "battery", d: "M774.8 557.4 L885.9 552.6", a: [774.8, 557.4], b: [885.9, 552.6], kw: d ? d.battery_kw : null },
     // sieť → striedač (kladné = odber, záporné = dodávka)
-    { id: "grid", d: "M733 712 L733 608", a: [733, 712], b: [733, 608], kw: d ? d.grid_kw : null },
+    { id: "grid", d: "M717.8 707.1 L717.8 610.5", a: [717.8, 707.1], b: [717.8, 610.5], kw: d ? d.grid_kw : null },
     // wallbox → auto (nabíjací kábel)
-    { id: "ev", d: "M1306 598 C1307 630 1302 652 1291 669", a: [1306, 598], b: [1291, 669], kw: d ? d.ev_kw : null },
+    { id: "ev", d: "M1273.2 589.3 Q1287.6 605 1311.8 622.3", a: [1273.2, 589.3], b: [1311.8, 622.3], kw: d ? d.ev_kw : null },
   ];
 }
 
@@ -144,7 +144,7 @@ export function PvScene({ reading, className = "" }: { reading: Reading<EnergySn
           </span>
         );
       })}
-      <Label id="pv" name="Výroba" kw={live?.pv_kw ?? null} x={418} y={58} align="center" />
+      <Label id="pv" name="Výroba" kw={live?.pv_kw ?? null} x={459} y={15} align="center" />
       <Label
         id="battery"
         name={`Batéria${dir(live?.battery_kw, "nabíja", "vybíja")}`}
@@ -157,13 +157,13 @@ export function PvScene({ reading, className = "" }: { reading: Reading<EnergySn
             </span>
           )
         }
-        x={1022}
-        y={58}
+        x={974}
+        y={15}
         align="start"
       />
-      <Label id="house" name="Dom" kw={live?.house_kw ?? null} x={328} y={834} align="center" />
-      <Label id="grid" name={`Sieť${dir(live?.grid_kw, "odber", "dodávka")}`} kw={live?.grid_kw ?? null} x={768} y={834} align="center" />
-      <Label id="ev" name="Nabíjačka" kw={live?.ev_kw ?? null} x={1267} y={834} align="center" />
+      <Label id="house" name="Dom" kw={live?.house_kw ?? null} x={384} y={870} align="center" />
+      <Label id="grid" name={`Sieť${dir(live?.grid_kw, "odber", "dodávka")}`} kw={live?.grid_kw ?? null} x={773} y={870} align="center" />
+      <Label id="ev" name="Nabíjačka" kw={live?.ev_kw ?? null} x={1216} y={870} align="center" />
       {offline && (
         <div className="pvs-offline" role="status">
           <strong>{reading?.status === "stale" ? "Údaje nie sú aktuálne" : reading ? "OFFLINE" : "Načítava sa…"}</strong>

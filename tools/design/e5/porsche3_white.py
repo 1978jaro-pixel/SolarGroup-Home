@@ -23,7 +23,7 @@ OPENING = (940, 562, 1222, 812)  # otvor garáže; ľavý stĺp zakrýva zadok a
 TESLA = [(942, 628), (1012, 630), (1046, 674), (1108, 700), (1140, 716), (1152, 742), (1152, 790), (1128, 801), (942, 801)]
 WALL_BOTTOM = 788  # pod touto výškou je podlaha s tieňom – ostáva z originálu
 # nový nabíjací kábel (Bézierova krivka): zásuvka wallboxu → port na pravom prednom blatníku za autom
-CABLE = [(1161, 690), (1170, 707), (1196, 708), (1213, 736)]
+CABLE = [(1161, 690), (1166, 708), (1194, 709), (1214, 740)]
 
 
 def main() -> None:
@@ -127,6 +127,11 @@ def main() -> None:
     cv2.polylines(big, [pts + np.array([0, 2 * up])], False, (150, 150, 150), 4 * up, cv2.LINE_AA)  # jemný tieň
     cv2.polylines(big, [pts], False, (52, 55, 58), 6 * up, cv2.LINE_AA)
     cv2.polylines(big, [pts - np.array([up, 0])], False, (120, 124, 128), 1 * up, cv2.LINE_AA)  # odlesk
+    # koncovka zástrčky (hrubšia, s odleskom) – zasúva sa za predný blatník do nabíjacieho portu
+    plug = (bez[-34:] * up).astype(np.int32).reshape(-1, 1, 2)
+    cv2.polylines(big, [plug + np.array([0, 2 * up])], False, (140, 140, 140), 9 * up, cv2.LINE_AA)
+    cv2.polylines(big, [plug], False, (34, 36, 39), 10 * up, cv2.LINE_AA)
+    cv2.polylines(big, [plug - np.array([up, 2 * up])], False, (96, 100, 106), 2 * up, cv2.LINE_AA)
     out = cv2.resize(big, (hw, hh), interpolation=cv2.INTER_AREA)
 
     # 5) vloženie auta iba v otvore garáže

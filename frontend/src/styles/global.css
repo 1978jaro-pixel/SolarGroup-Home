@@ -3588,7 +3588,7 @@ html.kiosk textarea {
   margin-bottom: 16px;
 }
 .pv-hero .pvs {
-  width: min(100%, calc((100dvh - var(--header-h) - var(--nav-h) - 96px) * 1.5));
+  width: min(100%, calc((100dvh - var(--header-h) - var(--nav-h) - 66px) * 1.5)); /* o ~8 % väčší dom */
 }
 
 /* ---------- Internetové rádio ---------- */
@@ -4035,4 +4035,63 @@ html.kiosk textarea {
   height: 10px;
   border-radius: 50%;
   margin-right: 6px;
+}
+
+/* ---------- Fotovoltika na bielom pozadí (návrh E5) ----------
+ * Schválený dom na čisto bielom pozadí: bez tmavého filtra, prekrytia či gradientu; texty tmavé. */
+.board .card.bcard--pv {
+  padding: 0; /* scéna presne v karte (aj spodné hodnoty) */
+}
+.bcard--pv,
+.board .card.bcard--pv,
+.pv-hero {
+  background: #fefefe;
+  border-color: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+}
+.pv-hero {
+  border-radius: var(--radius-lg);
+  padding: 4px 0;
+}
+.pvs-img {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+.pvs-lab {
+  text-shadow: none;
+}
+.pvs-name {
+  color: #1f2733;
+}
+.pvs-val {
+  color: #0a0e14;
+}
+.pvs-val small {
+  color: #6c7480;
+}
+.pvs.is-offline .pvs-img {
+  filter: saturate(0.6);
+}
+.pvf-glow {
+  stroke: rgba(40, 232, 168, 0.32);
+}
+.pvf-core {
+  stroke: #1fd69c;
+}
+/* detail fotovoltiky: kompaktná hlavička (podnadpis v riadku), aby sa väčší dom zmestil celý */
+body:has(.pv-hero) .page-head {
+  margin: 2px 0 8px;
+}
+body:has(.pv-hero) .page-head > div {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 14px;
+}
+/* malá karta na úvodnej obrazovke: popisy sa môžu zmenšiť spolu s domom (inak by spodné hodnoty pretiekli) */
+.bcard--pv .pvs-name {
+  font-size: max(9px, 2.35cqi);
+}
+.bcard--pv .pvs-val {
+  font-size: max(12px, 4.4cqi);
 }
