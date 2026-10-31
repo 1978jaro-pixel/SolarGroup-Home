@@ -49,3 +49,17 @@ Postup grafiky: `porsche_white.py` (auto) → `house_white.py` (vrstvy) v `tools
 - Vysunutá poloha, kábel a zelený tok nabíjania ako v predchádzajúcej úprave; kontaktné tiene pod všetkými kolesami.
 - Výrez: `tools/design/e5/taycan2_cut.py`, vloženie: `tools/design/e5/porsche2_white.py`.
 - Fotka je použitá pre súkromný domáci projekt; pri komerčnom použití treba overiť práva k fotke.
+
+## Úprava: Porsche zo štúdiovej fotky, zladené so scénou (na schválenie)
+
+| Náhľad | |
+|---|---|
+| Otvorený modul Fotovoltika 1024 × 600 | ![](10-fotovoltika-detail-porsche-studio-1024x600.png) |
+| Garáž – detail | ![](12-garaz-porsche-studio-detail.png) |
+| Hlavná obrazovka 1024 × 600 | ![](11-domov-porsche-studio-1024x600.png) |
+
+- Auto zo štúdiovej fotky bieleho Taycanu (31. 10. 2026). Biele na bielom: hladký ručne nastavený obrys,
+  automatický výrez iba pri kolesách (`tools/design/e5/taycan3_cut.py`).
+- Aby nepôsobilo nalepene (`tools/design/e5/porsche3_white.py`): farba a ostrosť ako render domu, teplé svetlo
+  garáže vzadu, denné vpredu, mäkký okraj so svetlom okolia, tieň pod autom a kolesami, slabý odraz na podlahe,
+  odstránená zelená žiara starého kábla.
