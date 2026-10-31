@@ -1450,37 +1450,49 @@ button.card__more {
   stroke: #18c996;
   stroke-width: 5;
 }
-/* plynulé svetlo putujúce po vedení (nie bodky): dlhý mäkký úsek, ktorý sa posúva v smere toku */
-.pvf-light-wide,
-.pvf-light {
-  stroke-dasharray: 34 66;
-  animation: pvf-run var(--flow-dur, 2.4s) linear infinite;
+/* Plynulé svetlo putujúce po vedení (nie bodky): samostatný prvok posúvaný iba cez `transform`.
+ * Takúto animáciu Chromium spracuje na GPU kompozítore – stránka sa neprekresľuje 60× za sekundu
+ * (pôvodná SVG animácia stroke-dashoffset prekresľovala a rasterizovala celú scénu pri každej snímke). */
+.pvl {
+  position: absolute;
+  height: 0.78cqi; /* 12 px v súradniciach obrázka 1536 px */
+  transform-origin: 0 50%;
+  overflow: hidden;
+  border-radius: 1cqi;
+  pointer-events: none;
 }
-.pvf-light-wide {
-  stroke: rgba(150, 255, 220, 0.35);
-  stroke-width: 12;
+.pvl i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 34%;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, transparent, #c9fff0 50%, transparent) center / 100% 34% no-repeat,
+    linear-gradient(90deg, transparent, rgba(150, 255, 220, 0.42) 50%, transparent);
+  will-change: transform;
+  animation: pvl-run var(--flow-dur, 2.4s) linear infinite;
 }
-.pvf-light {
-  stroke: #c9fff0;
-  stroke-width: 4;
-}
-.pvf.is-reverse .pvf-light-wide,
-.pvf.is-reverse .pvf-light {
+.pvl.is-reverse i {
   animation-direction: reverse;
 }
-@keyframes pvf-run {
+@keyframes pvl-run {
   from {
-    stroke-dashoffset: 100;
+    transform: translateX(-100%);
   }
   to {
-    stroke-dashoffset: 0;
+    transform: translateX(294%); /* (100 % dráhy) / 34 % = 2,94 dĺžky svetla */
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pvf-light-wide,
-  .pvf-light {
-    animation: none;
+  .pvl {
+    display: none;
   }
+}
+html.reduce-motion .pvl,
+html.saver-on .pvl {
+  display: none;
 }
 .pvs-lab {
   position: absolute;

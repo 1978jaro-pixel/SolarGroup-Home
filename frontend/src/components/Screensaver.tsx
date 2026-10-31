@@ -41,6 +41,12 @@ export function Screensaver() {
     return () => window.removeEventListener("sgh-screensaver", update);
   }, []);
 
+  // počas šetriča (čierna obrazovka) sa pozastavia všetky animácie – Pi nevykresľuje to, čo nie je vidieť
+  useEffect(() => {
+    document.documentElement.classList.toggle("saver-on", active);
+    return () => document.documentElement.classList.remove("saver-on");
+  }, [active]);
+
   useEffect(() => {
     window.clearTimeout(timer.current);
     if (!minutes) {

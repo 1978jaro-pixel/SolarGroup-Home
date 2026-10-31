@@ -43,7 +43,9 @@ MAP_TILE_TTL = 30 * 86400
 MAX_RADAR_TILES = 400  # ~20 kB/dlaždica → ~8 MB RAM najviac
 # oblasť mapového podkladu (Slovensko a okolie) – chráni disk pred neobmedzeným rastom
 BBOX = (47.4, 16.5, 50.0, 23.0)  # lat_min, lon_min, lat_max, lon_max
-MAP_ZOOM = (6, 14)
+MAP_ZOOM = (6, 13)
+MAX_MAP_TILES = 3000  # ~15 kB/dlaždica → najviac ~45 MB na SD karte
+PRUNE_EVERY = 100  # kontrola veľkosti pamäte po každých 100 nových dlaždiciach
 PATH_RE = re.compile(r"^/v2/radar/[A-Za-z0-9_-]{1,64}$")
 PNG = b"\x89PNG\r\n\x1a\n"
 
@@ -95,6 +97,7 @@ class WeatherMaps:
         self.radar_max_zoom = radar_max_zoom
         self._frames: tuple[float, str, list[Frame]] | None = None
         self._radar: OrderedDict[str, tuple[float, bytes]] = OrderedDict()
+        self._writes = 0
         self._lock = asyncio.Lock()
 
     def _client(self) -> httpx.AsyncClient:
@@ -175,7 +178,23 @@ class WeatherMaps:
         tmp = path.with_suffix(".tmp")
         tmp.write_bytes(data)
         tmp.replace(path)
+        self._writes += 1
+        if self._writes % PRUNE_EVERY == 0:
+            self.prune_tiles()
         return data
+
+    def prune_tiles(self, max_files: int = MAX_MAP_TILES) -> int:
+        """Zmaže dlaždice staršie ako 30 dní a pri prekročení limitu najstaršie (šetrí SD kartu)."""
+        if not self.tile_dir.exists():
+            return 0
+        files = sorted(self.tile_dir.rglob("*.png"), key=lambda f: f.stat().st_mtime)
+        now = time.time()
+        removed = 0
+        for i, f in enumerate(files):
+            if now - f.stat().st_mtime > MAP_TILE_TTL or len(files) - i > max_files:
+                f.unlink(missing_ok=True)
+                removed += 1
+        return removed
 
     async def _fetch_png(self, url: str) -> bytes:
         try:

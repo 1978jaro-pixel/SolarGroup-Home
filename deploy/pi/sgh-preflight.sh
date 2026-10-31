@@ -4,7 +4,8 @@
 #   ./sgh-preflight.sh [--app-dir <cesta>]
 #
 # Overí: verziu a stav služby, Python, RAM, swap, miesto na disku, dostupnosť hotových Python
-# balíkov pre túto architektúru (bez inštalácie), internet (PyPI, Radio Browser, Google),
+# balíkov pre túto architektúru (bez inštalácie), internet (PyPI, Open-Meteo, RainViewer, OpenStreetMap,
+# Radio Browser, Google),
 # adresu kiosku (kvôli prihláseniu Google) a že SolarGroup PV Dashboard v1.4 ostáva nedotknutý.
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -38,21 +39,28 @@ for p in "$APP_DIR" "$HOME"; do
   [ "$f" -ge 500 ] && ok "voľné miesto pri $p: ${f} MB" || bad "pri $p je iba ${f} MB (potrebných aspoň 500 MB: záloha + nové balíky)"
 done
 
-# Hotové balíky (wheels) pre túto architektúru – bez inštalácie, bez kompilácie
-if [ -f "$PKG/backend/requirements.txt" ]; then
+# Python balíky: ak sa požiadavky nemenia, inštalátor pip nespúšťa a internet na PyPI netreba
+NEED_PIP=0
+if [ -f "$PKG/backend/requirements.txt" ] && ! cmp -s "$PKG/backend/requirements.txt" "$APP_DIR/backend/requirements.txt"; then
+  NEED_PIP=1
+fi
+if [ "$NEED_PIP" = 0 ]; then
+  ok "Python balíky sa nemenia – aktualizácia nepotrebuje pip ani PyPI"
+else
+  # hotové balíky (wheels) pre túto architektúru – bez inštalácie, bez kompilácie
   # shellcheck disable=SC2024 # záznam patrí používateľovi, ktorý kontrolu spustil
   if sudo -u "$SVC_USER" "$PY" -m pip install --dry-run --disable-pip-version-check --no-cache-dir -q --only-binary=:all: -r "$PKG/backend/requirements.txt" >/tmp/sgh-preflight-pip.log 2>&1; then
-    ok "všetky Python balíky E2 sú dostupné ako hotové balíky (nič sa nenainštalovalo)"
+    ok "všetky nové Python balíky sú dostupné ako hotové balíky (nič sa nenainštalovalo)"
   else
     bad "niektorý Python balík nie je dostupný – pozri /tmp/sgh-preflight-pip.log"
   fi
+  code=$(curl -s -o /dev/null -m 8 -w '%{http_code}' https://pypi.org/simple/cryptography/)
+  [ "$code" != 000 ] && ok "internet: PyPI (HTTP $code)" || bad "PyPI nedostupné – aktualizácia potrebuje internet"
 fi
 
-# PyPI je nutné (inštalácia balíkov); rádio a Google iba pre nové funkcie – ich výpadok aktualizáciu neblokuje
-code=$(curl -s -o /dev/null -m 8 -w '%{http_code}' https://pypi.org/simple/cryptography/)
-[ "$code" != 000 ] && ok "internet: PyPI (HTTP $code)" || bad "PyPI nedostupné – aktualizácia potrebuje internet"
-for u in https://all.api.radio-browser.info/json/servers https://oauth2.googleapis.com https://www.googleapis.com/calendar/v3/ https://calendar.google.com; do
-  code=$(curl -s -o /dev/null -m 8 -w '%{http_code}' "$u")
+# služby pre funkcie (rádio, kalendár, počasie, radar, mapa) – ich výpadok aktualizáciu neblokuje
+for u in https://api.open-meteo.com/v1/forecast https://api.rainviewer.com/public/weather-maps.json https://tile.openstreetmap.org/10/565/350.png https://all.api.radio-browser.info/json/servers https://oauth2.googleapis.com https://www.googleapis.com/calendar/v3/ https://calendar.google.com; do
+  code=$(curl -s -o /dev/null -m 8 -A "SolarGroupHome-preflight (private home dashboard)" -w '%{http_code}' "$u")
   [ "$code" != 000 ] && ok "internet: $u (HTTP $code)" || warn "nedostupné: $u (aktualizáciu neblokuje, funkcia nebude fungovať)"
 done
 

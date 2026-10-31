@@ -11,7 +11,9 @@ import { formatTime } from "../utils/format";
  * Vrstvy:
  *  1. statický obrázok bez čísel – panely a vedenia v nesvietiacom stave,
  *  2. svietiace panely (výrez z originálu) – jas podľa výkonu FV,
- *  3. SVG toky energie – plynulé tyrkysovo-zelené svetlo, iba pri skutočnom výkone, smer podľa znamienka,
+ *  3. toky energie – statické vedenie (SVG, vykreslí sa raz) a plynulé tyrkysovo-zelené svetlo ako samostatný
+ *     prvok posúvaný cez `transform` (animácia beží na GPU kompozítore bez prekresľovania – šetrí Raspberry Pi 4);
+ *     iba pri skutočnom výkone, smer podľa znamienka,
  *  4. hodnoty (HTML) rozložené okolo domu presne ako na schválenom obrázku.
  * Súradnice sú v pixeloch zdrojového obrázka 1536 × 1024, takže všetko sedí pri každej veľkosti.
  */
@@ -29,26 +31,33 @@ interface Flow {
   id: FlowId;
   /** Trasa v smere kladného toku. */
   d: string;
+  /** Začiatok a koniec svetla (priamka v smere kladného toku). */
+  a: [number, number];
+  b: [number, number];
   kw: number | null;
 }
 
-/** Trvanie jedného prebehnutia svetla: väčší výkon = rýchlejšie (1,2 – 4 s). */
+/**
+ * Trvanie jedného prebehnutia svetla: väčší výkon = rýchlejšie (1,2 – 4 s), zaokrúhlené na 0,4 s,
+ * aby sa animácia pri každej aktualizácii údajov (každé 3 s) zbytočne neprepočítavala.
+ */
 export function flowDuration(kw: number): number {
-  return Math.max(1.2, Math.min(4, 4 - Math.log2(1 + Math.abs(kw)) * 0.75));
+  const raw = Math.max(1.2, Math.min(4, 4 - Math.log2(1 + Math.abs(kw)) * 0.75));
+  return Number((Math.round(raw / 0.4) * 0.4).toFixed(1));
 }
 
 export function flows(d: EnergySnapshot | null): Flow[] {
   return [
     // panely → striedač (zvod zo strechy)
-    { id: "pv", d: "M733 408 L733 512", kw: d ? d.pv_kw : null },
+    { id: "pv", d: "M733 408 L733 512", a: [733, 408], b: [733, 512], kw: d ? d.pv_kw : null },
     // striedač → dom
-    { id: "house", d: "M684 566 L502 581", kw: d ? d.house_kw : null },
+    { id: "house", d: "M684 566 L502 581", a: [684, 566], b: [502, 581], kw: d ? d.house_kw : null },
     // striedač → batéria (kladné = nabíjanie)
-    { id: "battery", d: "M790 564 L942 554", kw: d ? d.battery_kw : null },
+    { id: "battery", d: "M790 564 L942 554", a: [790, 564], b: [942, 554], kw: d ? d.battery_kw : null },
     // sieť → striedač (kladné = odber, záporné = dodávka)
-    { id: "grid", d: "M733 712 L733 608", kw: d ? d.grid_kw : null },
+    { id: "grid", d: "M733 712 L733 608", a: [733, 712], b: [733, 608], kw: d ? d.grid_kw : null },
     // wallbox → auto (nabíjací kábel)
-    { id: "ev", d: "M1306 598 C1307 630 1302 652 1291 669", kw: d ? d.ev_kw : null },
+    { id: "ev", d: "M1306 598 C1307 630 1302 652 1291 669", a: [1306, 598], b: [1291, 669], kw: d ? d.ev_kw : null },
   ];
 }
 
@@ -90,6 +99,7 @@ export function PvScene({ reading, className = "" }: { reading: Reading<EnergySn
   const live = reading?.status === "ok" && reading.data ? reading.data : null;
   const glow = panelGlow(live?.pv_kw);
   const offline = !live;
+  const active = flows(live).filter((f) => f.kw != null && Math.abs(f.kw) >= IDLE_KW);
   return (
     <div className={`pvs ${offline ? "is-offline" : ""} ${className}`}>
       <img
@@ -111,20 +121,29 @@ export function PvScene({ reading, className = "" }: { reading: Reading<EnergySn
         data-glow={glow.toFixed(2)}
       />
       <svg className="pvs-flows" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-        {flows(live).map((f) => {
-          const active = f.kw != null && Math.abs(f.kw) >= IDLE_KW;
-          if (!active) return null;
-          const style = { "--flow-dur": `${flowDuration(f.kw!).toFixed(2)}s` } as CSSProperties;
-          return (
-            <g key={f.id} className={`pvf ${f.kw! < 0 ? "is-reverse" : ""}`} style={style} data-flow={f.id}>
-              <path d={f.d} className="pvf-glow" />
-              <path d={f.d} className="pvf-core" />
-              <path d={f.d} pathLength={100} className="pvf-light-wide" />
-              <path d={f.d} pathLength={100} className="pvf-light" />
-            </g>
-          );
-        })}
+        {active.map((f) => (
+          <g key={f.id} className={`pvf ${f.kw! < 0 ? "is-reverse" : ""}`} data-flow={f.id}>
+            <path d={f.d} className="pvf-glow" />
+            <path d={f.d} className="pvf-core" />
+          </g>
+        ))}
       </svg>
+      {active.map((f) => {
+        const [x1, y1] = f.a;
+        const [x2, y2] = f.b;
+        const style = {
+          left: `${(x1 / W) * 100}%`,
+          top: `${(y1 / H) * 100}%`,
+          width: `${(Math.hypot(x2 - x1, y2 - y1) / W) * 100}%`,
+          transform: `translateY(-50%) rotate(${Math.atan2(y2 - y1, x2 - x1)}rad)`,
+          "--flow-dur": `${flowDuration(f.kw!).toFixed(1)}s`,
+        } as CSSProperties;
+        return (
+          <span key={f.id} className={`pvl ${f.kw! < 0 ? "is-reverse" : ""}`} style={style} data-light={f.id} aria-hidden="true">
+            <i />
+          </span>
+        );
+      })}
       <Label id="pv" name="Výroba" kw={live?.pv_kw ?? null} x={418} y={58} align="center" />
       <Label
         id="battery"

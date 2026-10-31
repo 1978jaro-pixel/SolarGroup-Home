@@ -202,3 +202,22 @@ def test_map_offline_and_bad_content(tmp_path):
 def test_weather_maps_require_login(client):
     assert client.get("/api/weather/radar/frames").status_code == 401
     assert client.get("/api/weather/map/10/565/350.png").status_code == 401
+
+
+def test_map_cache_is_bounded(tmp_path):
+    import os
+    import time
+
+    maps = WeatherMaps(tmp_path)
+    for i in range(12):
+        f = tmp_path / "map-tiles" / "10" / "565" / f"{i}.png"
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_bytes(PNG)
+        os.utime(f, (time.time() - 1000 + i, time.time() - 1000 + i))
+    old = tmp_path / "map-tiles" / "9" / "1" / "1.png"
+    old.parent.mkdir(parents=True)
+    old.write_bytes(PNG)
+    os.utime(old, (1, 1))  # staršia ako 30 dní
+    assert maps.prune_tiles(max_files=10) == 3
+    left = sorted(p.name for p in (tmp_path / "map-tiles").rglob("*.png"))
+    assert len(left) == 10 and "0.png" not in left and "1.png" not in left

@@ -79,8 +79,9 @@ async function layout(browser, w, h, expectFit) {
       return { src: (i.currentSrc || i.src).startsWith("data:") ? "vložený obrázok" : (i.currentSrc || i.src).split("/").pop().replace(/-[\w]{8}\./, "."), ratio: Math.round(ratio * 100) / 100, loaded: i.complete && i.naturalWidth > 0 };
     });
     const flows = document.querySelectorAll(".bcard--pv .pvf").length;
+    const lights = [...document.querySelectorAll(".bcard--pv .pvl i")].filter((i) => getComputedStyle(i).animationName === "pvl-run").length;
     const audio = [...document.querySelectorAll("audio")].map((a) => a.paused);
-    return { sh: document.documentElement.scrollHeight, sw: document.documentElement.scrollWidth, ih: innerHeight, iw: innerWidth, cards, small, imgs, flows, labels: labels.length, labelsInside, audio };
+    return { sh: document.documentElement.scrollHeight, sw: document.documentElement.scrollWidth, ih: innerHeight, iw: innerWidth, cards, small, imgs, flows, labels: labels.length, labelsInside, audio, lights };
   }, MODULES);
   const tag = `${w}×${h}`;
   if (expectFit) {
@@ -93,6 +94,7 @@ async function layout(browser, w, h, expectFit) {
     const upscaled = m.imgs.filter((i) => i.ratio < 0.98 && !i.src.startsWith("sky-"));
     check(`${tag}: obrázky sa nezväčšujú (ostrosť)`, upscaled.length === 0, upscaled.map((i) => `${i.src} ${i.ratio}×`).join(", ") || m.imgs.map((i) => `${i.src} ${i.ratio}×`).join(", "));
     check(`${tag}: animované toky energie na karte Fotovoltika (DEMO)`, m.flows > 0, `aktívnych tokov ${m.flows}`);
+    check(`${tag}: svetlo tokov animované iba cez transform (bez prekresľovania)`, m.lights > 0 && m.lights === m.flows, `svetiel ${m.lights}, tokov ${m.flows}`);
     check(`${tag}: 5 hodnôt fotovoltiky v rámci karty`, m.labels === 5 && m.labelsInside, `popisov ${m.labels}`);
     check(`${tag}: rádio sa po štarte samo nespustí`, m.audio.every((p) => p), `audio paused=${JSON.stringify(m.audio)}`);
   }
