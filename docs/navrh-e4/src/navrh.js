@@ -314,5 +314,5 @@
     </div>`;
   }
 
-  window.WX = { mainPage, dayPage, radarPage };
+  window.WX = { mainPage, dayPage, radarPage, icon };
 })();
