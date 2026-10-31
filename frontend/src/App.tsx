@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { useApp } from "./hooks/AppContext";
@@ -15,7 +16,10 @@ import { SettingsPage } from "./pages/Misc";
 import { RadioPage } from "./pages/Radio";
 import { SolarPage } from "./pages/Solar";
 import { SystemPage } from "./pages/System";
-import { WeatherPage } from "./pages/Weather";
+import { WeatherDayPage, WeatherPage } from "./pages/Weather";
+
+// radar (s knižnicou Leaflet) sa načíta až po otvorení
+const WeatherRadarPage = lazy(() => import("./pages/WeatherRadar").then((m) => ({ default: m.WeatherRadarPage })));
 
 export function App() {
   const { ready, serverReachable, user } = useApp();
@@ -36,6 +40,15 @@ export function App() {
         <Route path="videovratnik" element={<IntercomPage />} />
         <Route path="energia" element={<EnergyPage />} />
         <Route path="pocasie" element={<WeatherPage />} />
+        <Route path="pocasie/den/:date" element={<WeatherDayPage />} />
+        <Route
+          path="pocasie/radar"
+          element={
+            <Suspense fallback={<div className="wxp" />}>
+              <WeatherRadarPage />
+            </Suspense>
+          }
+        />
         <Route path="hudba" element={<RadioPage />} />
         <Route path="kalendar" element={<CalendarPage />} />
         <Route path="system" element={<SystemPage />} />

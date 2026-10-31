@@ -17,8 +17,6 @@ from ..models import (
     EnergySample,
     EnergySnapshot,
     LightCommand,
-    Weather,
-    WeatherDay,
 )
 from .base import (
     AdapterSet,
@@ -27,13 +25,13 @@ from .base import (
     CameraAdapter,
     EnergyAdapter,
     LightAdapter,
-    WeatherAdapter,
     now_utc,
     offline,
     ok,
     unavailable,
 )
 from .buderus import BuderusHeating
+from .openmeteo import OpenMeteoWeather
 from .sinclair import SinclairClimate
 
 log = logging.getLogger(__name__)
@@ -132,64 +130,6 @@ class TapoCameras(CameraAdapter):
         return unavailable("live", "Kamera zatiaľ nie je pripojená")
 
 
-# WMO kódy počasia používa Open-Meteo aj frontend.
-class OpenMeteoWeather(WeatherAdapter):
-    name = "Open-Meteo"
-    URL = "https://api.open-meteo.com/v1/forecast"
-
-    def __init__(self, enabled: bool, lat: float, lon: float):
-        self.enabled = enabled
-        self.lat = lat
-        self.lon = lon
-        self._cache: tuple[datetime, Weather] | None = None
-
-    async def current(self):
-        if not self.enabled:
-            return unavailable("live", "Počasie je vypnuté v nastaveniach")
-        if self._cache and (now_utc() - self._cache[0]).total_seconds() < 600:
-            return ok("live", self._cache[1], self._cache[0])
-        params = {
-            "latitude": self.lat,
-            "longitude": self.lon,
-            "current": "temperature_2m,apparent_temperature,relative_humidity_2m,"
-            "wind_speed_10m,weather_code",
-            "daily": "weather_code,temperature_2m_max,temperature_2m_min",
-            "timezone": "Europe/Bratislava",
-            "forecast_days": 5,
-        }
-        try:
-            async with httpx.AsyncClient(timeout=TIMEOUT) as client:
-                resp = await client.get(self.URL, params=params)
-                resp.raise_for_status()
-                j = resp.json()
-            cur, d = j["current"], j["daily"]
-            weather = Weather(
-                location="Žilina",
-                temp=cur["temperature_2m"],
-                feels_like=cur.get("apparent_temperature"),
-                humidity=cur.get("relative_humidity_2m"),
-                wind_kmh=cur.get("wind_speed_10m"),
-                code=cur["weather_code"],
-                daily=[
-                    WeatherDay(date=t, temp_min=lo, temp_max=hi, code=c)
-                    for t, lo, hi, c in zip(
-                        d["time"],
-                        d["temperature_2m_min"],
-                        d["temperature_2m_max"],
-                        d["weather_code"],
-                        strict=False,
-                    )
-                ],
-            )
-        except (httpx.HTTPError, KeyError, ValueError, ValidationError) as exc:
-            log.info("Počasie nedostupné: %s", exc)
-            if self._cache:
-                return offline("live", "Služba počasia neodpovedá", self._cache[0])
-            return offline("live", "Služba počasia neodpovedá (bez internetu?)")
-        self._cache = (now_utc(), weather)
-        return ok("live", weather, self._cache[0])
-
-
 def build_live(settings) -> AdapterSet:
     return AdapterSet(
         source="live",
@@ -200,6 +140,9 @@ def build_live(settings) -> AdapterSet:
         blinds=UnconfiguredBlinds(),
         cameras=TapoCameras(),
         weather=OpenMeteoWeather(
-            settings.weather_enabled, settings.weather_lat, settings.weather_lon
+            settings.weather_enabled,
+            settings.weather_lat,
+            settings.weather_lon,
+            cache_file=settings.data_path / "weather-cache.json",
         ),
     )

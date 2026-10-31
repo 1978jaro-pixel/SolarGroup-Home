@@ -45,6 +45,9 @@ class Settings(BaseSettings):
     weather_enabled: bool = True
     weather_lat: float = 49.2231
     weather_lon: float = 18.7394
+    # Radar RainViewer: farebná schéma a najväčšie priblíženie bezplatnej úrovne
+    radar_color: int = 2
+    radar_max_zoom: int = 7
 
     # Google Kalendár (OAuth 2.0, iba čítanie). Klient typu „Desktop app“ v Google Cloud Console;
     # prihlásenie sa spúšťa priamo na displeji zariadenia (adresa 127.0.0.1).

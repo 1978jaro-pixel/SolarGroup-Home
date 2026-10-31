@@ -271,6 +271,28 @@ class WeatherDay(BaseModel):
     temp_min: float
     temp_max: float
     code: int
+    sunrise: str | None = None
+    sunset: str | None = None
+    uv_max: float | None = None
+    precip_mm: float | None = None
+    precip_prob: float | None = None
+    wind_max_kmh: float | None = None
+    gust_max_kmh: float | None = None
+    wind_dir: float | None = None
+
+
+class WeatherHour(BaseModel):
+    time: str  # miestny čas Europe/Bratislava, napr. 2026-10-31T14:00
+    temp: float
+    feels_like: float | None = None
+    code: int
+    precip_prob: float | None = None
+    precip_mm: float | None = None
+    wind_kmh: float | None = None
+    wind_dir: float | None = None
+    gust_kmh: float | None = None
+    uv: float | None = None
+    is_day: bool = True
 
 
 class Weather(BaseModel):
@@ -281,6 +303,13 @@ class Weather(BaseModel):
     wind_kmh: float | None
     code: int
     daily: list[WeatherDay]
+    wind_dir: float | None = None
+    gust_kmh: float | None = None
+    visibility_m: float | None = None
+    uv: float | None = None
+    precip_mm: float | None = None
+    is_day: bool = True
+    hourly: list[WeatherHour] = []
 
 
 # --- Systém --------------------------------------------------------------

@@ -7,54 +7,21 @@ import floorImg from "../assets/design/floor.webp";
 import type { CameraInfo, EnergySample, Reading } from "../api/types";
 import { Icon } from "../components/Icon";
 import { PvScene } from "../components/HouseScene";
-import { WeatherArt, WeatherHero } from "../components/WeatherArt";
-import { Card, EmptyState, ReadingView, StatusBadge } from "../components/ui";
+import { Card, EmptyState, StatusBadge } from "../components/ui";
 import { useApp } from "../hooks/AppContext";
 import { useResource } from "../hooks/useResource";
-import { formatKwh, plural, weatherInfo, weekdayName } from "../utils/format";
+import { formatKwh, plural } from "../utils/format";
 import { useBlindGroup, useBlinds } from "./Blinds";
 import { ClimateCard, ClimateModal, useClimate } from "./Climate";
 import { HeatingCard, HeatingModal, useHeating } from "./Heating";
 import { useLights } from "./Lights";
 import { CalendarCard } from "./Calendar";
 import { RadioCard } from "./Radio";
-import { useWeather } from "./Weather";
+import { WeatherCard } from "./Weather";
 import { HomeBoard } from "./HomeBoard";
 import { useLayoutMode } from "../hooks/useLayoutMode";
 
 const badge = (r: Parameters<typeof StatusBadge>[0]["reading"]) => <StatusBadge reading={r} compact hideDemo />;
-
-function WeatherCard() {
-  const r = useWeather();
-  return (
-    <Card title="Žilina" icon="pin" to="/pocasie" expand className="card--weather" badge={badge(r.data)}>
-      <ReadingView reading={r.data} error={r.error} loading={r.loading}>
-        {(w) => (
-          <>
-            <div className="weather-main">
-              <div>
-                <span className="weather-main__temp">{Math.round(w.temp)}°</span>
-                <span className="weather-main__label">{weatherInfo(w.code).label}</span>
-              </div>
-              <WeatherHero code={w.code} />
-            </div>
-            <ul className="forecast">
-              {w.daily.slice(0, 4).map((d) => (
-                <li key={d.date}>
-                  <span className="forecast__day">{weekdayName(d.date)}</span>
-                  <span>
-                    {Math.round(d.temp_max)}° / {Math.round(d.temp_min)}°
-                  </span>
-                  <WeatherArt code={d.code} size={44} />
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
-      </ReadingView>
-    </Card>
-  );
-}
 
 function SolarCard() {
   const { energy } = useApp();

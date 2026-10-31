@@ -17,8 +17,9 @@ from .config import Settings, get_settings
 from .db import Database
 from .events import EventBus
 from .radio import RadioService
-from .routers import auth, calendar, devices, radio, system, thermostats
+from .routers import auth, calendar, devices, radio, system, thermostats, weather_maps
 from .secrets_store import SecretStore
+from .weather_maps import WeatherMaps
 
 log = logging.getLogger("solargroup_home")
 
@@ -68,6 +69,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.adapters = build_adapters(settings, db)
     app.state.bus = EventBus()
     app.state.radio = RadioService(settings.data_path)
+    app.state.maps = WeatherMaps(
+        settings.data_path, radar_color=settings.radar_color, radar_max_zoom=settings.radar_max_zoom
+    )
     app.state.secrets = SecretStore(settings.data_path)
     app.state.calendar = CalendarService(db, settings, app.state.secrets)
 
@@ -83,6 +87,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(devices.router)
     app.include_router(thermostats.router)
     app.include_router(radio.router)
+    app.include_router(weather_maps.router)
     app.include_router(calendar.router)
 
     @app.api_route("/api/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])

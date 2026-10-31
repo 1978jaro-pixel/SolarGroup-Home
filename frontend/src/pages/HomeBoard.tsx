@@ -1,18 +1,15 @@
 import type { ReactNode } from "react";
 import backdropImg from "../assets/design/backdrop.webp";
-import weatherImg from "../assets/design/weather-zilina.webp";
 import { Link } from "react-router-dom";
 import { PvScene } from "../components/HouseScene";
-import { WeatherArt } from "../components/WeatherArt";
 import { Card, ReadingView, StatusBadge, Toggle } from "../components/ui";
 import { useApp } from "../hooks/AppContext";
-import { weatherInfo, weekdayName } from "../utils/format";
 import { ClimateThermostat, type ClimateCtl } from "./Climate";
 import { HeatingDayNight, HeatingThermostat, type HeatingCtl } from "./Heating";
 import { CalendarCard } from "./Calendar";
 import { BlindsCard, CamerasCard, ConsumptionCard, IntercomCard, LightsCard } from "./Home";
 import { RadioCard } from "./Radio";
-import { useWeather } from "./Weather";
+import { WeatherCard } from "./Weather";
 
 /**
  * Hlavná obrazovka podľa schváleného návrhu „Môj domov“ – pevné, deterministické rozloženie:
@@ -33,42 +30,6 @@ const badge = (r: Parameters<typeof StatusBadge>[0]["reading"]) => <StatusBadge 
 
 function Cell({ area, children }: { area: string; children: ReactNode }) {
   return <div className={`board__cell board__cell--${area}`}>{children}</div>;
-}
-
-function weatherTone(code: number): string {
-  const icon = weatherInfo(code).icon;
-  return icon === "sun" || icon === "partly" ? "clear" : icon === "rain" || icon === "storm" ? "rain" : icon === "snow" ? "snow" : "cloud";
-}
-
-function WeatherBoard() {
-  const r = useWeather();
-  const w = r.data?.data;
-  return (
-    <Card title="Žilina" icon="pin" to="/pocasie" expand className={`bcard bcard--weather ${w ? `is-${weatherTone(w.code)}` : ""}`} badge={badge(r.data)}>
-      <img className="bcard__bg" src={weatherImg} alt="" draggable={false} />
-      <ReadingView reading={r.data} error={r.error} loading={r.loading}>
-        {(w) => (
-          <>
-            <div className="bw-now">
-              <span className="bw-now__temp">{Math.round(w.temp)}°</span>
-              <span className="bw-now__label">{weatherInfo(w.code).label}</span>
-            </div>
-            <ul className="bw-forecast">
-              {w.daily.slice(0, 4).map((d) => (
-                <li key={d.date}>
-                  <span>{weekdayName(d.date)}</span>
-                  <span>
-                    {Math.round(d.temp_max)}° / {Math.round(d.temp_min)}°
-                  </span>
-                  <WeatherArt code={d.code} size={40} />
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
-      </ReadingView>
-    </Card>
-  );
 }
 
 /** Karta Fotovoltika: schválený dom s hodnotami, bez nadpisu; celá karta otvorí detail. */
@@ -128,7 +89,7 @@ export function HomeBoard({ climate, heating, openClimate, openHeating }: { clim
   return (
     <div className="board" style={{ "--board-bg": `url(${backdropImg})` } as React.CSSProperties}>
       <Cell area="weather">
-        <WeatherBoard />
+        <WeatherCard />
       </Cell>
       <Cell area="pv">
         <SolarBoard />

@@ -20,8 +20,8 @@ const BASE = process.env.SGH_URL ?? "http://127.0.0.1:8080";
 const USER = process.env.SGH_USER ?? "jaro";
 const PASS = process.env.SGH_PASS ?? "velmi-tajne-heslo";
 const SOAK_MIN = Number(process.env.SOAK_MIN ?? 0);
-// Karta Fotovoltika nemá nadpis (iba scéna s domom) – overuje sa cez .bcard--pv.
-const MODULES = ["Žilina", "Klíma", "Kúrenie", "Rolety", "Svetlá", "Kamery", "Vrátnik", "Rádio a hudba", "Kalendár", "Spotreba"];
+// Karty Fotovoltika a Počasie nemajú nadpis – overujú sa cez .bcard--pv a .bcard--weather.
+const MODULES = ["Klíma", "Kúrenie", "Rolety", "Svetlá", "Kamery", "Vrátnik", "Rádio a hudba", "Kalendár", "Spotreba"];
 
 const results = [];
 const check = (name, ok, detail = "") => {
@@ -54,6 +54,11 @@ async function layout(browser, w, h, expectFit) {
       const r = el.closest(".card").getBoundingClientRect();
       return { t, found: true, inside: r.top >= 0 && r.left >= 0 && r.right <= innerWidth + 0.5 && r.bottom <= nav.top + 0.5 };
     });
+    for (const [t, sel] of [["Počasie", ".bcard--weather"]]) {
+      const el = document.querySelector(sel);
+      const r = el?.getBoundingClientRect();
+      cards.push(r ? { t, found: true, inside: r.top >= 0 && r.left >= 0 && r.right <= innerWidth + 0.5 && r.bottom <= nav.top + 0.5 } : { t, found: false });
+    }
     const pvEl = document.querySelector(".bcard--pv");
     if (pvEl) {
       const r = pvEl.getBoundingClientRect();
@@ -81,13 +86,12 @@ async function layout(browser, w, h, expectFit) {
   if (expectFit) {
     check(`${tag}: bez vertikálneho posúvania`, m.sh <= m.ih, `výška obsahu ${m.sh} / ${m.ih}`);
     const missing = m.cards.filter((c) => !c.found || !c.inside).map((c) => c.t);
-    check(`${tag}: všetkých ${MODULES.length + 1} modulov viditeľných nad spodnou lištou`, missing.length === 0, missing.join(", "));
+    check(`${tag}: všetkých ${MODULES.length + 2} modulov viditeľných nad spodnou lištou`, missing.length === 0, missing.join(", "));
     const notLoaded = m.imgs.filter((i) => !i.loaded).map((i) => i.src);
     check(`${tag}: všetky obrázky načítané`, notLoaded.length === 0, notLoaded.join(", "));
-    const upscaled = m.imgs.filter((i) => i.ratio < 0.98 && !i.src.startsWith("weather-zilina"));
+    // obloha na karte Počasie je zámerne mäkký obrázok (oblaky) – ostrosť sa na ňom nekontroluje
+    const upscaled = m.imgs.filter((i) => i.ratio < 0.98 && !i.src.startsWith("sky-"));
     check(`${tag}: obrázky sa nezväčšujú (ostrosť)`, upscaled.length === 0, upscaled.map((i) => `${i.src} ${i.ratio}×`).join(", ") || m.imgs.map((i) => `${i.src} ${i.ratio}×`).join(", "));
-    const weather = m.imgs.find((i) => i.src.startsWith("weather-zilina"));
-    if (weather) console.log(`INFO ${tag}: dočasná fotografia počasia ${weather.ratio}× (pod 1 = zväčšená, čaká na podklad G4)`);
     check(`${tag}: animované toky energie na karte Fotovoltika (DEMO)`, m.flows > 0, `aktívnych tokov ${m.flows}`);
     check(`${tag}: 5 hodnôt fotovoltiky v rámci karty`, m.labels === 5 && m.labelsInside, `popisov ${m.labels}`);
     check(`${tag}: rádio sa po štarte samo nespustí`, m.audio.every((p) => p), `audio paused=${JSON.stringify(m.audio)}`);
@@ -122,6 +126,45 @@ async function layout(browser, w, h, expectFit) {
       check(`${tag}: ${name} bez vodorovného posúvania`, sw);
       await page.screenshot({ path: `e2e/out/${file}-${w}x${h}.png` });
     }
+
+    // Počasie E4: karta → hlavná stránka → deň → späť → radar → späť
+    await page.goto(`${BASE}/`);
+    await page.locator(".bcard--weather").waitFor({ timeout: 5000 });
+    await page.locator(".bcard--weather").tap();
+    await page.waitForURL("**/pocasie", { timeout: 3000 });
+    await page.getByRole("heading", { name: "Počasie", level: 1 }).waitFor({ timeout: 5000 });
+    await page.waitForTimeout(500);
+    const wm = await page.evaluate(() => ({
+      sh: document.documentElement.scrollHeight,
+      sw: document.documentElement.scrollWidth,
+      days: document.querySelectorAll(".wx-day").length,
+      tiles: document.querySelectorAll(".wx-tile").length,
+      chart: !!document.querySelector(".wx-hourly svg"),
+      leaflet: !!document.querySelector(".leaflet-container"),
+    }));
+    check(`${tag}: ťuknutie na kartu Počasie otvorí stránku počasia`, true);
+    check(`${tag}: Počasie – 7 dní, 6 dlaždíc, hodinový graf`, wm.days === 7 && wm.tiles === 6 && wm.chart, JSON.stringify(wm));
+    check(`${tag}: Počasie bez posúvania`, wm.sh <= h && wm.sw <= w, `${wm.sw}×${wm.sh}`);
+    check(`${tag}: Počasie – radar sa nenačíta, kým sa neotvorí`, !wm.leaflet);
+    await page.screenshot({ path: `e2e/out/pocasie-${w}x${h}.png` });
+    await page.locator(".wx-day").nth(1).tap();
+    await page.waitForURL("**/pocasie/den/**", { timeout: 3000 });
+    await page.locator(".wx-col").first().waitFor({ timeout: 3000 });
+    const cols = await page.locator(".wx-col").count();
+    const dsh = await page.evaluate(() => document.documentElement.scrollHeight);
+    check(`${tag}: detail dňa – 24 hodín, bez posúvania stránky`, cols === 24 && dsh <= h, `stĺpcov ${cols}, výška ${dsh}`);
+    await page.screenshot({ path: `e2e/out/pocasie-den-${w}x${h}.png` });
+    await page.getByRole("link", { name: "Späť: Počasie" }).tap();
+    await page.waitForURL("**/pocasie", { timeout: 3000 });
+    await page.locator(".wx-radar").tap();
+    await page.waitForURL("**/pocasie/radar", { timeout: 3000 });
+    await page.locator(".leaflet-container").waitFor({ timeout: 5000 });
+    check(`${tag}: radar – mapa sa otvorí po ťuknutí`, true);
+    await page.screenshot({ path: `e2e/out/pocasie-radar-${w}x${h}.png` });
+    await page.getByRole("link", { name: "Späť: Počasie" }).tap();
+    await page.waitForURL("**/pocasie", { timeout: 3000 });
+    await page.waitForTimeout(300);
+    check(`${tag}: radar – po odchode sa mapa uvoľní`, (await page.locator(".leaflet-container").count()) === 0);
   }
   await ctx.close();
 }

@@ -64,7 +64,7 @@ Obsah ostatných kariet sa nemenil.
 - `frontend/src/styles/tokens.css` – farby, zaoblenia, písmo
 - `frontend/src/styles/global.css` – rozloženie a komponenty (sekcia „Môj domov“)
 - `frontend/src/pages/Home.tsx` – karty hlavnej obrazovky
-- `frontend/src/components/SolarScene.tsx`, `ThermostatDial.tsx`, `WeatherArt.tsx`, `Layout.tsx`
+- `frontend/src/components/SolarScene.tsx`, `ThermostatDial.tsx`, `WxIcon.tsx`, `Layout.tsx`
 
 ## Jedno pevné rozloženie pre všetky displeje na šírku (0.3.0)
 

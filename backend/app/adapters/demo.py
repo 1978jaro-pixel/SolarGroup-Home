@@ -27,6 +27,7 @@ from ..models import (
     LightState,
     Weather,
     WeatherDay,
+    WeatherHour,
     WeeklyProgram,
 )
 from ..timeutil import now_in
@@ -392,32 +393,91 @@ class DemoCameras(CameraAdapter):
         )
 
 
+def _hm(day: date, hours: float) -> str:
+    m = round(hours * 60)
+    return f"{day.isoformat()}T{m // 60:02d}:{m % 60:02d}"
+
+
 class DemoWeather(WeatherAdapter):
+    """Simulované počasie (DEMO) – súvislé hodinové údaje na 7 dní, deterministické podľa dňa."""
+
+    CODES = [2, 61, 3, 80, 1, 0, 2]
+
     async def current(self):
-        today = local_now().date()
+        now = local_now()
+        today = now.date()
         rng = random.Random(today.toordinal())  # noqa: S311
-        codes = [0, 1, 2, 3, 61, 2, 1]
-        daily = []
-        for i in range(5):
-            tmax = round(rng.uniform(12, 19), 0)
+        daily: list[WeatherDay] = []
+        hourly: list[WeatherHour] = []
+        doy = today.timetuple().tm_yday
+        # dĺžka dňa v Žiline ~8 h (december) až ~16,3 h (jún); poludnie ~11:45 SEČ
+        half = (12.25 + 4.0 * math.cos(2 * math.pi * (doy - 172) / 365)) / 2
+        noon = 11.55 + (1 if now.utcoffset() and now.utcoffset().total_seconds() > 3600 else 0)
+        for i in range(7):
+            day = today + timedelta(days=i)
+            code = self.CODES[(today.toordinal() + i) % len(self.CODES)]
+            tmax = round(rng.uniform(8, 16))
+            tmin = tmax - round(rng.uniform(5, 9))
+            wet = code >= 51
+            probs, mms = [], []
+            for hr in range(24):
+                x = math.cos(2 * math.pi * (hr - 15) / 24)
+                t = round(tmin + (tmax - tmin) * (x + 1) / 2, 1)
+                p = max(0, min(100, round((70 if wet else 10) + 25 * math.sin((hr + i) / 3))))
+                mm = round(max(0.0, (p - 45) / 40), 1) if wet else 0.0
+                probs.append(p)
+                mms.append(mm)
+                hourly.append(
+                    WeatherHour(
+                        time=f"{day.isoformat()}T{hr:02d}:00",
+                        temp=t,
+                        feels_like=round(t - 2, 1),
+                        code=code if 7 <= hr <= 19 or code >= 51 else 0,
+                        precip_prob=p,
+                        precip_mm=mm,
+                        wind_kmh=round(10 + 8 * (x + 1) + i),
+                        wind_dir=(240 + 15 * i + hr) % 360,
+                        gust_kmh=round(22 + 14 * (x + 1) + i),
+                        uv=round(max(0.0, 2.5 * x), 1) if 8 <= hr <= 16 else 0.0,
+                        is_day=noon - half <= hr <= noon + half,
+                    )
+                )
             daily.append(
                 WeatherDay(
-                    date=(today + timedelta(days=i)).isoformat(),
-                    temp_min=tmax - round(rng.uniform(6, 10), 0),
+                    date=day.isoformat(),
+                    temp_min=tmin,
                     temp_max=tmax,
-                    code=codes[(today.toordinal() + i) % len(codes)],
+                    code=code,
+                    sunrise=_hm(day, noon - half),
+                    sunset=_hm(day, noon + half),
+                    uv_max=2.5,
+                    precip_mm=round(sum(mms), 1),
+                    precip_prob=max(probs),
+                    wind_max_kmh=26 + i,
+                    gust_max_kmh=50 + i,
+                    wind_dir=(240 + 15 * i) % 360,
                 )
             )
+        cur = next(
+            (h for h in hourly if h.time == f"{today.isoformat()}T{now.hour:02d}:00"), hourly[0]
+        )
         return ok(
             "demo",
             Weather(
                 location="Žilina",
-                temp=14.2,
-                feels_like=12.9,
+                temp=cur.temp,
+                feels_like=cur.feels_like,
                 humidity=68,
-                wind_kmh=9,
-                code=daily[0].code,
+                wind_kmh=cur.wind_kmh,
+                wind_dir=cur.wind_dir,
+                gust_kmh=cur.gust_kmh,
+                visibility_m=18000,
+                uv=cur.uv,
+                precip_mm=cur.precip_mm,
+                is_day=cur.is_day,
+                code=cur.code,
                 daily=daily,
+                hourly=hourly,
             ),
         )
 

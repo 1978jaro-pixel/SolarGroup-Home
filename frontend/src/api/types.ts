@@ -168,6 +168,29 @@ export interface WeatherDay {
   temp_min: number;
   temp_max: number;
   code: number;
+  sunrise?: string | null;
+  sunset?: string | null;
+  uv_max?: number | null;
+  precip_mm?: number | null;
+  precip_prob?: number | null;
+  wind_max_kmh?: number | null;
+  gust_max_kmh?: number | null;
+  wind_dir?: number | null;
+}
+
+export interface WeatherHour {
+  /** miestny čas Europe/Bratislava, napr. 2026-10-31T14:00 */
+  time: string;
+  temp: number;
+  feels_like?: number | null;
+  code: number;
+  precip_prob?: number | null;
+  precip_mm?: number | null;
+  wind_kmh?: number | null;
+  wind_dir?: number | null;
+  gust_kmh?: number | null;
+  uv?: number | null;
+  is_day?: boolean;
 }
 
 export interface Weather {
@@ -178,6 +201,20 @@ export interface Weather {
   wind_kmh: number | null;
   code: number;
   daily: WeatherDay[];
+  wind_dir?: number | null;
+  gust_kmh?: number | null;
+  visibility_m?: number | null;
+  uv?: number | null;
+  precip_mm?: number | null;
+  is_day?: boolean;
+  hourly?: WeatherHour[];
+}
+
+export interface RadarFrames {
+  frames: { time: number; kind: "past" | "nowcast" }[];
+  max_zoom: number;
+  color: number;
+  attribution: string;
 }
 
 export interface Integration {
