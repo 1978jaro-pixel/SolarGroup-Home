@@ -69,7 +69,7 @@ def main() -> None:
     dim = clean * (1 - k) + blue * k
 
     # 3) vedenia a kábel auta bez svetla (zelená → neutrálna sivá podľa jasu), mimo panelov a LED
-    cond = np.clip((G - R - 25) / 55, 0, 1) * np.clip((G / np.maximum(B, 1) - 0.8) / 0.25, 0, 1) * (~pan)
+    cond = np.clip((G - R - 10) / 40, 0, 1) * np.clip((G / np.maximum(B, 1) - 0.8) / 0.25, 0, 1) * (~pan)
     yy, xx = np.mgrid[0:h, 0:w]
     (lx, ly), lr = LED
     cond[(xx - lx) ** 2 + (yy - ly) ** 2 < lr**2] = 0
