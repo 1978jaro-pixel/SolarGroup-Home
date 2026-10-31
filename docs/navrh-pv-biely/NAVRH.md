@@ -35,3 +35,17 @@ Postup grafiky: `porsche_white.py` (auto) → `house_white.py` (vrstvy) v `tools
 - Nový nabíjací kábel z wallboxu k portu na pravom prednom blatníku (vedie za kapotou); zelený tok nabíjania
   beží po jeho viditeľnej časti.
 - Auto neprekrýva batériu, menič ani hodnoty; dom, biele pozadie a ostatné toky nezmenené.
+
+## Úprava: Porsche z novej fotky (na schválenie)
+
+| Náhľad | |
+|---|---|
+| Otvorený modul Fotovoltika 1024 × 600 | ![](7-fotovoltika-detail-porsche-foto-1024x600.png) |
+| Garáž – detail (2× zväčšené) | ![](8-garaz-porsche-foto-2x.png) |
+| Hlavná obrazovka 1024 × 600 | ![](9-domov-porsche-foto-1024x600.png) |
+
+- Auto z fotky bieleho Porsche Taycan dodanej 31. 10. 2026 (predchádzajúce bolo pri prefarbení a zrkadlení zdeformované).
+  Fotka je už biela a natočená predkom vpravo – bez prefarbenia, zrkadlenia aj dokresľovania kolies.
+- Vysunutá poloha, kábel a zelený tok nabíjania ako v predchádzajúcej úprave; kontaktné tiene pod všetkými kolesami.
+- Výrez: `tools/design/e5/taycan2_cut.py`, vloženie: `tools/design/e5/porsche2_white.py`.
+- Fotka je použitá pre súkromný domáci projekt; pri komerčnom použití treba overiť práva k fotke.
