@@ -5,15 +5,17 @@ import { CalendarCard, CalendarPage, eventsOn } from "../pages/Calendar";
 import { easterSunday, holidayOn, holidaysOf, ymd } from "../utils/holidays";
 
 const today = new Date();
-const T = ymd(today);
+// udalosť vždy v budúcnosti (o 2 h) – test nesmie závisieť od dennej hodiny, keď beží
+const SOON = new Date(Date.now() + 2 * 3600_000).toISOString();
+const SOON_END = new Date(Date.now() + 3 * 3600_000).toISOString();
 const EV = (p: Partial<CalendarEvent>): CalendarEvent => ({
   source_id: "s1",
   cal_id: "c1",
   uid: "u1",
   title: "Servis auta",
   location: "",
-  start: `${T}T23:58:00+01:00`,
-  end: `${T}T23:59:00+01:00`,
+  start: SOON,
+  end: SOON_END,
   all_day: false,
   color: "#1f7bff",
   calendar: "Jaro",
