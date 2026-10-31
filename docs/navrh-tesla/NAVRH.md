@@ -19,3 +19,5 @@ Záväzná predloha: obrázok pôvodného domu s bielou Teslou (zhodný so zdroj
   batérie 83 %, dom 5,3 kW, dodávka do siete 2,9 kW, nabíjačka 6 kW).
 
 Grafika: `tools/design/e5/house_white.py <predloha> <výstup> --teal`. Pripravená zmena: `implementacia.patch`.
+
+**Schválené** a zapracované vo verzii **0.5.3** – postup: `docs/NASADENIE_0.5.3.md`.

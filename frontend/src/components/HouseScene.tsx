@@ -6,7 +6,7 @@ import type { EnergySnapshot, Reading } from "../api/types";
 import { formatTime } from "../utils/format";
 
 /**
- * Schválený solárny dom (biely dom, panely, striedač, batéria, garáž s bielym Porsche Taycan a wallboxom).
+ * Schválený solárny dom (biely dom, panely, striedač, batéria, garáž s bielou Teslou a wallboxom).
  *
  * Vrstvy:
  *  1. statický obrázok bez čísel – panely a vedenia v nesvietiacom stave,
@@ -57,14 +57,14 @@ export function flows(d: EnergySnapshot | null): Flow[] {
     // sieť → striedač (kladné = odber, záporné = dodávka)
     { id: "grid", d: "M717.8 707.1 L717.8 610.5", a: [717.8, 707.1], b: [717.8, 610.5], kw: d ? d.grid_kw : null },
     // wallbox → auto (nabíjací kábel)
-    { id: "ev", d: "M1273.2 589.3 Q1287.6 605 1311.8 622.3", a: [1273.2, 589.3], b: [1311.8, 622.3], kw: d ? d.ev_kw : null },
+    { id: "ev", d: "M1273.2 587.3 C1275.1 642.4 1233.6 690.7 1163.1 691.7", a: [1273.2, 587.3], b: [1163.1, 691.7], kw: d ? d.ev_kw : null },
   ];
 }
 
 /** Jas svietiacich panelov 0–1 podľa výkonu FV (bez výroby panely nesvietia). */
 export function panelGlow(pvKw: number | null | undefined): number {
   if (pvKw == null || pvKw < IDLE_KW) return 0;
-  return Math.min(1, 0.35 + pvKw / 10);
+  return Math.min(1, 0.6 + pvKw / 10); // pri výrobe jasne viditeľná žiara (predloha 0.5.3)
 }
 
 const nf1 = new Intl.NumberFormat("sk-SK", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
