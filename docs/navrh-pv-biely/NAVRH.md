@@ -21,3 +21,17 @@ Stav: **iba návrh**. Funkčná verzia 0.5.1 sa nemení, na Raspberry Pi sa nič
 
 Postup grafiky: `porsche_white.py` (auto) → `house_white.py` (vrstvy) v `tools/design/e5/`. Pripravená zmena aplikácie: `implementacia.patch`
 (použije sa až po schválení).
+
+## Úprava: Porsche vysunuté z garáže (na schválenie)
+
+| Náhľad | |
+|---|---|
+| Otvorený modul Fotovoltika 1024 × 600 | ![](4-fotovoltika-detail-porsche-vysunute-1024x600.png) |
+| Garáž – detail (2× zväčšené) | ![](5-garaz-porsche-vysunute-2x.png) |
+| Hlavná obrazovka 1024 × 600 | ![](6-domov-porsche-vysunute-1024x600.png) |
+
+- Auto posunuté o ~22 % dĺžky von z garáže pozdĺž jeho osi (bližšie k divákovi → o 5 % väčšie), zadok ostáva v garáži.
+- Obe predné kolesá s pneumatikami; kontaktný tieň na bielej podlahe.
+- Nový nabíjací kábel z wallboxu k portu na pravom prednom blatníku (vedie za kapotou); zelený tok nabíjania
+  beží po jeho viditeľnej časti.
+- Auto neprekrýva batériu, menič ani hodnoty; dom, biele pozadie a ostatné toky nezmenené.

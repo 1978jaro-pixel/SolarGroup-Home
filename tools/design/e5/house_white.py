@@ -108,6 +108,10 @@ def main() -> None:
         "grid": [f(586, 812), f(586, 712)],
         "ev": [f(1161, 688), f(1163, 745), f(1120, 795), f(1047, 796)],
     }
+    # vysunuté Porsche: nový kábel – tok iba po jeho viditeľnej časti (porsche_white.py → *-kabel.json)
+    if len(sys.argv) > 3:
+        vis = json.loads(Path(sys.argv[3]).read_text())["visible"]
+        flows["ev"] = [f(*vis[0]), f(*vis[1]), f(*vis[1]), f(*vis[2])]
     meta = {
         "frame": [FRAME_W, FRAME_H],
         "glow": {"x": box[0], "y": box[1], "w": box[2] - box[0], "h": box[3] - box[1]},
