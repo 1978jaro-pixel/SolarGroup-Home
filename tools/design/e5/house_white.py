@@ -28,6 +28,11 @@ BOTTOM_LINES = [237, 632, 1093]
 LINE_END = 930
 
 
+TEAL_PANELS = "--teal" in sys.argv
+if TEAL_PANELS:
+    sys.argv.remove("--teal")
+
+
 def frame_xy(x: float, y: float) -> tuple[float, float]:
     ox = (FRAME_W - SRC_W * S) / 2
     return round(x * S + ox, 1), round((y - OY) * S, 1)
@@ -66,7 +71,13 @@ def main() -> None:
     lum0 = 0.3 * R + 0.59 * G + 0.11 * B
     blue = np.stack([lum0 * 0.22, lum0 * 0.48, lum0 * 0.9], -1) * 0.8
     k = np.clip(glow_m * 1.3, 0, 1)[..., None]
-    dim = clean * (1 - k) + blue * k
+    if TEAL_PANELS:
+        # predloha 0.5.3: panely ostávajú tyrkysovozelené aj bez výroby, iba tlmenejšie (žiara ich rozjasní)
+        lum3 = lum0[..., None]
+        muted = clean * 0.62 + lum3 * np.array([0.0, 0.08, 0.06]) * 0.4
+        dim = clean * (1 - k) + muted * k
+    else:
+        dim = clean * (1 - k) + blue * k
 
     # 3) vedenia a kábel auta bez svetla (zelená → neutrálna sivá podľa jasu), mimo panelov a LED
     cond = np.clip((G - R - 10) / 40, 0, 1) * np.clip((G / np.maximum(B, 1) - 0.8) / 0.25, 0, 1) * (~pan)
